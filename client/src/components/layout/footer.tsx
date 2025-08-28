@@ -21,10 +21,10 @@ export default function Footer({ isNuPick }: { isNuPick: boolean }) {
   return (
     <>
       <div
-        className={`w-full h-18 flex items-center ${
+        className={`fixed bottom-0 w-full h-18 flex items-center rounded-t-2xl  ${
           isNuPick
-            ? "bg-[#121212] border border-[#181818]"
-            : "bg-[#ffffff] border border-[#ebebeb]"
+            ? "bg-[#121212] shadow-[inset_0_0_0_1px_#181818]"
+            : "bg-[#ffffff] shadow-[inset_0_0_0_1px_#ebebeb]"
         }`}
       >
         {channel.map((item, index) => (

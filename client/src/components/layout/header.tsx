@@ -1,33 +1,48 @@
 "use client";
-import Image from "next/image";
+import Image, { StaticImageData } from "next/image";
 import Logo from "../../assets/images/NUNEW.png";
 import LogoBlack from "../../assets/images/NUNEWblack.png";
 import LogoDark from "../../assets/images/NUNEWDark.png";
-import Culture from "../../assets/images/culture.png";
-import Economy from "../../assets/images/economy.png";
-import Entertainment from "../../assets/images/entertainment.png";
-import Etc from "../../assets/images/etc.png";
-import Fire from "../../assets/images/fire.png";
-import Politics from "../../assets/images/politics.png";
-import Society from "../../assets/images/society.png";
-import Sports from "../../assets/images/sports.png";
 
-import { useState } from "react";
+import Politics from "../../assets/images/politics.png";
+import Sports from "../../assets/images/sports.png";
+import Entertainment from "../../assets/images/entertainment.png";
+import Culture from "../../assets/images/culture.png";
+import Global from "../../assets/images/global.png";
+import Society from "../../assets/images/society.png";
+import Economy from "../../assets/images/economy.png";
+import Etc from "../../assets/images/etc.png";
+
 import { IoMoonOutline, IoSunnyOutline } from "react-icons/io5";
 import { BiChevronLeft } from "react-icons/bi";
+import { useRouter } from "next/navigation";
 export default function Header({
   logo,
   nuPick,
+  interest,
   dark,
 }: {
   logo: boolean;
   nuPick: boolean;
+  interest: string[];
   dark: boolean;
 }) {
-  const [isEdit, setIsEdit] = useState(false);
+  console.log(interest);
+  const categoryMap: Record<string, StaticImageData> = {
+    정치: Politics,
+    스포츠: Sports,
+    연예: Entertainment,
+    문화: Culture,
+    해외: Global,
+    사회: Society,
+    경제: Economy,
+    "그 외": Etc,
+  };
+
+  const router = useRouter();
   return (
     <>
-      <div className="fixed z-20 min-h-15.5 w-full px-5 border border-white">
+      <div className="fixed z-20 min-h-15.5 w-full px-5 ">
         <div className="flex items-center h-15.5 justify-between ">
           {/* 로고유무 */}
           {logo ? (
@@ -38,48 +53,58 @@ export default function Header({
               height={25}
             />
           ) : (
-            <div className="flex items-center justify-center w-9 h-9 rounded-full hover:bg-[#ffffff]/15 cursor-pointer">
+            <button
+              onClick={() => router.back()}
+              className="flex items-center justify-center w-9 h-9 rounded-full hover:bg-[#f7f7f7] transition-all duration-200 ease-in-out cursor-pointer"
+            >
               <BiChevronLeft className="w-6 h-6" />
-            </div>
+            </button>
           )}
 
-          {/* 관심사 수정 or 다크모드 */}
+          {/* 관심사 수정 or 모드전환 */}
           {nuPick ? (
-            <button className="flex items-center justify-center w-22 h-8 rounded-[50px] bg-[#ffffff]/10 hover:bg-[#ffffff]/15 text-white text-[14px] cursor-pointer">
-              {isEdit ? "관심사 수정" : "관심사 추가"}
+            <button className="flex items-center justify-center w-22 h-8 rounded-[50px] bg-[#ffffff]/10 hover:bg-[#ffffff]/15 backdrop-blur-lg text-[#ffffff] text-[14px] transition-all duration-200 ease-in-out cursor-pointer">
+              {!!interest ? "관심사 수정" : "관심사 추가"}
             </button>
           ) : (
             <button
-              className="flex items-center justify-center w-9 h-9 rounded-full hover:bg-[#ffffff]/15 text-white text-[14px] cursor-pointer"
-              style={{ backgroundColor: "var(--color-gray-10)" }}
+              className={`flex items-center justify-center w-9 h-9 rounded-full text-[14px] transition-all duration-200 ease-in-out cursor-pointer ${
+                dark
+                  ? "bg-[#2f2f2f] hover:bg-[#454545] "
+                  : "bg-[#f7f7f7] hover:bg-[#efefef]"
+              }`}
             >
               {dark && (
-                <IoSunnyOutline className="text-gray-900 w-5 h-5 flex items-center justify-center" />
+                <IoMoonOutline className="text-[#ffffff] w-5 h-5 flex items-center justify-center" />
               )}
               {!dark && (
-                <IoMoonOutline className="text-gray-900 w-5 h-5 flex items-center justify-center" />
+                <IoSunnyOutline className="text-[#2f2f2f] w-5 h-5 flex items-center justify-center" />
               )}
             </button>
           )}
         </div>
         {nuPick &&
-          (!isEdit ? (
-            <div className="bubble w-full ">
+          (!interest || interest.length === 0 ? (
+            <div className="bubble w-full">
               <p className="flex justify-center items-center text-[14px] text-[#ffffff]">
-                관심사를 선택하고 관심있는 뉴스만보세요!
+                관심사를 선택하고 관심있는 뉴스만 보세요!
               </p>
             </div>
           ) : (
             <div className="flex w-full h-9 gap-2">
-              <div className="flex items-center justify-center w-9 h-9 bg-[#ffffff]/10 rounded-full">
-                <Image src={Sports} alt="sports" width={24} height={24} />
-              </div>
-              <div className="flex items-center justify-center w-9 h-9 bg-[#ffffff]/10 rounded-full">
-                <Image src={Politics} alt="politics" width={24} height={24} />
-              </div>
-              <div className="flex items-center justify-center w-9 h-9 bg-[#ffffff]/10 rounded-full">
-                <Image src={Fire} alt="fire" width={24} height={24} />
-              </div>
+              {interest.map((category, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-center w-9 h-9 bg-[#ffffff]/10 hover:bg-[#ffffff]/15 backdrop-blur-lg rounded-full transition-all duration-200 ease-in-out cursor-pointer"
+                >
+                  <Image
+                    src={categoryMap[category]}
+                    alt="sports"
+                    width={24}
+                    height={24}
+                  />
+                </div>
+              ))}
             </div>
           ))}
       </div>

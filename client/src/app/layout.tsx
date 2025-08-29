@@ -24,15 +24,15 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body className={`${pretendard.variable} w-full`}>
-        <Header
+        {/* <Header
           logo={true}
           nuPick={true}
           interest={["경제", "사회", "문화"]}
           dark={false}
         />
-        {/* bg부분 임시로 넣어둔것입니다 지워주세용 */}
         <div className="pt-[98px] bg-black/70">{children}</div>
-        <Footer isNuPick={true} />
+        <Footer isNuPick={true} /> */}
+        {children}
       </body>
     </html>
   );

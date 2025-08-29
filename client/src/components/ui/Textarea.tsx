@@ -1,8 +1,10 @@
 /**
- * 
- * @param 
- *       <Textarea className="h-33 placeholder:text-[var(--color-gray-50)] placeholder:text-sm rounded-[12px] text-sm text-[var(--color-gray-100)]" />
-
+ *       <textarea
+          placeholder="나누고싶은 의견을 입력하세요"
+          maxLength={500}
+          className={`w-full border border-[var(--color-gray-30)] text-[var(--color-black)] resize-none ${className} p-4`}
+          {...props}
+          />
  */
 
 export default function Textarea({
@@ -15,8 +17,9 @@ export default function Textarea({
     <>
       <div>
         <textarea
-          placeholder="댓글을 입력하세요"
-          className={`w-80 border border-[var(--color-gray-30)] text-[var(--color-black)] resize-none ${className} p-4`}
+          placeholder="나누고싶은 의견을 입력하세요"
+          maxLength={500}
+          className={`w-full border border-[var(--color-gray-30)] text-[var(--color-black)] resize-none ${className} p-4`}
           {...props}
         ></textarea>
       </div>

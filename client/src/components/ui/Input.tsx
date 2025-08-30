@@ -1,33 +1,9 @@
 /**
- * @param rightSlot은 전송 버튼을 배치 자리
- *  rightSlot={
-            <button type="button" className="cursor-pointer">
-              랜덤다이스
-            </button>
-          } 
-            버튼태그넣고 아이콘을 넣거나 텍스트 넣거나 하시면 됩니다
- * 
- *  <Input
-        placeholder="닉네임을 입력해주세요"
-        maxLength={number}
-        className="rounded-[12px] placeholder:text-[var(--color-gray-50)] placeholder:text-sm text-sm"
-        rightSlot={
-          <button type="button" className="cursor-pointer">
-            <Image src={dice} alt="dice icon" className="w-6 h-6 mr-1.5" />
-          </button>
-        }
-      />
-        <Input
-        placeholder="메시지를 입력하세요"
-        maxLength={number}
-        className="rounded-[var(--radius-xl)] placeholder:text-[var(--color-gray-50)] placeholder:text-sm text-sm"
-        rightSlot={
-          <button type="button" className="cursor-pointer">
-            전송
-          </button>
-        }
-      />
-
+ * @param rightSlot은 - input의 우측 내부에 버튼 배치할 요소 (전송 아이콘, 중복확인 )
+ * @param className - 기본 css이외에 타입별로 추가할 tailwind 요소  작성
+ * @param props - 기본 HTML 속성 추가
+ *
+ * @returns 오른쪽에 버튼 추가가 가능한 Input 컴포넌트
  */
 
 import { InputHTMLAttributes, ReactNode } from "react";

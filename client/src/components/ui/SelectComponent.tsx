@@ -1,21 +1,14 @@
-/** 
- * @param select.tsx에 shadcn 기본css가 들어가있어서 커스텀이 적용이 안된다면 개발자 도구를 확인해야 합니다
-  높이설정 경우 개발자 도구에 지정되어있는 data-[size=default]:h-12.5 이런식으로 적용하면 적용됩니다!
-  
-  @param 아래처럼 사용하면 됩니다. 
-  const options = [
-    { label: "10대", value: "10대" },
-    { label: "20대", value: "20대" },
-    { label: "30대", value: "30대" },
-    { label: "40대 이상", value: "40대 이상" },
-  ];
-  <SelectComponent
-        label="연령"
-        placeholder="연령을 선택해주세요"
-        options={options}
-        className="data-[placeholder]:text-[var(--color-gray-50)]"
-      />
-**/
+/**
+ * @param options - { label: string, value: string, disabled?: boolean } 형태의 옵션 리스트
+ * @param placeholder - 값이 비어있을 때 나타나는 텍스트
+ * @param defaultValue - 초기 선택값
+ * @param onChange - 값이 변경될 때 호출되는 이벤트 핸들러
+ * @param className - SelectTrigger에 추가할 css요소
+ * css요소가 적용되지 않을 경우 개발자도구에서 어떤 값이 들어있는지 확인하고 ex) data-[size=default]:h-12.5 이런 형식으로 작성해야 함.
+ * @param label - Select 상단에 표시할 텍스트
+ *
+ * @returns shadcn Select 기반 커스텀 드롭다운 컴포넌트
+ **/
 
 import {
   Select,
@@ -33,6 +26,12 @@ export default function SelectComponent({
   className,
   label,
 }: SelectComponentProps) {
+  // const options = [
+  //   { label: "10대", value: "10대" },
+  //   { label: "20대", value: "20대" },
+  //   { label: "30대", value: "30대" },
+  //   { label: "40대 이상", value: "40대 이상" },
+  // ];
   return (
     <div className="flex flex-col gap-1">
       {label && (

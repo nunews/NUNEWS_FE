@@ -48,7 +48,7 @@ export default function Input({ rightSlot, className, ...props }: InputProps) {
       />
       {rightSlot && (
         <div className="absolute right-2 top-1/2 -translate-y-1/2">
-          <div className="">{rightSlot}</div>
+          <div>{rightSlot}</div>
         </div>
       )}
     </div>

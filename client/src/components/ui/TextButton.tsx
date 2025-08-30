@@ -5,6 +5,14 @@ interface TextButtonProps
   state?: "default" | "disabled" | "active";
 }
 
+/**
+ *
+ * @param state - default, disabled, active 등 상태 부여 가능
+ * @param className - 이미 되어져있는 스타일링 말고 다른 스타일링이 필요한 경우
+ * @param children - 버튼 내용
+ * @returns 텍스트 버튼  컴포넌트
+ */
+
 export const TextButton: React.FC<TextButtonProps> = ({
   children,
   className = "",

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import Header from "@/components/layout/header";
-import Footer from "@/components/layout/footer";
+// import Header from "@/components/layout/header";
+// import Footer from "@/components/layout/footer";
 
 export const metadata: Metadata = {
   title: "NUNEW",

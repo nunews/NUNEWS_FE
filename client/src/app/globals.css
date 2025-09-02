@@ -145,3 +145,26 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+.bubble {
+  position: relative;
+  /* display: inline-block; */
+  padding: 8px;
+  border-radius: 8px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.1);
+}
+.bubble::after {
+  bottom: 100%;
+  right: 39px;
+  border: solid transparent;
+  content: "";
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+  border-color: rgba(255, 255, 255, 0);
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+  border-width: 6px;
+  margin-left: -6px;
+}

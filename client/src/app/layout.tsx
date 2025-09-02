@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+// import Header from "@/components/layout/header";
+// import Footer from "@/components/layout/footer";
 
 export const metadata: Metadata = {
   title: "NUNEW",
@@ -21,7 +23,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
-      <body className={`${pretendard.variable}  w-full`}>{children}</body>
+      <body className={`${pretendard.variable} w-full`}>
+        {/* <Header
+          logo={true}
+          nuPick={true}
+          interest={["경제", "사회", "문화"]}
+          dark={false}
+        />
+        <div className="pt-[98px] bg-black/70">{children}</div>
+        <Footer isNuPick={true} /> */}
+        {children}
+      </body>
     </html>
   );
 }

@@ -1,4 +1,20 @@
 import { useEffect, useRef } from "react";
+/**
+ * 드롭다운 컴포넌트 props
+ * @param isOpen - 드롭다운 열려있는지 여부
+ * @param onClose - 드롭다운 닫기를 실행하는 함수
+ * @param item - 드롭다운에 표시할 메뉴 아이템 배열
+ * @param triggerRef - 드롭다운을 여는 버튼/트리거 오쇼의 ref
+ * @param title - 드롭박스 상단 라벨(제목)
+ */
+
+/**
+ * 드롭다운 하나의 아이템에 대한 props
+ * @param icon - react-icon 객체를 받음
+ * @param label - 해당 항목의 텍스트
+ * @param onClick - 해당 항목 클릭 시 실행할 함수
+ * @param danger - true일 경우 빨강색으로 텍스트 강조
+ */
 
 type DropdownItem = {
   icon?: React.ReactNode;

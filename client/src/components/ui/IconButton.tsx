@@ -1,4 +1,4 @@
-import React from "react";
+import React, { forwardRef } from "react";
 import { IconType } from "react-icons";
 
 /**
@@ -17,20 +17,30 @@ interface IconButtonProps
   color?: string;
 }
 
-export const IconButton: React.FC<IconButtonProps> = ({
-  icon: Icon,
-  size = 20,
-  color = "#000000",
-  className = "",
-  type = "button",
-  ...props
-}) => {
-  const baseStyle =
-    "flex items-center justify-center rounded-full text-xl duration-300 cursor-pointer";
-
-  return (
-    <button type={type} className={`${baseStyle} ${className}`} {...props}>
-      <Icon size={size} color={color} />
-    </button>
-  );
-};
+export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
+  (
+    {
+      icon: Icon,
+      size = 20,
+      color = "#000000",
+      className = "",
+      type = "button",
+      ...props
+    },
+    ref
+  ) => {
+    const baseStyle =
+      "flex items-center justify-center rounded-full text-xl duration-300 cursor-pointer";
+    return (
+      <button
+        ref={ref}
+        type={type}
+        className={`${baseStyle} ${className}`}
+        {...props}
+      >
+        <Icon size={size} color={color} />
+      </button>
+    );
+  }
+);
+IconButton.displayName = "IconButton";

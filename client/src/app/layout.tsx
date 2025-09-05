@@ -24,15 +24,7 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body className={`${pretendard.variable} w-full`}>
-        {/* <Header
-          logo={true}
-          nuPick={true}
-          interest={["경제", "사회", "문화"]}
-          dark={false}
-        />
-        <div className="pt-[98px] bg-black/70">{children}</div>
-        <Footer isNuPick={true} /> */}
-        {children}
+        <div className="max-w-screen-lg mx-auto">{children}</div>
       </body>
     </html>
   );

@@ -4,7 +4,6 @@ import NewsSection from "./NewsSection";
 import politics from "@/assets/images/politics.png";
 import entertainment from "@/assets/images/entertainment.png";
 import sports from "@/assets/images/sports.png";
-
 export default function Home() {
   const newsDummyData = [
     {

@@ -11,4 +11,5 @@ interface SelectComponentProps {
   onChange?: (value: string) => void;
   className?: string;
   label?: string;
+  labelClassName?: string;
 }

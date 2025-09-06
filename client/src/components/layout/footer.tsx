@@ -1,3 +1,6 @@
+/**
+ *  @param isNuPick - 누픽 페이지인지 아닌지 여부
+ */
 "use client";
 import { useState } from "react";
 import { PiListStar } from "react-icons/pi";
@@ -5,7 +8,7 @@ import { RxPerson } from "react-icons/rx";
 import { TbMessageChatbot } from "react-icons/tb";
 import { VscBook } from "react-icons/vsc";
 
-export default function Footer({ isNuPick }: { isNuPick: boolean }) {
+export default function Footer({ isNuPick }: { isNuPick?: boolean }) {
   const channel = [
     { icon: PiListStar, label: "맞춤소식" },
     { icon: VscBook, label: "모든소식" },
@@ -21,7 +24,7 @@ export default function Footer({ isNuPick }: { isNuPick: boolean }) {
   return (
     <>
       <div
-        className={`fixed bottom-0 w-full h-18 flex items-center rounded-t-2xl  ${
+        className={`fixed z-20 bottom-0 w-full h-18 flex items-center rounded-t-2xl  ${
           isNuPick
             ? "bg-[#121212] shadow-[inset_0_0_0_1px_#181818]"
             : "bg-[#ffffff] shadow-[inset_0_0_0_1px_#ebebeb]"

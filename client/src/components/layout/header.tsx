@@ -1,3 +1,10 @@
+/**
+ *  @param logo - logo여부 (로고가 없는경우 뒤로가기 버튼과 다크모드 버튼이 나타남)
+ *  @param nuPick - 누픽 페이지인지 아닌지 여부
+ *  @param interest - 관심사 설정 여부(누픽 페이지에서만 적용됨)
+ *  @param dark - 다크모드인지 아닌지 (로고 색상이 결정됨)
+ */
+
 "use client";
 import Image, { StaticImageData } from "next/image";
 import Logo from "../../assets/images/NUNEW.png";
@@ -23,11 +30,11 @@ export default function Header({
   dark,
 }: {
   logo: boolean;
-  nuPick: boolean;
-  interest: string[];
-  dark: boolean;
+  nuPick?: boolean;
+  interest?: string[];
+  dark?: boolean;
 }) {
-  console.log(interest);
+  // console.log(interest);
   const categoryMap: Record<string, StaticImageData> = {
     정치: Politics,
     스포츠: Sports,
@@ -42,7 +49,7 @@ export default function Header({
   const router = useRouter();
   return (
     <>
-      <div className="fixed z-20 min-h-15.5 w-full px-5 ">
+      <div className={`min-h-15.5 w-full px-5 ${nuPick ? "fixed z-20" : ""}`}>
         <div className="flex items-center h-15.5 justify-between ">
           {/* 로고유무 */}
           {logo ? (
@@ -51,6 +58,8 @@ export default function Header({
               alt="logo"
               width={68}
               height={25}
+              onClick={() => router.push("/")}
+              className="cursor-pointer"
             />
           ) : (
             <button

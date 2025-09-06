@@ -24,7 +24,7 @@ export default function Footer({ isNuPick }: { isNuPick?: boolean }) {
   return (
     <>
       <div
-        className={`fixed z-20 bottom-0 w-full h-18 flex items-center rounded-t-2xl  ${
+        className={`fixed bottom-0 w-full h-18 flex items-center rounded-t-2xl z-20  ${
           isNuPick
             ? "bg-[#121212] shadow-[inset_0_0_0_1px_#181818]"
             : "bg-[#ffffff] shadow-[inset_0_0_0_1px_#ebebeb]"

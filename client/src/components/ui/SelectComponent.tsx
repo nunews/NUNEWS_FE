@@ -6,6 +6,7 @@
  * @param className - SelectTrigger에 추가할 css요소
  * css요소가 적용되지 않을 경우 개발자도구에서 어떤 값이 들어있는지 확인하고 ex) data-[size=default]:h-12.5 이런 형식으로 작성해야 함.
  * @param label - Select 상단에 표시할 텍스트
+ * @param labelClassName - Select 상단에 표시할 텍스트의 css요소
  *
  * @returns shadcn Select 기반 커스텀 드롭다운 컴포넌트
  **/
@@ -25,6 +26,7 @@ export default function SelectComponent({
   onChange,
   className,
   label,
+  labelClassName,
 }: SelectComponentProps) {
   // const options = [
   //   { label: "10대", value: "10대" },
@@ -35,7 +37,9 @@ export default function SelectComponent({
   return (
     <div className="flex flex-col gap-1">
       {label && (
-        <span className="text-sm font-medium text-[var(--color-gray-100)]">
+        <span
+          className={`text-sm font-medium text-[var(--color-gray-100)] ${labelClassName}`}
+        >
           {label}
         </span>
       )}

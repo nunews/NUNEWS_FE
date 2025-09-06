@@ -1,0 +1,93 @@
+import Image from "next/image";
+import { ThumbsUp, Eye } from "lucide-react";
+import { IoBookmark, IoBookmarkOutline } from "react-icons/io5";
+import { useState } from "react";
+
+interface NewsCardProps {
+  title: string;
+  category: string;
+  timeAgo: string;
+  likes: number;
+  views: number;
+  image: string;
+}
+
+export default function NewsCard({
+  title,
+  category,
+  timeAgo,
+  likes,
+  views,
+  image,
+}: NewsCardProps) {
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+
+  return (
+    <div className="w-[300px] h-[280px] bg-[var(--color-white)] rounded-lg overflow-hidden cursor-pointer group">
+      {/* 이미지 영역 */}
+      <div className="relative w-full h-[200px]">
+        <Image
+          src={image}
+          alt="뉴스 이미지"
+          fill
+          className="object-cover rounded-lg"
+        />
+        <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-300 rounded-lg "></div>
+
+        {/* 북마크 아이콘 */}
+        <button
+          onClick={() => setIsBookmarked(!isBookmarked)}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+          className="absolute top-2 right-2 z-10"
+        >
+          <div className="w-7.5 h-7.5 bg-[var(--color-white)] rounded-full flex items-center justify-center cursor-pointer">
+            <IoBookmarkOutline
+              className={`w-4 h-4 transition-opacity duration-100 text-[var(--color-gray-50)] ${
+                !isHovered && !isBookmarked ? "opacity-100" : "opacity-0"
+              }`}
+            />
+            <IoBookmark
+              className={`absolute w-4 h-4 transition-all duration-300 ${
+                isBookmarked
+                  ? "text-[var(--color-black)] opacity-100"
+                  : isHovered
+                  ? "text-[var(--color-gray-50)] opacity-100"
+                  : "opacity-0"
+              }`}
+            />
+          </div>
+        </button>
+      </div>
+
+      <div className="flex flex-col h-[80px] justify-between pt-3">
+        <h3 className="text-[15px] font-semibold text-[var(--color-gray-100)] leading-tight line-clamp-2 group-hover:text-[var(--color-black)] duration-300 transition-colors">
+          {title}
+        </h3>
+
+        <div className="flex items-center justify-between pt-2">
+          <div className="text-[13px] text-[var(--color-gray-70)]">
+            {category} · {timeAgo}
+          </div>
+
+          {/* 좋아요 조회수 */}
+          <div className="flex items-center gap-[11px] cursor-default mr-2">
+            <div className="flex items-center gap-1">
+              <ThumbsUp className="w-3 h-3 text-[var(--color-gray-60)]" />
+              <span className="text-[13px] text-[var(--color-gray-70)]">
+                {likes}
+              </span>
+            </div>
+            <div className="flex items-center gap-1">
+              <Eye className="w-3 h-3 text-[var(--color-gray-60)]" />
+              <span className="text-[13px] text-[var(--color-gray-70)]">
+                {views}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

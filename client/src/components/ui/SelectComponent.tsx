@@ -46,13 +46,13 @@ export default function SelectComponent({
 
       <Select defaultValue={defaultValue} onValueChange={onChange}>
         <SelectTrigger
-          className={`w-full data-[size=default]:h-12.5 rounded-[12px] pl-4
+          className={`w-full data-[size=default]:h-12.5 rounded-[12px] pl-4 shadow-none
             ${className}`}
         >
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
 
-        <SelectContent className="rounded-[12px]">
+        <SelectContent className="rounded-[12px] ">
           {options.map((opt) => (
             <SelectItem
               key={opt.value}

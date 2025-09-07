@@ -6,6 +6,9 @@ import DefaultCard from "@/components/ui/DefaultCard";
 import hotICon from "@/assets/images/fire.png";
 import Image from "next/image";
 import { useState } from "react";
+import { Swiper } from "swiper/react";
+import { SwiperSlide } from "swiper/react";
+import "swiper/css";
 
 export default function AllPickPage() {
   const [selectedCategory, setSelectedCategory] = useState("전체");
@@ -81,8 +84,7 @@ export default function AllPickPage() {
         <Header logo={true} nuPick={false} dark={false} interest={[]} />
         <main className="h-screen overflow-y-scroll pt-16 pb-18">
           <div className="p-4">
-            {/* 카테고리 버튼 */}
-            <div className="flex gap-2 overflow-x-auto pb-4 mb-8 scrollbar-hide">
+            <div className="flex gap-2 overflow-x-auto pb-4 mb-8 no-scrollbar">
               {categories.map((category) => (
                 <button
                   key={category}
@@ -112,19 +114,26 @@ export default function AllPickPage() {
                   오늘의 핫 뉴스
                 </h2>
               </div>
-              <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
-                {newsData.slice(0, 4).map((news, index) => (
-                  <div key={index} className="flex-shrink-0">
-                    <HotNewsCard
-                      title={news.title}
-                      category={news.category}
-                      timeAgo={news.timeAgo}
-                      likes={news.likes}
-                      views={news.views}
-                      image={news.image}
-                    />
-                  </div>
-                ))}
+              <div className="flex overflow-x-auto pb-2 scrollbar-hide">
+                <Swiper
+                  spaceBetween={16}
+                  slidesPerView="auto"
+                  grabCursor={true}
+                  freeMode={true}
+                >
+                  {newsData.slice(0, 4).map((news, index) => (
+                    <SwiperSlide key={index} className="!w-[300px]">
+                      <HotNewsCard
+                        title={news.title}
+                        category={news.category}
+                        timeAgo={news.timeAgo}
+                        likes={news.likes}
+                        views={news.views}
+                        image={news.image}
+                      />
+                    </SwiperSlide>
+                  ))}
+                </Swiper>
               </div>
             </div>
 

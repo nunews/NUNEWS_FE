@@ -1,4 +1,5 @@
 /**
+ *
  *  @param logo - logo여부 (로고가 없는경우 뒤로가기 버튼과 다크모드 버튼이 나타남)
  *  @param nuPick - 누픽 페이지인지 아닌지 여부
  *  @param interest - 관심사 설정 여부(누픽 페이지에서만 적용됨)
@@ -49,7 +50,14 @@ export default function Header({
   const router = useRouter();
   return (
     <>
-      <div className={`min-h-15.5 w-full px-5 ${nuPick ? "fixed z-20" : ""}`}>
+      <div
+        className={`min-h-15.5 w-full px-5 ${
+          nuPick
+            ? "fixed z-20"
+            : "bg-[#ffffff]/85 backdrop-blur-[28px] " +
+              (logo ? "" : "fixed z-20")
+        }`}
+      >
         <div className="flex items-center h-15.5 justify-between ">
           {/* 로고유무 */}
           {logo ? (

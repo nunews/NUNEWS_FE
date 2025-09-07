@@ -41,7 +41,7 @@ export default function CommunityPostDetail() {
   };
   return (
     <>
-      <div className="min-h-screen w-full px-5 relative">
+      <div className="pt-[62px] min-h-screen w-full px-5 relative">
         {/* 프로필+카테고리 */}
         <div className="mt-4 w-full flex items-center justify-between">
           <div className="flex items-center w-auto h-9">

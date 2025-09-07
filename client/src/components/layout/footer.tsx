@@ -10,10 +10,10 @@ import { VscBook } from "react-icons/vsc";
 
 export default function Footer({ isNuPick }: { isNuPick?: boolean }) {
   const channel = [
-    { icon: PiListStar, label: "맞춤소식" },
-    { icon: VscBook, label: "모든소식" },
-    { icon: TbMessageChatbot, label: "의견 나누기" },
-    { icon: RxPerson, label: "내 정보" },
+    { icon: PiListStar, label: "누픽" },
+    { icon: VscBook, label: "올픽" },
+    { icon: TbMessageChatbot, label: "누들마을" },
+    { icon: RxPerson, label: "마이페이지" },
   ];
 
   //선택 채널의 인덱스로 저장

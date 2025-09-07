@@ -12,7 +12,7 @@ export default function CreatePost() {
   const router = useRouter();
   return (
     <>
-      <div className="min-h-screen w-full pb-[90px] px-5">
+      <div className="pt-[62px] min-h-screen w-full pb-[90px] px-5">
         {/* <p className="text-[#595959] text-[13px]">카테고리 선택</p> */}
         <SelectComponent
           options={[

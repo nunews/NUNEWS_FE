@@ -28,7 +28,7 @@ export default function Community() {
   };
   return (
     <>
-      <div className="min-h-screen w-full mb-[72px]">
+      <div className="min-h-screen w-full pt-[62px] pb-[72px]">
         {/* 사용자 프로필 */}
         <div className="mt-4 px-5 flex items-center h-[72px]">
           <Image src={defaultImg} alt="defaultImg" width={72} height={72} />

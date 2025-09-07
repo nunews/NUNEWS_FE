@@ -51,11 +51,8 @@ export default function Header({
   return (
     <>
       <div
-        className={`min-h-15.5 w-full px-5 ${
-          nuPick
-            ? "fixed z-20"
-            : "bg-[#ffffff]/85 backdrop-blur-[28px] " +
-              (logo ? "" : "fixed z-20")
+        className={`fixed z-20 min-h-15.5 w-full px-5 ${
+          nuPick ? "" : "bg-[#ffffff]/85 backdrop-blur-[28px] "
         }`}
       >
         <div className="flex items-center h-15.5 justify-between ">

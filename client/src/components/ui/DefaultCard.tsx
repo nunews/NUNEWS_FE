@@ -1,8 +1,8 @@
 import Image from "next/image";
 import { ThumbsUp, Eye } from "lucide-react";
 import { IoBookmark, IoBookmarkOutline } from "react-icons/io5";
-
 import { useState } from "react";
+import { IconButton } from "./IconButton";
 interface DefaultNewsCardProps {
   title: string;
   category: string;
@@ -34,29 +34,40 @@ export default function DefaultCard({
           className="object-cover w-full h-full"
         />
         <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-300 rounded-lg"></div>
-        <button
+        <div
           onClick={() => setIsBookmarked(!isBookmarked)}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
           className="absolute top-2 right-2 z-10"
         >
-          <div className="w-7.5 h-7.5 bg-[var(--color-white)] rounded-full flex items-center justify-center cursor-pointer">
-            <IoBookmarkOutline
-              className={`w-4 h-4 transition-opacity duration-100 text-[var(--color-gray-50)] ${
+          <div className="relative w-7.5 h-7.5 bg-[var(--color-white)] rounded-full flex items-center justify-center cursor-pointer">
+            <IconButton
+              icon={IoBookmarkOutline}
+              size={16}
+              color="var(--color-gray-50)"
+              className={`absolute transition-opacity duration-300 ${
                 !isHovered && !isBookmarked ? "opacity-100" : "opacity-0"
               }`}
+              onClick={() => setIsBookmarked(!isBookmarked)}
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}
             />
-            <IoBookmark
-              className={`absolute w-4 h-4 transition-all duration-300 ${
+            <IconButton
+              icon={IoBookmark}
+              size={16}
+              color={
+                isBookmarked ? "var(--color-black)" : "var(--color-gray-50)"
+              }
+              className={`absolute transition-all duration-300 ${
                 isBookmarked
-                  ? "text-[var(--color-black)] opacity-100"
+                  ? "opacity-100"
                   : isHovered
-                  ? "text-[var(--color-gray-50)] opacity-100"
+                  ? "opacity-100"
                   : "opacity-0"
               }`}
             />
           </div>
-        </button>
+        </div>
       </div>
       <div className="flex-1 flex flex-col justify-between py-8 min-h-44">
         <div className="mt-1 pl-[15px]">

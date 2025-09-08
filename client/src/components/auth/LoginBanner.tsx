@@ -1,6 +1,6 @@
 const LoginBanner = () => {
   return (
-    <div className="flex flex-col w-full  ">
+    <div className="flex flex-col w-full mt-[94px] ">
       <h2 className="font-black text-[var(--color-black)] text-lg py-8">
         NUNEW
       </h2>

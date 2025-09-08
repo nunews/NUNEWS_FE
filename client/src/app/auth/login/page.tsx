@@ -6,10 +6,10 @@ import { Bubble } from "@/components/ui/Bubble";
 import { TextButton } from "@/components/ui/TextButton";
 import { FcGoogle } from "react-icons/fc";
 
-export default function page() {
+export default function LoginPage() {
   return (
     <>
-      <Header logo={true} />
+      <Header logo={false} />
       <div className="h-screen flex flex-col px-6">
         <LoginBanner />
         <div className="w-full relative flex flex-1 ">

@@ -2,6 +2,7 @@ import Image, { StaticImageData } from "next/image";
 import { TextButton } from "../ui/TextButton";
 import { Eye, ThumbsUp } from "lucide-react";
 import { IoBookmarkSharp } from "react-icons/io5";
+import { IconButton } from "../ui/IconButton";
 
 interface NewsData {
   id: number;
@@ -73,7 +74,6 @@ export default function NewsSection({
                 </div>
                 <div className="flex flex-col gap-3">
                   <div className="flex flex-col gap-1.5">
-                    <ThumbsUp className="text-[var(--color-white)]" />
                     <p className="text-[var(--color-white)] text-[13px]  font-normal">
                       255
                     </p>

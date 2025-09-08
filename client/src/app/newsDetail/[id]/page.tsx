@@ -6,6 +6,8 @@ import DefaultCard from "@/components/ui/DefaultCard";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 import { IconButton } from "@/components/ui/IconButton";
+import RecommendNews from "@/components/ui/RecommendNews";
+import RecommendPost from "@/components/ui/RecommendPost";
 
 export default function NewsDetailPage() {
   // 다른 유저의 생각 데이터
@@ -89,13 +91,19 @@ export default function NewsDetailPage() {
         <div className="text-sm text-[var(--color-gray-70)] mb-2">
           {newsData.category}
         </div>
-        <h1 className="text-[22px] font-bold leading-tight mb-3">
+        <h1 className="text-[22px] font-bold leading-[140%] mb-3">
           {newsData.title}
         </h1>
         <div className="flex items-center gap-2 text-sm text-[var(--color-gray-70)] mb-7">
           <span>{newsData.date}</span>
           <span>•</span>
           <span>{newsData.source}</span>
+          <div className="flex items-center justify-end flex-1 gap-[3px]">
+            <Eye className="w-5 h-5 text-[var(--color-gray-70)]" />
+            <span className="text-sm text-[var(--color-gray-70)]">
+              {newsData.views}
+            </span>
+          </div>
         </div>
         <div className="w-full h-64 mb-7.5 rounded-lg overflow-hidden">
           <Image
@@ -118,7 +126,7 @@ export default function NewsDetailPage() {
 
         {/* 기사 내용 */}
         <div className="mb-7.5">
-          <div className="text-base leading-relaxed whitespace-pre-line text-[var(--color-gray-100)]">
+          <div className="text-base leading-[160%] whitespace-pre-line text-[var(--color-gray-100)]">
             {newsData.content}
           </div>
         </div>
@@ -126,18 +134,12 @@ export default function NewsDetailPage() {
           <div className="flex items-center gap-[3px]">
             <IconButton
               icon={ThumbsUp}
-              size={20}
+              size={22}
               color="var(--color-gray-70)"
-              className="flex items-center gap-[3px]"
+              className="flex gap-[3px]"
             ></IconButton>
-            <span className="text-sm text-[var(--color-gray-70)]">
+            <span className="text-[var(--color-gray-70)] items-end">
               {newsData.likes}
-            </span>
-          </div>
-          <div className="flex items-center gap-[3px]">
-            <Eye className="w-5 h-5 text-[var(--color-gray-70)]" />
-            <span className="text-sm text-[var(--color-gray-70)]">
-              {newsData.views}
             </span>
           </div>
         </div>
@@ -155,50 +157,27 @@ export default function NewsDetailPage() {
           </h2>
           <div className="space-y-[10px]">
             {posts.map((content, index) => (
-              <div
+              <RecommendPost
                 key={index}
-                className="bg-[var(--color-white)] rounded-xl py-5 px-4 border border-[var(--color-gray-30)] cursor-pointer"
-              >
-                <div className="mb-2">
-                  <p className=" text-[#313131] font-semibold line-clamp-1">
-                    {content.title}
-                  </p>
-                </div>
-                <div className="mb-4">
-                  <p className="text-sm text-[#8f8f8f]">{content.content}</p>
-                </div>
-                <div className="flex items-center gap-[11px]">
-                  <div className="flex items-center gap-[3px]">
-                    <ThumbsUp className="w-4 h-4 text-[var(--color-gray-70)]" />
-                    <span className="text-sm text-[var(--color-gray-70)]">
-                      {content.likes}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-[3px]">
-                    <Eye className="w-4 h-4 text-[var(--color-gray-70)]" />
-                    <span className="text-sm text-[var(--color-gray-70)]">
-                      {content.views}
-                    </span>
-                  </div>
-                </div>
-              </div>
+                title={content.title}
+                content={content.content}
+                likes={content.likes}
+                views={content.views}
+              />
             ))}
           </div>
         </div>
         <div className="border-b border-[var(--color-gray-20)] mt-9" />
 
         {/* 관심 가질만한 다른 뉴스 */}
-        <div className="mb-18 mt-10">
-          <h2 className="text-lg font-bold">관심 가질만한 다른 뉴스</h2>
+        <div className="mb-24 mt-10">
+          <h2 className="text-lg font-bold mb-6">관심 가질만한 다른 뉴스</h2>
           <div className="space-y-4">
             {relatedNews.map((news, index) => (
-              <DefaultCard
+              <RecommendNews
                 key={index}
                 title={news.title}
                 category={news.category}
-                timeAgo={news.timeAgo}
-                likes={news.likes}
-                views={news.views}
                 image={news.image}
               />
             ))}

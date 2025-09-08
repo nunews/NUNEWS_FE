@@ -75,7 +75,7 @@ export default function DefaultCard({
             {title}
           </h3>
           <div className="text-[13px] text-[var(--color-gray-70)]">
-            {category} · {timeAgo}
+            #{category} · {timeAgo}
           </div>
         </div>
         <div className="flex gap-4 mt-[15px] justify-end px-[15px]">

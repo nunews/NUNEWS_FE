@@ -1,6 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-
+@import "swiper/css";
 @custom-variant dark (&:is(.dark *));
 
 body {
@@ -161,4 +161,12 @@ body {
   border-bottom-color: rgba(255, 255, 255, 0.1);
   border-width: 6px;
   margin-left: -6px;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }

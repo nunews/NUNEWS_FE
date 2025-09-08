@@ -5,6 +5,7 @@ import { TextButton } from "@/components/ui/TextButton";
 import DefaultCard from "@/components/ui/DefaultCard";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
+import { IconButton } from "@/components/ui/IconButton";
 
 export default function NewsDetailPage() {
   // 다른 유저의 생각 데이터
@@ -123,7 +124,12 @@ export default function NewsDetailPage() {
         </div>
         <div className="flex items-center gap-[11px] pt-4">
           <div className="flex items-center gap-[3px]">
-            <ThumbsUp className="w-5 h-5 text-[var(--color-gray-70)]" />
+            <IconButton
+              icon={ThumbsUp}
+              size={20}
+              color="var(--color-gray-70)"
+              className="flex items-center gap-[3px]"
+            ></IconButton>
             <span className="text-sm text-[var(--color-gray-70)]">
               {newsData.likes}
             </span>

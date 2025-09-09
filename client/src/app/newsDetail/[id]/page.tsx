@@ -85,7 +85,7 @@ export default function NewsDetailPage() {
 
   return (
     <div className="min-h-screen">
-      <Header logo={true} nuPick={false} dark={false} interest={[]} />
+      <Header logo={false} nuPick={false} dark={false} interest={[]}  />
 
       <div className="px-5 pt-18">
         <div className="text-sm text-[var(--color-gray-70)] mb-2">

@@ -32,7 +32,7 @@ export default function NewsSection({
         className={`relative w-full min-h-[100dvh] bg-[url('/images/handsomeLee.png')] bg-no-repeat bg-cover bg-center ${className}`}
       >
         <div className="absolute w-full inset-0 bg-[var(--color-black)]/70 backdrop-blur-[28px] z-0" />
-        <div className="relative w-full z-10 px-5 flex flex-col">
+        <main className="relative w-full z-10 px-5 flex flex-col">
           <div className="pt-[113px] max-h-screen">
             <div className="flex w-full min-w-80 h-90 [@media(max-height:700px)]:h-60  mx-auto justify-center overflow-hidden">
               <Image
@@ -60,7 +60,7 @@ export default function NewsSection({
                   <h1 className="text-lg font-bold text-[var(--color-white)] line-clamp-2">
                     {data.title}
                   </h1>
-                  <span className="text-[var(--color-gray-60)] text-sm mt-2 text-ellipsis line-clamp-3 [@media(max-height:70px)]:line-clamp-2">
+                  <span className="min-h-15 text-[var(--color-gray-60)] text-sm mt-2 text-ellipsis line-clamp-3 [@media(max-height:70px)]:line-clamp-2">
                     {data.description}
                   </span>
                   <div className="flex gap-[7px] mt-14 [@media(max-height:700px)]:mt-4">
@@ -107,7 +107,7 @@ export default function NewsSection({
               </div>
             </div>
           </div>
-        </div>
+        </main>
       </section>
     </>
   );

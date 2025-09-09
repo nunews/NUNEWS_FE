@@ -1,7 +1,14 @@
 import profileImg from "@/assets/images/default_profile.png";
 import Image from "next/image";
 import { TextButton } from "../ui/TextButton";
+import { useRouter } from "next/navigation";
+
 const MyProfile = () => {
+  const route = useRouter();
+  const handleEditClick = () => {
+    route.push("/profile/setting");
+  };
+
   return (
     <div className="flex flex-col gap-4 items-center justify-center mx-auto pb-8">
       <div className="relative w-[80px] h-[80px] rounded-full">
@@ -19,7 +26,9 @@ const MyProfile = () => {
           스포츠, 정치, 문화
         </h2>
       </div>
-      <TextButton className="bg-black text-white">내 정보 수정</TextButton>
+      <TextButton className="bg-black text-white" onClick={handleEditClick}>
+        내 정보 수정
+      </TextButton>
     </div>
   );
 };

@@ -1,8 +1,8 @@
 import Image from "next/image";
-import { ThumbsUp, Eye } from "lucide-react";
-import { IoBookmark, IoBookmarkOutline } from "react-icons/io5";
+import { IoBookmark, IoBookmarkOutline, IoEyeOutline } from "react-icons/io5";
 import { useState } from "react";
 import { IconButton } from "./IconButton";
+import { AiOutlineLike } from "react-icons/ai";
 interface DefaultNewsCardProps {
   title: string;
   category: string;
@@ -75,19 +75,19 @@ export default function DefaultCard({
             {title}
           </h3>
           <div className="text-[13px] text-[var(--color-gray-70)]">
-            {category} · {timeAgo}
+            #{category} · {timeAgo}
           </div>
         </div>
         <div className="flex gap-4 mt-[15px] justify-end px-[15px]">
           {/* 좋아요와 조회수 */}
           <div className="flex items-center gap-1">
-            <ThumbsUp className="w-4 h-4 text-[var(--color-gray-70)]" />
+            <AiOutlineLike className="w-4 h-4 text-[var(--color-gray-70)]" />
             <span className="text-[13px] text-[var(--color-gray-70)]">
               {likes}
             </span>
           </div>
           <div className="flex items-center gap-1">
-            <Eye className="w-4 h-4 text-[var(--color-gray-70)]" />
+            <IoEyeOutline className="w-4 h-4 text-[var(--color-gray-70)]" />
             <span className="text-[13px] text-[var(--color-gray-70)]">
               {views}
             </span>

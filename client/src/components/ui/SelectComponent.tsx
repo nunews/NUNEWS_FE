@@ -11,6 +11,7 @@
  * @returns shadcn Select 기반 커스텀 드롭다운 컴포넌트
  **/
 
+import { twMerge } from "tailwind-merge";
 import {
   Select,
   SelectTrigger,
@@ -38,7 +39,10 @@ export default function SelectComponent({
     <div className="flex flex-col gap-1">
       {label && (
         <span
-          className={`text-sm font-medium text-[var(--color-gray-100)] ${labelClassName}`}
+          className={twMerge(
+            "text-sm font-medium text-[var(--color-gray-100)]",
+            labelClassName
+          )}
         >
           {label}
         </span>

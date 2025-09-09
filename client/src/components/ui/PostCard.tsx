@@ -1,0 +1,68 @@
+import Image, { StaticImageData } from "next/image";
+import { AiOutlineLike } from "react-icons/ai";
+import { IoEyeOutline } from "react-icons/io5";
+
+interface PostCardProps {
+  profileImage: string | StaticImageData;
+  username: string;
+  category: string;
+  content: string;
+  likes: number;
+  views: number;
+  className?: string;
+}
+
+export default function PostCard({
+  profileImage,
+  username,
+  category,
+  content,
+  likes,
+  views,
+  className = "",
+}: PostCardProps) {
+  return (
+    <div
+      className={`w-[278px] h-[208px] bg-[var(--color-white)] rounded-xl border border-[#e3e3e3] p-4 flex flex-col ${className}`}
+    >
+      <div className="flex items-center gap-3 mb-3">
+        <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
+          <Image
+            src={profileImage}
+            alt={username}
+            width={32}
+            height={32}
+            className="w-full h-full object-cover"
+          />
+        </div>
+        <span className="text-[var(--color-gray-100)] font-medium text-sm">
+          {username}
+        </span>
+      </div>
+
+      <div className="mb-2">
+        <span className="text-[var(--color-gray-70)] text-sm">#{category}</span>
+      </div>
+
+      <div className="flex-1 mb-4">
+        <p className="text-[var(--color-gray-100)] text-sm leading-[140%] line-clamp-6">
+          {content}
+        </p>
+      </div>
+      <div className="flex items-center gap-[11px]">
+        <div className="flex items-center gap-1">
+          <AiOutlineLike className="w-4 h-4 text-[var(--color-gray-70)]" />
+          <span className="text-[13px] text-[var(--color-gray-70)]">
+            {likes}
+          </span>
+        </div>
+        <div className="flex items-center gap-1">
+          <IoEyeOutline className="w-4 h-4 text-[var(--color-gray-70)]" />
+          <span className="text-[13px] text-[var(--color-gray-70)]">
+            {views}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   title: "NUNEW",
@@ -23,6 +24,7 @@ export default function RootLayout({
     <html lang="ko">
       <body className={`${pretendard.variable} w-full`}>
         <div className="max-w-screen-lg mx-auto">{children}</div>
+        <Toaster position="top-center" />
       </body>
     </html>
   );

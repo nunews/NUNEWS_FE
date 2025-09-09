@@ -1,6 +1,7 @@
 import { INTERESTS_DATA } from "@/lib/interest";
 import InterestItem from "./InterestItem";
 import { useState } from "react";
+import { Toaster, toast } from "sonner";
 
 export const InterestList = () => {
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
@@ -14,7 +15,7 @@ export const InterestList = () => {
       }
       //최대 이상 선택
       if (preveSelected.length >= MAX_SELECTIONS) {
-        alert(`관심사는 최대 ${MAX_SELECTIONS}개 선택할 수 있습니다.`);
+        toast(`관심사는 최대 ${MAX_SELECTIONS}개 선택할 수 있습니다.`);
         return preveSelected;
       }
 

@@ -2,7 +2,6 @@
 import Image from "next/image";
 import { ThumbsUp, Eye } from "lucide-react";
 import { TextButton } from "@/components/ui/TextButton";
-import DefaultCard from "@/components/ui/DefaultCard";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 import { IconButton } from "@/components/ui/IconButton";
@@ -26,13 +25,13 @@ export default function NewsDetailPage() {
     },
     {
       title: "골프는 이렇게 치면 안되는데",
-      content: "나는 좀 회의적임........",
+      content: "나는 좀 긍정적임........",
       likes: 32,
       views: 124,
     },
     {
       title: "수영은 역시 마이클 조던",
-      content: "나는 좀 회의적임........",
+      content: "나는 좀 보수적임........",
       likes: 32,
       views: 124,
     },
@@ -85,7 +84,7 @@ export default function NewsDetailPage() {
 
   return (
     <div className="min-h-screen">
-      <Header logo={false} nuPick={false} dark={false} interest={[]}  />
+      <Header logo={false} nuPick={false} dark={false} interest={[]} />
 
       <div className="px-5 pt-18">
         <div className="text-sm text-[var(--color-gray-70)] mb-2">
@@ -121,7 +120,7 @@ export default function NewsDetailPage() {
               AI 세줄요약
             </p>
           </TextButton>
-          <p className="text-sm">기사를 세줄로 요약해드려요!</p>
+          <p className="text-sm">기사를 세 줄로 요약해드려요!</p>
         </div>
 
         {/* 기사 내용 */}

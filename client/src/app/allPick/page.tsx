@@ -11,21 +11,10 @@ import { SwiperSlide } from "swiper/react";
 import "swiper/css";
 import PostCard from "@/components/ui/PostCard";
 import { TextButton } from "@/components/ui/TextButton";
+import CategoryFilter from "@/components/mypage/CategoryFilter";
 
 export default function AllPickPage() {
   const [selectedCategory, setSelectedCategory] = useState("전체");
-
-  const categories = [
-    "전체",
-    "정치",
-    "스포츠",
-    "연예",
-    "문화",
-    "해외",
-    "사회",
-    "경제",
-    "그 외",
-  ];
 
   // post card data
   const postData = [
@@ -107,25 +96,16 @@ export default function AllPickPage() {
       <div className="h-screen scrollbar-hide">
         <Header logo={true} nuPick={false} dark={false} interest={[]} />
         <main className="h-screen overflow-y-scroll pt-16 pb-18">
-          <div className="">
-            <div className="flex gap-2 overflow-x-auto pb-4 mb-8 no-scrollbar px-4">
-              {categories.map((category) => (
-                <button
-                  key={category}
-                  onClick={() => setSelectedCategory(category)}
-                  className={`flex items-center justify-center px-3 py-[5px] rounded-full text-sm font-normal whitespace-nowrap transition-all duration-300 ease-in cursor-pointer ${
-                    selectedCategory === category
-                      ? "bg-[var(--color-black)] text-[var(--color-white)]"
-                      : "bg-[var(--color-gray-10)] text-[var(--color-black)] hover:bg-[var(--color-gray-20)]"
-                  }`}
-                >
-                  {category}
-                </button>
-              ))}
+          <div>
+            <div className="px-4 whitespace-nowrap">
+              <CategoryFilter
+                activeCategory={selectedCategory}
+                setActiveCategory={setSelectedCategory}
+              />
             </div>
 
             {/* 핫 뉴스 */}
-            <div className="flex flex-col mb-5 px-4">
+            <div className="flex flex-col mb-5 px-4 mt-7.5">
               <div className="flex gap-1">
                 <Image
                   src={hotICon}

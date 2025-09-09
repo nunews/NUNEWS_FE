@@ -15,7 +15,7 @@ const ProfileSettingPage = () => {
       </main>
       <div className="w-full flex p-5 bottom-0 gap-2.5  ">
         <TextButton className="py-4 rounded-full flex-1">취소하기</TextButton>
-        <TextButton className="py-4 rounded-full flex-1">
+        <TextButton className="py-4 rounded-full flex-1 text-[var(--color-white)] bg-[var(--color-black)] hover:bg-[var(--color-gray-100)] hover:text-[var(--color-white)]  dark:bg-[var(--color-gray-10)] dark:text-[var(--color-gray-100)]">
           변경사항 저장
         </TextButton>
       </div>

@@ -1,4 +1,5 @@
 import Input from "../ui/Input";
+import { TextButton } from "../ui/TextButton";
 
 const ProfileEditForm = () => {
   return (
@@ -7,15 +8,22 @@ const ProfileEditForm = () => {
         내 정보 수정
       </h1>
       <div>
-        <p className="pb-2">닉네임 변경</p>
-        <Input placeholder="기존닉네임" />
+        <p className="pb-2 text-[var(--color-gray-80)]">닉네임 변경</p>
+        <Input
+          placeholder="기존닉네임"
+          rightSlot={
+            <TextButton className="text-[var(--color-black)]">
+              중복확인
+            </TextButton>
+          }
+        />
       </div>
       <div>
-        <p className="pb-2">비밀번호 변경</p>
+        <p className="pb-2 text-[var(--color-gray-80)]">비밀번호 변경</p>
         <Input placeholder="새 비밀번호" />
       </div>
       <div>
-        <p className="pb-2">비밀번호 확인</p>
+        <p className="pb-2 text-[var(--color-gray-80)]">비밀번호 확인</p>
         <Input placeholder="비밀번호 확인" />
       </div>
     </div>

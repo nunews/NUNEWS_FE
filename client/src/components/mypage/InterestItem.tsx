@@ -23,7 +23,9 @@ const InterestItem = ({
 }: InterestItemProps) => {
   return (
     <div
-      className={`w-25 h-31.5  ${isActive ? activeStyle : baseStyle}`}
+      className={`w-25 h-31.5 cursor-pointer transition-all duration-300  ${
+        isActive ? activeStyle : baseStyle
+      }`}
       onClick={onClick}
     >
       <div className="relative w-8 h-8">

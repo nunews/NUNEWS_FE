@@ -1,9 +1,9 @@
 import Image, { StaticImageData } from "next/image";
 import { TextButton } from "../ui/TextButton";
-import { Eye, ThumbsUp } from "lucide-react";
-import { IoBookmarkOutline, IoBookmark } from "react-icons/io5";
+import { IoBookmarkOutline, IoBookmark, IoEyeOutline } from "react-icons/io5";
 import { IconButton } from "../ui/IconButton";
 import { useState } from "react";
+import { AiOutlineLike } from "react-icons/ai";
 
 interface NewsData {
   id: number;
@@ -92,13 +92,13 @@ export default function NewsSection({
                     </p>
                   </div>
                   <div className="flex flex-col gap-1.5 items-center">
-                    <ThumbsUp className="text-[var(--color-white)] text-center" />
+                    <AiOutlineLike className="text-[var(--color-white)] text-center" />
                     <p className="text-[var(--color-white)] text-[13px] font-normal text-center">
                       255
                     </p>
                   </div>
                   <div className="flex flex-col gap-1 items-center">
-                    <Eye className="text-[var(--color-white)]" />
+                    <IoEyeOutline className="text-[var(--color-white)]" />
                     <p className="text-[var(--color-white)] text-[13px] font-normal text-center">
                       255
                     </p>

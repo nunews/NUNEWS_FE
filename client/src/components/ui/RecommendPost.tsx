@@ -1,4 +1,5 @@
-import { Eye, ThumbsUp } from "lucide-react";
+import { AiOutlineLike } from "react-icons/ai";
+import { IoEyeOutline } from "react-icons/io5";
 
 interface RecommendPostProps {
   title: string;
@@ -23,11 +24,11 @@ export default function RecommendPost({
       </div>
       <div className="flex items-center gap-[11px]">
         <div className="flex items-center gap-[3px]">
-          <ThumbsUp className="w-4 h-4 text-[#b7b7b7]" />
+          <AiOutlineLike className="w-4 h-4 text-[#b7b7b7]" />
           <span className="text-sm text-[#b7b7b7]">{likes}</span>
         </div>
         <div className="flex items-center gap-[3px]">
-          <Eye className="w-4 h-4 text-[#b7b7b7]" />
+          <IoEyeOutline className="w-4 h-4 text-[#b7b7b7]" />
           <span className="text-sm text-[#b7b7b7]">{views}</span>
         </div>
       </div>

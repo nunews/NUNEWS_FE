@@ -24,6 +24,7 @@ body {
   --color-primary-50: #b0e100;
   --color-primary-40: #bff207;
   --color-primary-30: #d9ff4f;
+  --color-dark-bg:#1e1e1e
   --shadow-common: 0px 2px 6px 12px rgba(0, 0, 0, 0.24);
   --radius: 0.625rem;
   --background: oklch(1 0 0);

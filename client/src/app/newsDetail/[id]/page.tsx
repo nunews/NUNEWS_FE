@@ -7,6 +7,7 @@ import Footer from "@/components/layout/footer";
 import { IconButton } from "@/components/ui/IconButton";
 import RecommendNews from "@/components/ui/RecommendNews";
 import RecommendPost from "@/components/ui/RecommendPost";
+import AudienceAnalyticsChart from "@/components/articleDetail/AudienceAnalyticsChart";
 
 export default function NewsDetailPage() {
   // 다른 유저의 생각 데이터
@@ -103,6 +104,9 @@ export default function NewsDetailPage() {
               {newsData.views}
             </span>
           </div>
+        </div>
+        <div className="py-3">
+          <AudienceAnalyticsChart />
         </div>
         <div className="w-full h-64 mb-7.5 rounded-lg overflow-hidden">
           <Image

@@ -1,7 +1,7 @@
 import { INTERESTS_DATA } from "@/lib/interest";
 import InterestItem from "./InterestItem";
 import { useState } from "react";
-import { Toaster, toast } from "sonner";
+import { toast } from "sonner";
 
 export const InterestList = () => {
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);

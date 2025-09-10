@@ -25,25 +25,29 @@ export default function CreatePost() {
           onChange={(value) => setSelect(value)}
           label="카테고리 선택"
         />
-        <p className="mt-5 text-[#595959] text-[13px]">제목</p>
+        <p className="mt-5 text-[var(--color-gray-80)] text-[13px]">제목</p>
         <Input
-          className="mt-2 w-full h-[50px] rounded-[12px] text-[#bfbfbf] text-[14px]"
+          className="mt-2 w-full h-[50px] rounded-[12px] text-[var(--color-gray-50)] text-sm"
           placeholder="제목을 입력해 주세요"
         />
 
-        <p className="mt-5 text-[#595959] text-[13px]">대표 이미지</p>
-        <button className="flex flex-col items-center justify-center mt-2 w-full h-[197px] rounded-[12px] border bg-[#f7f7f7] border-[#e4e4e4] hover:bg-[#efefef] hover:border-[#bfbfbf] transition-all duration-300 ease-in-out cursor-pointer">
-          <SlPicture className="w-5 h-5 text-[#595959]" />
-          <p className="mt-[6px] text-[#595959] text-[14px]">
+        <p className="mt-5 text-[var(--color-gray-80)] text-[13px]">
+          대표 이미지
+        </p>
+        <button className="flex flex-col items-center justify-center mt-2 w-full h-[197px] rounded-[12px] border bg-[var(--color-gray-10)] border-[var(--color-gray-30)] hover:bg-[var(--color-gray-20)] hover:border-[var(--color-gray-50)] transition-all duration-300 ease-in-out cursor-pointer">
+          <SlPicture className="w-5 h-5 text-[var(--color-gray-80)]" />
+          <p className="mt-[6px] text-[var(--color-gray-80)] text-sm">
             눌러서 이미지 업로드
           </p>
         </button>
 
-        <p className="mt-5 text-[#595959] text-[13px]">내용 작성</p>
-        <Textarea className="mt-2 w-full min-h-[137px] rounded-[12px] text-[#bfbfbf] text-[14px]" />
+        <p className="mt-5 text-[var(--color-gray-80)] text-[13px]">
+          내용 작성
+        </p>
+        <Textarea className="mt-2 w-full min-h-[137px] rounded-[12px] text-[var(--color-gray-50)] text-sm" />
       </div>
 
-      <div className="fixed bottom-0 left-0 px-5 w-full h-[90px] flex items-center justify-center gap-[10px] bg-white">
+      <div className="fixed bottom-0 left-0 px-5 w-full h-[90px] flex items-center justify-center gap-[10px] bg-[var(--color-white)]">
         <TextButton
           state="default"
           className="rounded-full h-[50px]"

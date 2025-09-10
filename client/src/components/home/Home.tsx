@@ -40,7 +40,7 @@ export default function Home() {
       <div className="h-screen scrollbar-hide">
         <Header
           logo={true}
-          nuPick={true}
+          page="nuPick"
           dark={false}
           interest={["정치", "연예"]}
         ></Header>

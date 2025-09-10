@@ -11,6 +11,7 @@
  * @returns shadcn Select 기반 커스텀 드롭다운 컴포넌트
  **/
 
+import { twMerge } from "tailwind-merge";
 import {
   Select,
   SelectTrigger,
@@ -32,7 +33,10 @@ export default function SelectComponent({
     <div className="flex flex-col gap-1">
       {label && (
         <span
-          className={`text-sm font-medium text-[var(--color-gray-100)] ${labelClassName}`}
+          className={twMerge(
+            "text-sm font-medium text-[var(--color-gray-80)]",
+            labelClassName
+          )}
         >
           {label}
         </span>
@@ -41,18 +45,20 @@ export default function SelectComponent({
       <Select defaultValue={defaultValue} onValueChange={onChange}>
         <SelectTrigger
           className={`w-full data-[size=default]:h-12.5 rounded-[12px] pl-4 shadow-none
+          bg-[var(--color-white)] border border-[var(--color-gray-30)] hover:border-[var(--color-gray-50)] transition-all duration-300 ease-in-out
+          active:border-[var(--color-gray-50)] active:ring-0 focus-visible:border-[var(--color-gray-50)] focus-visible:ring-0 focus-visible:outline-none focus:outline-none
             ${className}`}
         >
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
 
-        <SelectContent className="rounded-[12px] ">
+        <SelectContent className="rounded-[12px] bg-[var(--color-white)] border border-[var(--color-gray-50)] shadow-none">
           {options.map((opt) => (
             <SelectItem
               key={opt.value}
               value={opt.value}
               disabled={opt.disabled}
-              className="text-[var(--color-gray-100)] h-11 pl-3"
+              className="text-[var(--color-gray-100)] h-11 pl-3 hover:bg-[var(--color-gray-10)] transition-all duration-300 ease-in-out rounded-[12px]"
             >
               {opt.label}
             </SelectItem>

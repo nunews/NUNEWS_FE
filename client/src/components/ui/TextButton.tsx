@@ -2,7 +2,12 @@ import { twMerge } from "tailwind-merge";
 interface TextButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
-  state?: "default" | "disabled" | "active";
+  state?:
+    | "default"
+    | "disabled"
+    | "active"
+    | "category-active"
+    | "category-default";
 }
 
 /**
@@ -29,6 +34,11 @@ export const TextButton: React.FC<TextButtonProps> = ({
       "bg-[var(--color-gray-20)] text-[var(--color-gray-50)] opacity-50 cursor-not-allowed pointer-events-none",
     active:
       "bg-[var(--color-black)] text-[var(--color-white)] hover:bg-[var(--color-black)] active:bg-[var(--color-black)]",
+
+    "category-default":
+      "w-auto bg-[#f3f3f3] text-[var(--color-black)] rounded-full px-4 py-1 h-[30px]",
+    "category-active":
+      "w-auto bg-[var(--color-black)] text-[var(--color-white)] rounded-full px-4 py-1 h-[30px]",
   } as const;
 
   const merged = twMerge(baseStyle, stateStyle[state], className);

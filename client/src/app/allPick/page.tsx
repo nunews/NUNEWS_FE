@@ -9,20 +9,41 @@ import { useState } from "react";
 import { Swiper } from "swiper/react";
 import { SwiperSlide } from "swiper/react";
 import "swiper/css";
+import PostCard from "@/components/ui/PostCard";
+import { TextButton } from "@/components/ui/TextButton";
+import CategoryFilter from "@/components/mypage/CategoryFilter";
 
 export default function AllPickPage() {
   const [selectedCategory, setSelectedCategory] = useState("전체");
 
-  const categories = [
-    "전체",
-    "정치",
-    "스포츠",
-    "연예",
-    "문화",
-    "해외",
-    "사회",
-    "경제",
-    "그 외",
+  // post card data
+  const postData = [
+    {
+      profileImage: "/images/profile1.png",
+      username: "혁신적인 돼지",
+      category: "스포츠",
+      content:
+        "아니 나는 진짜 이강인이 결승전 못뛰어서 너무 아쉽꿀꿀다음엔 꼭 이강인이 결승전 뛰었으면 좋겠다꿀ㅠ 어디까지나 팬 입장에서...",
+      likes: 32,
+      views: 124,
+    },
+    {
+      profileImage: "/images/profile1.png",
+      username: "당당한 돼지",
+      category: "스포츠",
+      content:
+        "아니 나는 진짜 이강인이 결승전 못뛰어서 너무 아쉽꿀꿀다음엔 꼭 이강인이 결승전 뛰었으면 좋겠다꿀ㅠ 어디까지나 팬 입장에서...",
+      likes: 32,
+      views: 124,
+    },
+    {
+      profileImage: "/images/profile1.png",
+      username: "배고픈 돼지",
+      category: "연예",
+      content: "오늘은 점심을 뭘 먹으면 좋을까? 매일 왜 점심을 먹어야할까?",
+      likes: 32,
+      views: 124,
+    },
   ];
 
   // 더미 뉴스 데이터
@@ -68,14 +89,6 @@ export default function AllPickPage() {
       views: 456,
       image: "/images/handsomeLee.png",
     },
-    {
-      title: "경제 전망 보고서 발표...내년 성장률 예상",
-      category: "경제",
-      timeAgo: "6시간전",
-      likes: 78,
-      views: 234,
-      image: "/images/happy2.png",
-    },
   ];
 
   return (
@@ -83,25 +96,16 @@ export default function AllPickPage() {
       <div className="h-screen scrollbar-hide">
         <Header logo={true} nuPick={false} dark={false} interest={[]} />
         <main className="h-screen overflow-y-scroll pt-16 pb-18">
-          <div className="p-4">
-            <div className="flex gap-2 overflow-x-auto pb-4 mb-8 no-scrollbar">
-              {categories.map((category) => (
-                <button
-                  key={category}
-                  onClick={() => setSelectedCategory(category)}
-                  className={`flex items-center justify-center px-3 py-[5px] rounded-full text-sm font-normal whitespace-nowrap transition-all duration-300 ease-in cursor-pointer ${
-                    selectedCategory === category
-                      ? "bg-[var(--color-black)] text-[var(--color-white)]"
-                      : "bg-[var(--color-gray-10)] text-[var(--color-black)] hover:bg-[var(--color-gray-20)]"
-                  }`}
-                >
-                  {category}
-                </button>
-              ))}
+          <div>
+            <div className="px-4 whitespace-nowrap">
+              <CategoryFilter
+                activeCategory={selectedCategory}
+                setActiveCategory={setSelectedCategory}
+              />
             </div>
 
             {/* 핫 뉴스 */}
-            <div className="flex flex-col mb-5">
+            <div className="flex flex-col mb-5 px-4 mt-7.5">
               <div className="flex gap-1">
                 <Image
                   src={hotICon}
@@ -138,12 +142,12 @@ export default function AllPickPage() {
             </div>
 
             {/* 세로 뉴스 */}
-            <div>
+            <div className="px-4">
               <h2 className="text-lg font-bold text-[var(--color-black)] mt-8">
                 모든 뉴스
               </h2>
               <div>
-                {newsData.map((news, index) => (
+                {newsData.slice(0, 5).map((news, index) => (
                   <DefaultCard
                     key={index}
                     title={news.title}
@@ -155,6 +159,59 @@ export default function AllPickPage() {
                   />
                 ))}
               </div>
+            </div>
+            {/* 관심사별 추천 커뮤니티 글 */}
+            <div className="w-full h-[438px] flex flex-col bg-[#f8f8f8] mt-4 pb-11 px-4">
+              <h2 className="text-lg font-bold text-[#191919] mt-10 mb-5">
+                나의 관심사에 대해 <br />
+                사람들과 대화해 보세요!
+              </h2>
+              <div className="flex-1 mb-4">
+                <Swiper
+                  spaceBetween={10}
+                  slidesPerView={1.2}
+                  grabCursor={true}
+                  freeMode={true}
+                  navigation={false}
+                  pagination={{ clickable: true }}
+                >
+                  {postData.map((post, index) => (
+                    <SwiperSlide key={index} className="!w-[278px]">
+                      <PostCard
+                        profileImage={post.profileImage}
+                        username={post.username}
+                        category={post.category}
+                        content={post.content}
+                        likes={post.likes}
+                        views={post.views}
+                      />
+                    </SwiperSlide>
+                  ))}
+                </Swiper>
+              </div>
+
+              <div className="flex justify-center">
+                <TextButton className="bg-[var(--color-black)] w-31 h-10 rounded-full hover:bg-[var(--color-gray-100)]">
+                  <p className="text-[var(--color-white)]">글쓰러 가기</p>
+                </TextButton>
+              </div>
+            </div>
+
+            <div className="flex flex-col px-4 mt-8">
+              <h2 className="text-lg font-bold text-[var(--color-black)] mb-4">
+                많은 사람들이 좋아한 뉴스
+              </h2>
+              {newsData.slice(0, 5).map((news, index) => (
+                <DefaultCard
+                  key={index}
+                  title={news.title}
+                  category={news.category}
+                  timeAgo={news.timeAgo}
+                  likes={news.likes}
+                  views={news.views}
+                  image={news.image}
+                />
+              ))}
             </div>
           </div>
         </main>

@@ -46,11 +46,11 @@ export default function CommunityPostDetail() {
         <div className="mt-4 w-full flex items-center justify-between">
           <div className="flex items-center w-auto h-9">
             <Image src={profileImg} alt="profileImg" width={36} height={36} />
-            <span className="ml-[10px] text-[#2f2f2f] text-[16px] font-semibold">
+            <span className="ml-[10px] text-[var(--color-black)] text-base font-semibold">
               궁극의 흑소
             </span>
           </div>
-          <p className="text-[#2f2f2f] font-[14px]">#스포츠</p>
+          <p className="text-[var(--color-gray-100)] text-sm">#스포츠</p>
         </div>
         <div className="relative w-full aspect-[16/10] mt-6">
           <Image
@@ -60,7 +60,9 @@ export default function CommunityPostDetail() {
             className=" rounded-[12px] object-cover"
           />
         </div>
-        <p className="mt-6 text-black text-[22px] font-bold">소고기가 최고지</p>
+        <p className="mt-6 text-var(--color-black) text-[22px] font-bold">
+          소고기가 최고지
+        </p>
         <p className="mt-2 h-auto">
           코스닥 시장 육성방안, 기업지배구조 모범규준, 기간산업안정자금 등
           경제정책 입안 경험이 풍부해 가계·소상공인 활력 제고, 공정한 경제구조
@@ -72,20 +74,20 @@ export default function CommunityPostDetail() {
 
         <div className="mt-6 flex items-center text-[#b7b7b7]">
           <AiOutlineLike className="w-5 h-5  cursor-pointer" />
-          <p className="ml-[3px] text-[16px]">32</p>
+          <p className="ml-[3px] text-base">32</p>
 
-          <IoEyeOutline className="ml-[11px] w-5 h-5  cursor-pointer" />
-          <p className="ml-[3px] text-[16px]">124</p>
+          <IoEyeOutline className="ml-[11px] w-5 h-5 cursor-pointer" />
+          <p className="ml-[3px] text-base">124</p>
         </div>
 
         {/* 댓글 입력*/}
         <div className="mt-6">
           <Input
             rightSlot={
-              <PiPaperPlaneTiltLight className="w-4 h-4 text-[#191919] cursor-pointer" />
+              <PiPaperPlaneTiltLight className="w-4 h-4 text-[var(--color-gray-100)] cursor-pointer" />
             }
             placeholder="댓글을 입력해주세요"
-            className="rounded-[50px] w-[320px] h-[50px] text-[#bfbfbf] text-[16px]"
+            className="rounded-[50px] w-[320px] h-[50px] text-[var(--color-gray-50)] text-base"
           />
         </div>
 
@@ -103,15 +105,15 @@ export default function CommunityPostDetail() {
                 />
                 <div className="flex flex-col ml-3">
                   <div className="flex items-center gap-2">
-                    <span className="text-[#2f2f2f] text-[16px] font-semibold">
+                    <span className="text-[var(--color-gray-100)] text-base font-semibold">
                       {comment.nickName}
                     </span>
-                    <span className="text-[#979797] text-[13px]">
+                    <span className="text-[var(--color-gray-60)] text-[13px]">
                       {comment.time}
                     </span>
                   </div>
 
-                  <p className="mt-1 text-[#191919] text-[16px]">
+                  <p className="mt-1 text-[var(--color-gray-100)] text-base">
                     {comment.comment}
                   </p>
                 </div>
@@ -121,7 +123,7 @@ export default function CommunityPostDetail() {
                 size={24}
                 color="#2f2f2f"
                 onClick={() => toggleOpen(i)}
-                className="w-8 h-8 hover:bg-[#f7f7f7]"
+                className="w-8 h-8 hover:bg-[var(--color-gray-10)]"
               />
             </div>
             <div className="absolute top-9 right-0">

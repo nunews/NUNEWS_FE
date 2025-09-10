@@ -1,9 +1,8 @@
 import Image from "next/image";
-import { ThumbsUp, Eye } from "lucide-react";
-import { IoBookmark, IoBookmarkOutline } from "react-icons/io5";
+import { IoBookmark, IoBookmarkOutline, IoEyeOutline } from "react-icons/io5";
 import { useState } from "react";
 import { IconButton as BookmarkButton } from "./IconButton";
-
+import { AiOutlineLike } from "react-icons/ai";
 interface NewsCardProps {
   title: string;
   category: string;
@@ -85,13 +84,13 @@ export default function NewsCard({
           {/* 좋아요 조회수 */}
           <div className="flex items-center gap-[11px] cursor-default mr-2">
             <div className="flex items-center gap-1">
-              <ThumbsUp className="w-3 h-3 text-[var(--color-gray-60)]" />
+              <AiOutlineLike className="w-3 h-3 text-[var(--color-gray-60)]" />
               <span className="text-[13px] text-[var(--color-gray-70)]">
                 {likes}
               </span>
             </div>
             <div className="flex items-center gap-1">
-              <Eye className="w-3 h-3 text-[var(--color-gray-60)]" />
+              <IoEyeOutline className="w-3 h-3 text-[var(--color-gray-60)]" />
               <span className="text-[13px] text-[var(--color-gray-70)]">
                 {views}
               </span>

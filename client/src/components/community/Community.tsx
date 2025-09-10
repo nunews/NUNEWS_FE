@@ -31,10 +31,16 @@ export default function Community() {
       <div className="min-h-screen w-full pt-[62px] pb-[72px]">
         {/* 사용자 프로필 */}
         <div className="mt-4 px-5 flex items-center h-[72px]">
-          <Image src={defaultImg} alt="defaultImg" width={72} height={72} />
+          <div className="w-18 h-18 bg-[#f6f6f6] rounded-full flex items-center justify-center">
+            <Image src={defaultImg} alt="defaultImg" width={36} height={36} />
+          </div>
           <div className="flex flex-col pl-[14px]">
-            <p className="text-[#2f2f2f] font-bold text-lg">독재자 강아지</p>
-            <p className="text-[#727272] text-[13px]">스포츠, 정치, 문화</p>
+            <p className="text-[var(--color-gray-100)] font-bold text-lg">
+              독재자 강아지
+            </p>
+            <p className="text-[var(--color-gray-70)] text-[13px]">
+              스포츠, 정치, 문화
+            </p>
           </div>
         </div>
 
@@ -53,8 +59,8 @@ export default function Community() {
                   }}
                   className={`tabChoose h-[54px] px-4 cursor-pointer flex items-center font-semibold ${
                     selected === category
-                      ? "tabChoose-active text-[#2f2f2f] border-b-2 border-[#2f2f2f]"
-                      : "text-[#979797]"
+                      ? "tabChoose-active text-[var(--color-gray-100)] border-b-2 border-[var(--color-gray-100)]"
+                      : "text-[var(--color-gray-60)]"
                   }`}
                 >
                   <h5>{category}</h5>
@@ -77,7 +83,7 @@ export default function Community() {
           <IconButton
             icon={Plus}
             onClick={() => setAdd(true)}
-            className="fixed z-30 bottom-22 right-5 w-13 h-13 bg-black shadow-[2px_6px_12px_0_rgba(0,0,0,0.24)]"
+            className="fixed z-30 bottom-22 right-5 w-13 h-13 bg-[var(--color-black)] shadow-[2px_6px_12px_0_rgba(0,0,0,0.24)]"
             size={24}
             color="#bff207"
           />

@@ -20,11 +20,11 @@ const ProfileEditForm = () => {
       </div>
       <div>
         <p className="pb-2 text-[var(--color-gray-80)]">비밀번호 변경</p>
-        <Input placeholder="새 비밀번호" />
+        <Input placeholder="새 비밀번호" type="password" />
       </div>
       <div>
         <p className="pb-2 text-[var(--color-gray-80)]">비밀번호 확인</p>
-        <Input placeholder="비밀번호 확인" />
+        <Input placeholder="비밀번호 확인" type="password" />
       </div>
     </div>
   );

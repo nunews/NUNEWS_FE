@@ -44,11 +44,11 @@ export default function Home() {
           dark={false}
           interest={["정치", "연예"]}
         ></Header>
-        <article className="h-screen overflow-y-scroll snap-y snap-mandatory">
+        <main className="h-screen overflow-y-scroll snap-y snap-mandatory">
           {newsDummyData.map((item) => (
             <NewsSection key={item.id} className="snap-start" data={item} />
           ))}
-        </article>
+        </main>
         <Footer isNuPick />
       </div>
     </>

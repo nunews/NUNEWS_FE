@@ -4,8 +4,6 @@ import { AiOutlineEye, AiOutlineLike, AiOutlineShareAlt } from "react-icons/ai";
 import { TextButton } from "@/components/ui/TextButton";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
-import { IconButton as LikeButton } from "@/components/ui/IconButton";
-import { IconButton as ShareButton } from "@/components/ui/IconButton";
 import RecommendNews from "@/components/ui/RecommendNews";
 import RecommendPost from "@/components/ui/RecommendPost";
 import AudienceAnalyticsChart from "@/components/articleDetail/AudienceAnalyticsChart";
@@ -135,26 +133,16 @@ export default function NewsDetailPage() {
           <div className="flex items-center gap-[3px]">
             <TextButton
               color="default"
-              className="flex items-center gap-[3px] bg-[var(--color-black)] hover:bg-[var(--color-gray-100)] hover:bg-blur-[4px]"
+              className="flex items-center gap-[3px] "
             >
-              <LikeButton
-                icon={AiOutlineLike}
-                size={22}
-                className="text-[var(--color-white)]"
-                color="text-[var(--color-white)]"
-              />
-              <span className="text-[var(--color-white)]">좋아요</span>
+              <AiOutlineLike className="w-5 h-5 text-[var(--color-black)]" />
+              <span className="text-[var(--color-black)]">좋아요</span>
             </TextButton>
           </div>
           <div className="flex items-center gap-[3px]">
-            <TextButton className="flex items-center gap-[3px] bg-[var(--color-gray-100)] hover:bg-[var(--color-gray-100)] hover:bg-blur-[4px]">
-              <ShareButton
-                icon={AiOutlineShareAlt}
-                size={22}
-                color="text-[var(--color-white)]"
-                className="text-[var(--color-white)]"
-              />
-              <span className="text-[var(--color-white)]">공유하기</span>
+            <TextButton className="flex items-center gap-[3px]" color="default">
+              <AiOutlineShareAlt className="w-5 h-5 text-[var(--color-black)]" />
+              <span className="text-[var(--color-black)]">공유하기</span>
             </TextButton>
           </div>
         </div>

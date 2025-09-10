@@ -7,7 +7,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { Tooltip as CustomTooltip } from "@/components/ui/Tooltip";
+import { CustomTooltip } from "@/components/ui/CustomTooltip";
 const genderData = [{ category: "성별", male: 58, female: 42 }];
 const ageData = [
   { category: "연령", teen: 12, twenties: 35, thirties: 43, fortiesPlus: 10 },
@@ -39,15 +39,19 @@ const AudienceAnalyticsChart = () => {
                   <XAxis type="number" hide />
                   <YAxis type="category" dataKey="category" hide />
 
-                  <Tooltip cursor={false} content={<CustomTooltip />} />
+                  <Tooltip
+                    cursor={false}
+                    content={<CustomTooltip />}
+                    offset={20}
+                  />
 
                   <Legend
                     verticalAlign="bottom"
                     align="right"
                     iconType="circle"
+                    iconSize={8}
                     wrapperStyle={{
                       fontSize: "12px",
-                      paddingTop: "10px",
                       paddingRight: "10px",
                     }}
                   />
@@ -64,7 +68,7 @@ const AudienceAnalyticsChart = () => {
                     name="여성"
                     fill="#F45C7F"
                     stackId="a"
-                    barSize={1}
+                    barSize={10}
                     radius={[0, 50, 50, 0]}
                   />
                 </BarChart>
@@ -75,7 +79,7 @@ const AudienceAnalyticsChart = () => {
           {/* --- 연령대 분포 차트 --- */}
           <div>
             <div className="w-full">
-              <ResponsiveContainer width="100%" height={40}>
+              <ResponsiveContainer width="100%" height={60}>
                 <BarChart
                   layout="vertical"
                   data={ageData}
@@ -85,14 +89,14 @@ const AudienceAnalyticsChart = () => {
                   <XAxis type="number" hide />
                   <YAxis type="category" dataKey="category" hide />
 
-                  <Tooltip cursor={false} content={<Tooltip />} />
+                  <Tooltip cursor={false} content={<CustomTooltip />} />
                   <Legend
                     verticalAlign="bottom"
                     align="right"
                     iconType="circle"
+                    iconSize={8}
                     wrapperStyle={{
-                      fontSize: "12px",
-                      paddingTop: "10px",
+                      fontSize: "13px",
                       paddingRight: "10px",
                     }}
                   />
@@ -101,7 +105,7 @@ const AudienceAnalyticsChart = () => {
                     name="10대"
                     fill="#FCC85B"
                     stackId="b"
-                    barSize={12}
+                    barSize={10}
                     radius={[50, 0, 0, 50]}
                   />
                   <Bar
@@ -109,21 +113,21 @@ const AudienceAnalyticsChart = () => {
                     name="20대"
                     fill="#1BD1A1"
                     stackId="b"
-                    barSize={12}
+                    barSize={10}
                   />
                   <Bar
                     dataKey="thirties"
                     name="30대"
                     fill="#2E8FFF"
                     stackId="b"
-                    barSize={12}
+                    barSize={10}
                   />
                   <Bar
                     dataKey="fortiesPlus"
                     name="40대 이상"
                     fill="#6D45FF"
                     stackId="b"
-                    barSize={12}
+                    barSize={10}
                     radius={[0, 50, 50, 0]}
                   />
                 </BarChart>

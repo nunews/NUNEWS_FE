@@ -13,8 +13,8 @@ interface NewsData {
 interface NewsSectionProps {
   className: string;
   data: NewsData;
-  onAISummary?: () => void;
-  onViewOriginal?: () => void;
+  summaryHandler?: () => void;
+  detailHandler?: () => void;
   likes?: number;
   views?: number;
 }
@@ -22,8 +22,8 @@ interface NewsSectionProps {
 export default function NewsSection({
   className,
   data,
-  onAISummary,
-  onViewOriginal,
+  summaryHandler,
+  detailHandler,
   likes,
   views,
 }: NewsSectionProps) {
@@ -34,8 +34,8 @@ export default function NewsSection({
       <div className="absolute w-full inset-0 bg-[var(--color-black)]/70 backdrop-blur-[28px] z-0" />
       <NupickContent
         data={data}
-        onAISummary={onAISummary}
-        onViewOriginal={onViewOriginal}
+        summaryHandler={summaryHandler}
+        detailHandler={detailHandler}
         likes={likes}
         views={views}
       />

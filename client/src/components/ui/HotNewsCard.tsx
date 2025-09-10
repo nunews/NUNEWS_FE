@@ -2,7 +2,7 @@ import Image from "next/image";
 import { ThumbsUp, Eye } from "lucide-react";
 import { IoBookmark, IoBookmarkOutline } from "react-icons/io5";
 import { useState } from "react";
-import { IconButton } from "./IconButton";
+import { IconButton as BookmarkButton } from "./IconButton";
 
 interface NewsCardProps {
   title: string;
@@ -43,7 +43,7 @@ export default function NewsCard({
           className="absolute top-2 right-2 z-10"
         >
           <div className="relative w-7.5 h-7.5 bg-[var(--color-white)] rounded-full flex items-center justify-center cursor-pointer">
-            <IconButton
+            <BookmarkButton
               icon={IoBookmarkOutline}
               size={16}
               color="var(--color-gray-50)"
@@ -54,7 +54,7 @@ export default function NewsCard({
               onMouseEnter={() => setIsHovered(true)}
               onMouseLeave={() => setIsHovered(false)}
             />
-            <IconButton
+            <BookmarkButton
               icon={IoBookmark}
               size={16}
               color={

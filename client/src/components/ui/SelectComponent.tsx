@@ -28,12 +28,6 @@ export default function SelectComponent({
   label,
   labelClassName,
 }: SelectComponentProps) {
-  // const options = [
-  //   { label: "10대", value: "10대" },
-  //   { label: "20대", value: "20대" },
-  //   { label: "30대", value: "30대" },
-  //   { label: "40대 이상", value: "40대 이상" },
-  // ];
   return (
     <div className="flex flex-col gap-1">
       {label && (

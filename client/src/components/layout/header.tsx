@@ -1,7 +1,7 @@
 /**
  *
  *  @param logo - logo여부 (로고가 없는경우 뒤로가기 버튼과 다크모드 버튼이 나타남)
- *  @param nuPick - 누픽 페이지인지 아닌지 여부
+ *  @param page - "nuPick" 또는 "login" 으로 설정 가능(나머지 페이지는 page props 작성 생략)
  *  @param interest - 관심사 설정 여부(누픽 페이지에서만 적용됨)
  *  @param dark - 다크모드인지 아닌지 (로고 색상이 결정됨)
  */
@@ -26,12 +26,12 @@ import { BiChevronLeft } from "react-icons/bi";
 import { useRouter } from "next/navigation";
 export default function Header({
   logo,
-  nuPick,
+  page,
   interest,
   dark,
 }: {
   logo: boolean;
-  nuPick?: boolean;
+  page?: string;
   interest?: string[];
   dark?: boolean;
 }) {
@@ -52,55 +52,59 @@ export default function Header({
     <>
       <div
         className={`fixed z-20 min-h-15.5 w-full px-5 ${
-          nuPick ? "" : "bg-[#ffffff]/85 backdrop-blur-[28px] "
+          page === "nuPick"
+            ? ""
+            : "bg-[var(--color-white)]/85 backdrop-blur-[28px] "
         }`}
       >
         <div className="flex items-center h-15.5 justify-between ">
           {/* 로고유무 */}
           {logo ? (
             <Image
-              src={nuPick ? Logo : dark ? LogoDark : LogoBlack}
+              src={page === "nuPick" ? Logo : dark ? LogoDark : LogoBlack}
               alt="logo"
               width={68}
               height={25}
               onClick={() => router.push("/")}
               className="cursor-pointer"
             />
+          ) : page === "login" ? (
+            <div />
           ) : (
             <button
               onClick={() => router.back()}
-              className="flex items-center justify-center w-9 h-9 rounded-full hover:bg-[#f7f7f7] transition-all duration-200 ease-in-out cursor-pointer"
+              className="flex items-center justify-center w-9 h-9 rounded-full hover:bg-[var(--color-gray-10)] transition-all duration-300 ease-in-out cursor-pointer"
             >
               <BiChevronLeft className="w-6 h-6" />
             </button>
           )}
 
           {/* 관심사 수정 or 모드전환 */}
-          {nuPick ? (
-            <button className="flex items-center justify-center w-22 h-8 rounded-[50px] bg-[#ffffff]/10 hover:bg-[#ffffff]/15 backdrop-blur-lg text-[#ffffff] text-[14px] transition-all duration-200 ease-in-out cursor-pointer">
+          {page === "nuPick" ? (
+            <button className="flex items-center justify-center w-22 h-8 rounded-[50px] bg-[var(--color-white)]/10 hover:bg-[var(--color-white)]/15 backdrop-blur-lg text-[var(--color-white)] text-sm transition-all duration-300 ease-in-out cursor-pointer">
               {!!interest ? "관심사 수정" : "관심사 추가"}
             </button>
           ) : (
             <button
-              className={`flex items-center justify-center w-9 h-9 rounded-full text-[14px] transition-all duration-200 ease-in-out cursor-pointer ${
+              className={`flex items-center justify-center w-9 h-9 rounded-full text-sm transition-all duration-300 ease-in-out cursor-pointer ${
                 dark
-                  ? "bg-[#2f2f2f] hover:bg-[#454545] "
-                  : "bg-[#f7f7f7] hover:bg-[#efefef]"
+                  ? "bg-[var(--color-gray-100)] hover:bg-[var(--color-gray-90)] "
+                  : "bg-[var(--color-gray-10)] hover:bg-[var(--color-gray-20)]"
               }`}
             >
               {dark && (
-                <IoMoonOutline className="text-[#ffffff] w-5 h-5 flex items-center justify-center" />
+                <IoMoonOutline className="text-[var(--color-white)] w-5 h-5 flex items-center justify-center" />
               )}
               {!dark && (
-                <IoSunnyOutline className="text-[#2f2f2f] w-5 h-5 flex items-center justify-center" />
+                <IoSunnyOutline className="text-[var(--color-gray-100)] w-5 h-5 flex items-center justify-center" />
               )}
             </button>
           )}
         </div>
-        {nuPick &&
+        {page === "nuPick" &&
           (!interest || interest.length === 0 ? (
             <div className="bubble w-full">
-              <p className="flex justify-center items-center text-[14px] text-[#ffffff]">
+              <p className="flex justify-center items-center text-sm text-[var(--color-white)]">
                 관심사를 선택하고 관심있는 뉴스만 보세요!
               </p>
             </div>
@@ -109,7 +113,7 @@ export default function Header({
               {interest.map((category, index) => (
                 <div
                   key={index}
-                  className="flex items-center justify-center w-9 h-9 bg-[#ffffff]/10 hover:bg-[#ffffff]/15 backdrop-blur-lg rounded-full transition-all duration-200 ease-in-out cursor-pointer"
+                  className="flex items-center justify-center w-9 h-9 bg-[var(--color-white)]/10 hover:bg-[var(--color-white)]/15 backdrop-blur-lg rounded-full transition-all duration-300 ease-in-out cursor-pointer"
                 >
                   <Image
                     src={categoryMap[category]}

@@ -2,9 +2,9 @@
 import Image from "next/image";
 import defaultImg from "../../assets/images/default_profile.png";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import CommunityPost from "./CommunityPost";
-import { Plus, X } from "lucide-react";
+import { Plus } from "lucide-react";
 import Dropdown from "../ui/Dropdown";
 import { PiPencilSimple } from "react-icons/pi";
 import { VscListSelection } from "react-icons/vsc";
@@ -21,16 +21,24 @@ export default function Community() {
   ];
   const [selected, setSelected] = useState("전체");
   const [add, setAdd] = useState(false);
+  const buttonRef = useRef<HTMLButtonElement>(null);
   const router = useRouter();
   const goToCreate = () => {
     setAdd(false);
     router.push("/community/postCreate");
   };
+  const goToMypage = () => {
+    router.push("/mypage");
+  };
+
   return (
     <>
       <div className="min-h-screen w-full pt-[62px] pb-[72px]">
         {/* 사용자 프로필 */}
-        <div className="mt-4 px-5 flex items-center h-[72px]">
+        <button
+          onClick={goToMypage}
+          className="mt-4 px-5 flex items-center h-[72px]"
+        >
           <div className="w-18 h-18 bg-[#f6f6f6] rounded-full flex items-center justify-center">
             <Image src={defaultImg} alt="defaultImg" width={36} height={36} />
           </div>
@@ -42,7 +50,7 @@ export default function Community() {
               스포츠, 정치, 문화
             </p>
           </div>
-        </div>
+        </button>
 
         {/* 채널 */}
         <div className="flex items-center w-full mt-[22px] h-[54px] border-b border-[#ebebeb] overflow-hidden">
@@ -71,7 +79,7 @@ export default function Community() {
         </div>
 
         {/* 게시글 목록 */}
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center px-5">
           <CommunityPost />
           <CommunityPost />
           <CommunityPost />
@@ -79,24 +87,41 @@ export default function Community() {
         </div>
 
         {/* 새 글 추가 */}
-        {add === false ? (
-          <IconButton
-            icon={Plus}
-            onClick={() => setAdd(true)}
-            className="fixed z-30 bottom-22 right-5 w-13 h-13 bg-[var(--color-black)] shadow-[2px_6px_12px_0_rgba(0,0,0,0.24)]"
-            size={24}
-            color="#bff207"
-          />
-        ) : (
-          <>
-            <div
-              className="fixed inset-0 bg-[#191919]/50 z-20"
-              onClick={() => setAdd(false)}
-            />
-            <div className="fixed z-30 bottom-[152px] right-5">
+
+        <IconButton
+          ref={buttonRef}
+          icon={Plus}
+          onClick={(e) => {
+            e.stopPropagation();
+            setAdd((prev) => !prev);
+          }}
+          className={` fixed z-50 bottom-22  w-13 h-13 shadow-[2px_6px_12px_0_rgba(0,0,0,0.24)]
+    transition-transform duration-300 right-[calc((100vw-var(--container-width))/2+20px)] ${
+      add
+        ? "rotate-45 bg-[var(--color-white)] hover:bg-[var(--color-gray-10)]"
+        : "rotate-0 bg-[var(--color-black)] hover:bg-[var(--color-gray-100)]"
+    }`}
+          size={24}
+          color={add ? "var(--color-black)" : "#bff207"}
+        />
+
+        {add && (
+          <div
+            className="fixed inset-0 bg-[#191919]/50 z-30"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (e.target === e.currentTarget) {
+                setAdd(false);
+              }
+            }}
+          >
+            <div className=" absolute z-30 bottom-[152px] right-5 duration-300">
               <Dropdown
                 isOpen={add}
-                onClose={() => setAdd(false)}
+                onClose={() => {
+                  setAdd(false);
+                }}
+                triggerRef={buttonRef}
                 items={[
                   {
                     icon: <PiPencilSimple />,
@@ -111,14 +136,7 @@ export default function Community() {
                 ]}
               />
             </div>
-            <IconButton
-              icon={X}
-              onClick={() => setAdd(false)}
-              className="fixed z-30 bottom-22 right-5 w-13 h-13 rounded-full bg-white shadow-[2px_6px_12px_0_rgba(0,0,0,0.24)] flex items-center justify-center cursor-pointer"
-              size={24}
-              color="#2f2f2f"
-            />
-          </>
+          </div>
         )}
       </div>
     </>

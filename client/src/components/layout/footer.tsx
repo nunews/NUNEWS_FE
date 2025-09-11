@@ -43,30 +43,32 @@ export default function Footer({ isNuPick }: { isNuPick?: boolean }) {
   return (
     <>
       <div
-        className={`fixed bottom-0 w-full h-18 flex items-center rounded-t-2xl z-20  ${
+        className={`max-w-screen-lg mx-auto rounded-t-2xl fixed bottom-0 left-0 right-0 z-20  ${
           isNuPick
             ? "bg-[#121212] shadow-[inset_0_0_0_1px_#181818]"
             : "bg-[var(--color-white)] shadow-[inset_0_0_0_1px_#ebebeb]"
         }`}
       >
-        {channels.map((item, index) => (
-          <button
-            key={index}
-            className={`flex flex-col items-center justify-center flex-1 cursor-pointer transition duration-300 ease-in-out ${
-              isNuPick
-                ? select === index
-                  ? "text-[var(--color-white)]"
-                  : "text-[var(--color-gray-80)]"
-                : select === index
-                ? "text-[var(--color-gray-100)]"
-                : "text-[var(--color-gray-50)]"
-            }`}
-            onClick={() => selectHandler(index)}
-          >
-            <item.icon className="w-5 h-5" />
-            <p className="mt-[6px] text-[10px]">{item.label}</p>
-          </button>
-        ))}
+        <div className=" h-18 flex items-center  ">
+          {channels.map((item, index) => (
+            <button
+              key={index}
+              className={`flex flex-col items-center justify-center flex-1 cursor-pointer transition duration-300 ease-in-out ${
+                isNuPick
+                  ? select === index
+                    ? "text-[var(--color-white)]"
+                    : "text-[var(--color-gray-80)]"
+                  : select === index
+                  ? "text-[var(--color-gray-100)]"
+                  : "text-[var(--color-gray-50)]"
+              }`}
+              onClick={() => selectHandler(index)}
+            >
+              <item.icon className="w-5 h-5" />
+              <p className="mt-[6px] text-[10px]">{item.label}</p>
+            </button>
+          ))}
+        </div>
       </div>
     </>
   );

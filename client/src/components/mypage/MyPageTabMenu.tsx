@@ -1,6 +1,7 @@
 import { useState } from "react";
 import ScrappedNewsContent from "./ScrappedNewsContent";
 import { MyPostsContent } from "./MyPostsContent";
+import TabMenu from "../ui/TabMenu";
 
 const MyPageTabMenu = () => {
   const [activeTab, setActiveTab] = useState("scrapped");
@@ -19,34 +20,21 @@ const MyPageTabMenu = () => {
     },
   ];
 
-  const baseTabStyle =
-    "flex-1 py-4 text-center font-semibold transition-colors duration-300";
-
-  const inactiveTabStyle =
-    "border-b-1 border-[var(--color-gray-30)] text-[var(--color-gray-60)]";
-  const activeTabStyle =
-    "border-b-2 border-[var(--color-gray-100)] text-[var(--color-gray-100)]";
+  const tabMenuItems = tabs.map(({ id, label, count }) => ({
+    id,
+    label,
+    count,
+  }));
 
   const activeTabData = tabs.find((tab) => tab.id === activeTab);
   return (
     <div className="w-full">
-      <nav className="flex border-b border-[var(--color-gray-30)]">
-        {tabs.map((tab) => {
-          const isActive = activeTab === tab.id;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`${baseTabStyle} ${
-                isActive ? activeTabStyle : inactiveTabStyle
-              }`}
-            >
-              {tab.label} {tab.count}
-            </button>
-          );
-        })}
-      </nav>
-      {<div>{activeTabData && activeTabData.content}</div>}
+      <TabMenu
+        tabs={tabMenuItems}
+        activeTab={activeTab}
+        onTabClick={setActiveTab}
+      />
+      <div>{activeTabData && activeTabData.content}</div>
     </div>
   );
 };

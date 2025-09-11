@@ -1,3 +1,5 @@
+"use client";
+
 import CreatePost from "@/components/community/CreatePost";
 import Header from "@/components/layout/header";
 

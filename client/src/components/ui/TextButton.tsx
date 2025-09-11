@@ -29,11 +29,11 @@ export const TextButton: React.FC<TextButtonProps> = ({
     "flex w-full py-2 px-4 rounded-2xl flex items-center justify-center text-sm duration-300 cursor-pointer ";
   const stateStyle = {
     default:
-      "bg-[var(--color-gray-10)] text-[var(--color-black)] hover:bg-[var(--color-gray-20)] active:bg-[var(--color-black)] active:text-[var(--color-white)]",
+      "bg-[var(--color-gray-10)] text-[var(--color-black)] hover:bg-[var(--color-gray-20)]  active:text-[var(--color-white)]",
     disabled:
       "bg-[var(--color-gray-20)] text-[var(--color-gray-50)] opacity-50 cursor-not-allowed pointer-events-none",
     active:
-      "bg-[var(--color-black)] text-[var(--color-white)] hover:bg-[var(--color-black)] active:bg-[var(--color-black)]",
+      "bg-[var(--color-black)] text-[var(--color-white)] hover:bg-[var(--color-black)]",
 
     "category-default":
       "w-auto bg-[#f3f3f3] text-[var(--color-black)] rounded-full px-4 py-1 h-[30px]",

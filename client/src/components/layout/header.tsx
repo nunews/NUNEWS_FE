@@ -27,7 +27,7 @@ import { useRouter } from "next/navigation";
 import { IconButton } from "../ui/IconButton";
 import { LuListFilter } from "react-icons/lu";
 import Dropdown from "../ui/Dropdown";
-import { useState } from "react";
+import { useRef, useState } from "react";
 export default function Header({
   logo,
   page,
@@ -50,7 +50,7 @@ export default function Header({
     경제: Economy,
     "그 외": Etc,
   };
-
+  const buttonRef = useRef<HTMLButtonElement>(null);
   const router = useRouter();
   const [filter, setFilter] = useState("최신순");
   const [open, setOpen] = useState(false);
@@ -98,31 +98,37 @@ export default function Header({
           ) : (
             <div className="gap-[6px] flex items-center ">
               {page === "community" && (
-                <>
+                <div className="relative inline-block">
                   <IconButton
+                    ref={buttonRef}
                     icon={LuListFilter}
-                    className="bg-[var(--color-gray-10)] hover:bg-[var(--color-gray-20)] rounded-full w-8 h-8 relative"
+                    className="bg-[var(--color-gray-10)] hover:bg-[var(--color-gray-20)] rounded-full w-8 h-8"
                     size={18}
                     color="#191919"
-                    onClick={() => setOpen(true)}
+                    onClick={() => {
+                      setOpen((prev) => !prev);
+                    }}
                   />
-                  <div className="absolute z-30 top-[54px] right-13">
-                    <Dropdown
-                      isOpen={open}
-                      onClose={() => setOpen(false)}
-                      items={[
-                        {
-                          label: "최신순",
-                          onClick: () => filterHandler("최신순"),
-                        },
-                        {
-                          label: "인기순",
-                          onClick: () => filterHandler("인기순"),
-                        },
-                      ]}
-                    />
-                  </div>
-                </>
+                  {open && (
+                    <div className="absolute z-30 top-[39px] right-[-6px]">
+                      <Dropdown
+                        isOpen={open}
+                        onClose={() => setOpen(false)}
+                        triggerRef={buttonRef}
+                        items={[
+                          {
+                            label: "최신순",
+                            onClick: () => filterHandler("최신순"),
+                          },
+                          {
+                            label: "인기순",
+                            onClick: () => filterHandler("인기순"),
+                          },
+                        ]}
+                      />
+                    </div>
+                  )}
+                </div>
               )}
               {dark && (
                 <IconButton

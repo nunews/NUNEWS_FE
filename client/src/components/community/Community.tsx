@@ -2,9 +2,9 @@
 import Image from "next/image";
 import defaultImg from "../../assets/images/default_profile.png";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import CommunityPost from "./CommunityPost";
-import { Plus, X } from "lucide-react";
+import { Plus } from "lucide-react";
 import Dropdown from "../ui/Dropdown";
 import { PiPencilSimple } from "react-icons/pi";
 import { VscListSelection } from "react-icons/vsc";
@@ -87,6 +87,7 @@ export default function Community() {
         </div>
 
         {/* 새 글 추가 */}
+
         <IconButton
           ref={buttonRef}
           icon={Plus}
@@ -94,8 +95,8 @@ export default function Community() {
             e.stopPropagation();
             setAdd((prev) => !prev);
           }}
-          className={`fixed z-50 bottom-22 right-5 w-13 h-13 shadow-[2px_6px_12px_0_rgba(0,0,0,0.24)]
-    transition-transform duration-300 ${
+          className={` fixed z-50 bottom-22  w-13 h-13 shadow-[2px_6px_12px_0_rgba(0,0,0,0.24)]
+    transition-transform duration-300 right-[calc((100vw-var(--container-width))/2+20px)] ${
       add
         ? "rotate-45 bg-[var(--color-white)] hover:bg-[var(--color-gray-10)]"
         : "rotate-0 bg-[var(--color-black)] hover:bg-[var(--color-gray-100)]"
@@ -114,7 +115,7 @@ export default function Community() {
               }
             }}
           >
-            <div className="absolute z-30 bottom-[152px] right-5 duration-300">
+            <div className=" absolute z-30 bottom-[152px] right-5 duration-300">
               <Dropdown
                 isOpen={add}
                 onClose={() => {

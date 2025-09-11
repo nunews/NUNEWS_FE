@@ -24,6 +24,10 @@ import Etc from "../../assets/images/etc.png";
 import { IoMoonOutline, IoSunnyOutline } from "react-icons/io5";
 import { BiChevronLeft } from "react-icons/bi";
 import { useRouter } from "next/navigation";
+import { IconButton } from "../ui/IconButton";
+import { LuListFilter } from "react-icons/lu";
+import Dropdown from "../ui/Dropdown";
+import { useState } from "react";
 export default function Header({
   logo,
   page,
@@ -48,16 +52,23 @@ export default function Header({
   };
 
   const router = useRouter();
+  const [filter, setFilter] = useState("최신순");
+  const [open, setOpen] = useState(false);
+  const filterHandler = (filtered: string) => {
+    setOpen(true);
+    setFilter(filtered);
+    setOpen(false);
+  };
   return (
     <>
       <div
-        className={`fixed z-20 min-h-15.5 w-full px-5 ${
+        className={` fixed top-0 left-0 right-0 z-20 min-h-15.5 w-full ${
           page === "nuPick"
             ? ""
             : "bg-[var(--color-white)]/85 backdrop-blur-[28px] "
         }`}
       >
-        <div className="flex items-center h-15.5 justify-between ">
+        <div className="max-w-screen-lg mx-auto flex items-center h-15.5 px-5 justify-between ">
           {/* 로고유무 */}
           {logo ? (
             <Image
@@ -85,46 +96,79 @@ export default function Header({
               {!!interest ? "관심사 수정" : "관심사 추가"}
             </button>
           ) : (
-            <button
-              className={`flex items-center justify-center w-9 h-9 rounded-full text-sm transition-all duration-300 ease-in-out cursor-pointer ${
-                dark
-                  ? "bg-[var(--color-gray-100)] hover:bg-[var(--color-gray-90)] "
-                  : "bg-[var(--color-gray-10)] hover:bg-[var(--color-gray-20)]"
-              }`}
-            >
+            <div className="gap-[6px] flex items-center ">
+              {page === "community" && (
+                <>
+                  <IconButton
+                    icon={LuListFilter}
+                    className="bg-[var(--color-gray-10)] hover:bg-[var(--color-gray-20)] rounded-full w-8 h-8 relative"
+                    size={18}
+                    color="#191919"
+                    onClick={() => setOpen(true)}
+                  />
+                  <div className="absolute z-30 top-[54px] right-13">
+                    <Dropdown
+                      isOpen={open}
+                      onClose={() => setOpen(false)}
+                      items={[
+                        {
+                          label: "최신순",
+                          onClick: () => filterHandler("최신순"),
+                        },
+                        {
+                          label: "인기순",
+                          onClick: () => filterHandler("인기순"),
+                        },
+                      ]}
+                    />
+                  </div>
+                </>
+              )}
               {dark && (
-                <IoMoonOutline className="text-[var(--color-white)] w-5 h-5 flex items-center justify-center" />
+                <IconButton
+                  icon={IoMoonOutline}
+                  className="w-9 h-9 rounded-full bg-[var(--color-gray-100)] hover:bg-[var(--color-gray-90)]"
+                  size={20}
+                  color="#ffffff"
+                />
               )}
               {!dark && (
-                <IoSunnyOutline className="text-[var(--color-gray-100)] w-5 h-5 flex items-center justify-center" />
+                <IconButton
+                  icon={IoSunnyOutline}
+                  className="w-9 h-9 rounded-full bg-[var(--color-gray-10)] hover:bg-[var(--color-gray-20)]"
+                  size={20}
+                  color="var(--color-gray-100)"
+                />
               )}
-            </button>
+            </div>
           )}
         </div>
-        {page === "nuPick" &&
-          (!interest || interest.length === 0 ? (
-            <div className="bubble w-full">
-              <p className="flex justify-center items-center text-sm text-[var(--color-white)]">
-                관심사를 선택하고 관심있는 뉴스만 보세요!
-              </p>
-            </div>
-          ) : (
-            <div className="flex w-full h-9 gap-2">
-              {interest.map((category, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-center w-9 h-9 bg-[var(--color-white)]/10 hover:bg-[var(--color-white)]/15 backdrop-blur-lg rounded-full transition-all duration-300 ease-in-out cursor-pointer"
-                >
-                  <Image
-                    src={categoryMap[category]}
-                    alt="sports"
-                    width={24}
-                    height={24}
-                  />
-                </div>
-              ))}
-            </div>
-          ))}
+        <div className="max-w-screen-lg mx-auto">
+          {page === "nuPick" &&
+            (!interest || interest.length === 0 ? (
+              <div className="bubble mx-5">
+                <p className="flex justify-center items-center text-sm text-[var(--color-white)]">
+                  관심사를 선택하고 관심있는 뉴스만 보세요!
+                </p>
+              </div>
+            ) : (
+              <div className="flex h-9 gap-2 overflow-x-auto px-5">
+                {interest.map((category, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-center min-w-9 h-9 bg-[var(--color-white)]/10 hover:bg-[var(--color-white)]/15 backdrop-blur-lg rounded-full transition-all duration-300 ease-in-out cursor-pointer"
+                  >
+                    <Image
+                      src={categoryMap[category]}
+                      alt="sports"
+                      width={24}
+                      height={24}
+                    />
+                  </div>
+                ))}
+              </div>
+            ))}
+        </div>
       </div>
     </>
   );

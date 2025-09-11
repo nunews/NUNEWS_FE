@@ -94,7 +94,7 @@ export default function AllPickPage() {
   return (
     <>
       <div className="h-screen scrollbar-hide">
-        <Header logo={true} nuPick={false} dark={false} interest={[]} />
+        <Header logo={true} dark={false} interest={[]} />
         <main className="h-screen overflow-y-scroll pt-16 pb-18">
           <div>
             <div className="px-4 whitespace-nowrap">

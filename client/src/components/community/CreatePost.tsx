@@ -47,7 +47,7 @@ export default function CreatePost() {
         <Textarea className="mt-2 w-full min-h-[137px] rounded-[12px] text-[var(--color-gray-50)] text-sm" />
       </div>
 
-      <div className="fixed bottom-0 left-0 px-5 w-full h-[90px] flex items-center justify-center gap-[10px] bg-[var(--color-white)]">
+      <div className="max-w-screen-lg mx-auto fixed bottom-0 left-0 right-0 px-5 w-full h-[90px] flex items-center justify-center gap-[10px] bg-[var(--color-white)]">
         <TextButton
           state="default"
           className="rounded-full h-[50px]"

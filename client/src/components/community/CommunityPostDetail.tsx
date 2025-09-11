@@ -3,11 +3,10 @@ import Image from "next/image";
 import profileImg from "../../assets/images/profile1.png";
 import postImg from "../../assets/images/postImg.png";
 import profileImg2 from "../../assets/images/profile2.png";
-import { AiOutlineLike } from "react-icons/ai";
+import { AiFillLike, AiOutlineLike, AiOutlineMore } from "react-icons/ai";
 import { IoEyeOutline } from "react-icons/io5";
 import Input from "../ui/Input";
 import { PiPaperPlaneTiltLight, PiPencilLine } from "react-icons/pi";
-import { EllipsisVertical } from "lucide-react";
 import { useState } from "react";
 import Dropdown from "../ui/Dropdown";
 import { RiDeleteBinLine } from "react-icons/ri";
@@ -35,13 +34,13 @@ export default function CommunityPostDetail() {
     },
   ];
   const [open, setOpen] = useState(Array(comments.length).fill(false));
-
+  const [like, setLike] = useState(false);
   const toggleOpen = (i: number) => {
     setOpen((prev) => prev.map((v, idx) => (idx === i ? !open[i] : v)));
   };
   return (
     <>
-      <div className="pt-[62px] min-h-screen w-full px-5 relative">
+      <div className="pt-[62px] min-h-screen w-full px-5 pb-[90px] relative">
         {/* 프로필+카테고리 */}
         <div className="mt-4 w-full flex items-center justify-between">
           <div className="flex items-center w-auto h-9">
@@ -73,10 +72,21 @@ export default function CommunityPostDetail() {
         </p>
 
         <div className="mt-6 flex items-center text-[#b7b7b7]">
-          <AiOutlineLike className="w-5 h-5  cursor-pointer" />
+          {!like && (
+            <AiOutlineLike
+              onClick={() => setLike(true)}
+              className="w-5 h-5 cursor-pointer hover:text-[var(--color-black)] duration-300"
+            />
+          )}
+          {like && (
+            <AiFillLike
+              onClick={() => setLike(false)}
+              className="w-5 h-5 cursor-pointer text-[var(--color-black)]"
+            />
+          )}
           <p className="ml-[3px] text-base">32</p>
 
-          <IoEyeOutline className="ml-[11px] w-5 h-5 cursor-pointer" />
+          <IoEyeOutline className="ml-[11px] w-5 h-5" />
           <p className="ml-[3px] text-base">124</p>
         </div>
 
@@ -119,7 +129,7 @@ export default function CommunityPostDetail() {
                 </div>
               </div>
               <IconButton
-                icon={EllipsisVertical}
+                icon={AiOutlineMore}
                 size={24}
                 color="#2f2f2f"
                 onClick={() => toggleOpen(i)}

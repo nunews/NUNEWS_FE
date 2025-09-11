@@ -78,3 +78,14 @@ body {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+.recharts-tooltip-wrapper {
+  z-index: 99 !important;
+}
+.recharts-legend-item-text {
+  color: var(--color-gray-100) !important;
+}
+
+.recharts-legend-item .recharts-surface {
+  transform: translateY(-2px);
+}

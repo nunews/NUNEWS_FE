@@ -7,7 +7,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-
+import { CustomTooltip } from "@/components/ui/CustomTooltip";
 const genderData = [{ category: "성별", male: 58, female: 42 }];
 const ageData = [
   { category: "연령", teen: 12, twenties: 35, thirties: 43, fortiesPlus: 10 },
@@ -16,11 +16,13 @@ const ageData = [
 const AudienceAnalyticsChart = () => {
   return (
     <>
-      <div className="border bg-card text-card-foreground rounded-xl p-4 ">
+      <div className="bg-card text-card-foreground rounded-xl p-4 ">
         <div className="mb-4">
-          <h3 className="text-lg font-semibold">누가 이 기사를 봤을까? 🤔</h3>
-          <p className="text-sm text-muted-foreground">
-            이 기사를 본 사용자들의 성별 및 연령대 분포입니다.
+          <h2 className="text-[22px] leading-[140%] font-semibold text-[var(--color-black)]">
+            누가 이 기사를 봤을까? 🤔
+          </h2>
+          <p className="text-base mt-2 leading-[140%] text-[var(--color-gray-100)]">
+            이 기사를 본 사용자들의 <br /> 성별 및 연령대 분포입니다.
           </p>
         </div>
 
@@ -39,37 +41,35 @@ const AudienceAnalyticsChart = () => {
 
                   <Tooltip
                     cursor={false}
-                    contentStyle={{
-                      backgroundColor: "hsl(var(--background))",
-                      borderColor: "hsl(var(--border))",
-                      fontSize: "12px",
-                    }}
-                    itemStyle={{ padding: 0 }}
-                    labelStyle={{ display: "none" }}
+                    content={<CustomTooltip />}
+                    offset={20}
                   />
+
                   <Legend
                     verticalAlign="bottom"
                     align="right"
                     iconType="circle"
+                    iconSize={8}
                     wrapperStyle={{
                       fontSize: "12px",
-                      paddingTop: "10px",
                       paddingRight: "10px",
                     }}
                   />
                   <Bar
                     dataKey="male"
                     name="남성"
-                    fill="#6B46C1"
+                    fill="#4359FF"
                     stackId="a"
-                    barSize={12}
+                    barSize={10}
+                    radius={[50, 0, 0, 50]}
                   />
                   <Bar
                     dataKey="female"
                     name="여성"
-                    fill="#B794F4"
+                    fill="#F45C7F"
                     stackId="a"
-                    barSize={12}
+                    barSize={10}
+                    radius={[0, 50, 50, 0]}
                   />
                 </BarChart>
               </ResponsiveContainer>
@@ -79,7 +79,7 @@ const AudienceAnalyticsChart = () => {
           {/* --- 연령대 분포 차트 --- */}
           <div>
             <div className="w-full">
-              <ResponsiveContainer width="100%" height={40}>
+              <ResponsiveContainer width="100%" height={60}>
                 <BarChart
                   layout="vertical"
                   data={ageData}
@@ -89,53 +89,46 @@ const AudienceAnalyticsChart = () => {
                   <XAxis type="number" hide />
                   <YAxis type="category" dataKey="category" hide />
 
-                  <Tooltip
-                    cursor={false}
-                    contentStyle={{
-                      backgroundColor: "hsl(var(--background))",
-                      borderColor: "hsl(var(--border))",
-                      fontSize: "12px",
-                    }}
-                    itemStyle={{ padding: 0 }}
-                    labelStyle={{ display: "none" }}
-                  />
+                  <Tooltip cursor={false} content={<CustomTooltip />} />
                   <Legend
                     verticalAlign="bottom"
                     align="right"
                     iconType="circle"
+                    iconSize={8}
                     wrapperStyle={{
-                      fontSize: "12px",
-                      paddingTop: "10px",
+                      fontSize: "13px",
                       paddingRight: "10px",
                     }}
                   />
                   <Bar
                     dataKey="teen"
                     name="10대"
-                    fill="#5A67D8"
+                    fill="#FCC85B"
                     stackId="b"
-                    barSize={12}
+                    barSize={10}
+                    radius={[50, 0, 0, 50]}
                   />
                   <Bar
                     dataKey="twenties"
                     name="20대"
-                    fill="#81E6D9"
+                    fill="#1BD1A1"
                     stackId="b"
-                    barSize={12}
+                    barSize={10}
                   />
                   <Bar
                     dataKey="thirties"
                     name="30대"
-                    fill="#F6E05E"
+                    fill="#2E8FFF"
                     stackId="b"
-                    barSize={12}
+                    barSize={10}
                   />
                   <Bar
                     dataKey="fortiesPlus"
                     name="40대 이상"
-                    fill="#FBD38D"
+                    fill="#6D45FF"
                     stackId="b"
-                    barSize={12}
+                    barSize={10}
+                    radius={[0, 50, 50, 0]}
                   />
                 </BarChart>
               </ResponsiveContainer>

@@ -1,10 +1,9 @@
 "use client";
 import Image from "next/image";
-import { ThumbsUp, Eye } from "lucide-react";
+import { AiOutlineEye, AiOutlineLike, AiOutlineShareAlt } from "react-icons/ai";
 import { TextButton } from "@/components/ui/TextButton";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
-import { IconButton } from "@/components/ui/IconButton";
 import RecommendNews from "@/components/ui/RecommendNews";
 import RecommendPost from "@/components/ui/RecommendPost";
 import AudienceAnalyticsChart from "@/components/articleDetail/AudienceAnalyticsChart";
@@ -85,7 +84,7 @@ export default function NewsDetailPage() {
 
   return (
     <div className="min-h-screen">
-      <Header logo={false} nuPick={false} dark={false} interest={[]} />
+      <Header logo={false} dark={false} interest={[]} />
 
       <div className="px-5 pt-18">
         <div className="text-sm text-[var(--color-gray-70)] mb-2">
@@ -99,14 +98,11 @@ export default function NewsDetailPage() {
           <span>•</span>
           <span>{newsData.source}</span>
           <div className="flex items-center justify-end flex-1 gap-[3px]">
-            <Eye className="w-5 h-5 text-[var(--color-gray-70)]" />
+            <AiOutlineEye className="w-5 h-5 text-[var(--color-gray-70)]" />
             <span className="text-sm text-[var(--color-gray-70)]">
               {newsData.views}
             </span>
           </div>
-        </div>
-        <div className="py-3">
-          <AudienceAnalyticsChart />
         </div>
         <div className="w-full h-64 mb-7.5 rounded-lg overflow-hidden">
           <Image
@@ -133,21 +129,27 @@ export default function NewsDetailPage() {
             {newsData.content}
           </div>
         </div>
-        <div className="flex items-center gap-[11px] pt-4">
+        <div className="flex items-center justify-center gap-4 pt-4">
           <div className="flex items-center gap-[3px]">
-            <IconButton
-              icon={ThumbsUp}
-              size={22}
-              color="var(--color-gray-70)"
-              className="flex gap-[3px]"
-            ></IconButton>
-            <span className="text-[var(--color-gray-70)] items-end">
-              {newsData.likes}
-            </span>
+            <TextButton
+              color="default"
+              className="flex items-center gap-[3px] "
+            >
+              <AiOutlineLike className="w-5 h-5 text-[var(--color-black)]" />
+              <span className="text-[var(--color-black)]">좋아요</span>
+            </TextButton>
+          </div>
+          <div className="flex items-center gap-[3px]">
+            <TextButton className="flex items-center gap-[3px]" color="default">
+              <AiOutlineShareAlt className="w-5 h-5 text-[var(--color-black)]" />
+              <span className="text-[var(--color-black)]">공유하기</span>
+            </TextButton>
           </div>
         </div>
+        <div className="py-3 mt-9">
+          <AudienceAnalyticsChart />
+        </div>
         <div className="border-b border-[var(--color-gray-20)] mt-9" />
-
         {/* 다른 유저의 생각 */}
         <div className="mb-8 mt-10">
           <h2 className="text-[22px] font-bold mb-6">

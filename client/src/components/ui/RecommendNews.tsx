@@ -17,7 +17,7 @@ export default function RecommendNews({ category, title, image }: NewsProps) {
           alt={title}
           width={80}
           height={80}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover rounded-lg"
         />
       </div>
       <div className="flex-1 p-3 flex flex-col justify-center">

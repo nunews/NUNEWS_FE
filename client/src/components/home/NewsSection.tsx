@@ -51,12 +51,13 @@ export default function NewsSection({
         <div className="pt-[113px] max-h-screen">
           <div className="flex w-full min-w-80 h-90 [@media(max-height:700px)]:h-60 mx-auto justify-center overflow-hidden">
             <Image
-              src={data.image}
+              src={data.image || "/images/handsomeLee.png"}
               alt="news image"
               width={320}
               height={360}
               priority
-              className="object-cover w-full min-w-80 rounded-2xl"
+              className="object-cover rounded-2xl"
+              style={{ width: "100%", height: "auto", minWidth: "320px" }}
             />
           </div>
 

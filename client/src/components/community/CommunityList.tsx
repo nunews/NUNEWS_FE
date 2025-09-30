@@ -10,6 +10,8 @@ import { PiPencilSimple } from "react-icons/pi";
 import { VscListSelection } from "react-icons/vsc";
 import { IconButton } from "../ui/IconButton";
 import { useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+import { fetchPost } from "@/app/api/community";
 
 export default function Community() {
   const categories = [
@@ -21,6 +23,7 @@ export default function Community() {
   ];
   const [selected, setSelected] = useState("전체");
   const [add, setAdd] = useState(false);
+  const [sort, setSort] = useState("최신순");
   const buttonRef = useRef<HTMLButtonElement>(null);
   const router = useRouter();
   const goToCreate = () => {
@@ -30,7 +33,11 @@ export default function Community() {
   const goToMypage = () => {
     router.push("/mypage");
   };
-
+  const { data: postData } = useQuery<Post[]>({
+    queryKey: ["communityList", sort, selected],
+    queryFn: () => fetchPost(),
+    staleTime: 1000 * 60 * 3,
+  });
   return (
     <>
       <div className="min-h-screen w-full pt-[62px] pb-[72px]">
@@ -80,10 +87,18 @@ export default function Community() {
 
         {/* 게시글 목록 */}
         <div className="flex flex-col items-center px-5">
-          <CommunityPost />
-          <CommunityPost />
-          <CommunityPost />
-          <CommunityPost />
+          {postData &&
+            postData.map((post, i) => (
+              <CommunityPost
+                key={i}
+                postId={post.post_id}
+                postImage={post.content_image}
+                writerId={post.user_id}
+                categoryId={post.category_id}
+                title={post.title}
+                content={post.contents}
+              />
+            ))}
         </div>
 
         {/* 새 글 추가 */}

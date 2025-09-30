@@ -1,6 +1,6 @@
 "use client";
 
-import Community from "@/components/community/Community";
+import Community from "@/components/community/CommunityList";
 import Footer from "@/components/layout/footer";
 import Header from "@/components/layout/header";
 

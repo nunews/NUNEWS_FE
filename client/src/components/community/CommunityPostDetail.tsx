@@ -11,6 +11,7 @@ import { useState } from "react";
 import Dropdown from "../ui/Dropdown";
 import { RiDeleteBinLine } from "react-icons/ri";
 import { IconButton } from "../ui/IconButton";
+import { useRouter } from "next/navigation";
 
 export default function CommunityPostDetail() {
   const comments = [
@@ -33,6 +34,8 @@ export default function CommunityPostDetail() {
       comment: "님아 동족은 좀... 그렇지 않냐코 ㅠ 너무하다코 ㅠ",
     },
   ];
+  const router = useRouter();
+
   const [open, setOpen] = useState(Array(comments.length).fill(false));
   const [like, setLike] = useState(false);
   const toggleOpen = (i: number) => {

@@ -53,8 +53,8 @@ export default function CommunityPost({
   const mutation = useMutation({
     mutationFn: (liked: boolean) =>
       liked
-        ? postLike(postId, userData.user_id)
-        : postUnlike(postId, userData.user_id),
+        ? postLike(postId, userData?.user_id)
+        : postUnlike(postId, userData?.user_id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["likes", postId] });
     },

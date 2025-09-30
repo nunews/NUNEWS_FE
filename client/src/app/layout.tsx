@@ -3,7 +3,6 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/ui/theme-provider";
-import { Providers } from "./providers";
 
 export const metadata: Metadata = {
   title: "NUNEW",
@@ -30,10 +29,8 @@ export default function RootLayout({
           enableSystem={false} // 시스템 설정 무시
           disableTransitionOnChange
         >
-          <Providers>
-            <div className="max-w-screen-lg mx-auto">{children}</div>
-            <Toaster position="top-center" />
-          </Providers>
+          <div className="max-w-screen-lg mx-auto">{children}</div>
+          <Toaster position="top-center" />
         </ThemeProvider>
       </body>
     </html>

@@ -12,16 +12,29 @@ import { IconButton } from "../ui/IconButton";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { fetchPost } from "@/app/api/community";
+import TabMenu from "../ui/TabMenu";
 
 export default function Community() {
   const categories = [
-    "전체",
-    "정치/경제",
-    "연예/스포츠",
-    "사회/문화",
-    "해외/기타",
+    { id: "all", label: "전체" },
+    {
+      id: "politics/economy",
+      label: "정치/경제",
+    },
+    {
+      id: "entertainment/sports",
+      label: "연예/스포츠",
+    },
+    {
+      id: "social/culture",
+      label: "사회/문화",
+    },
+    {
+      id: "global/etc",
+      label: "해외/기타",
+    },
   ];
-  const [selected, setSelected] = useState("전체");
+  const [selected, setSelected] = useState("all");
   const [add, setAdd] = useState(false);
   const [sort, setSort] = useState("최신순");
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -60,29 +73,12 @@ export default function Community() {
         </button>
 
         {/* 채널 */}
-        <div className="flex items-center w-full mt-[22px] h-[54px] border-b border-[#ebebeb] overflow-hidden">
-          <Swiper spaceBetween={16} slidesPerView="auto">
-            {categories.map((category) => (
-              <SwiperSlide
-                key={category}
-                style={{ width: "auto" }}
-                className=" inline-flex items-center"
-              >
-                <div
-                  onClick={() => {
-                    setSelected(category);
-                  }}
-                  className={`tabChoose h-[54px] px-4 cursor-pointer flex items-center font-semibold ${
-                    selected === category
-                      ? "tabChoose-active text-[var(--color-gray-100)] border-b-2 border-[var(--color-gray-100)]"
-                      : "text-[var(--color-gray-60)]"
-                  }`}
-                >
-                  <h5>{category}</h5>
-                </div>
-              </SwiperSlide>
-            ))}
-          </Swiper>
+        <div className="w-full">
+          <TabMenu
+            tabs={categories}
+            activeTab={selected}
+            onTabClick={setSelected}
+          />
         </div>
 
         {/* 게시글 목록 */}

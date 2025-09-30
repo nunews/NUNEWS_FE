@@ -28,18 +28,21 @@ import { IconButton } from "../ui/IconButton";
 import { LuListFilter } from "react-icons/lu";
 import Dropdown from "../ui/Dropdown";
 import { useRef, useState } from "react";
+import { useTheme } from "next-themes";
+
 export default function Header({
   logo,
   page,
   interest,
-  dark,
-}: {
+}: //dark,
+{
   logo: boolean;
   page?: string;
   interest?: string[];
-  dark?: boolean;
+  //dark?: boolean;
 }) {
-  // console.log(interest);
+  const { theme, setTheme } = useTheme();
+
   const categoryMap: Record<string, StaticImageData> = {
     정치: Politics,
     스포츠: Sports,
@@ -54,10 +57,27 @@ export default function Header({
   const router = useRouter();
   const [filter, setFilter] = useState("최신순");
   const [open, setOpen] = useState(false);
+
   const filterHandler = (filtered: string) => {
     setOpen(true);
     setFilter(filtered);
     setOpen(false);
+  };
+
+  const themeHandler = async (theme: string) => {
+    if (theme === "light") {
+      setTheme("light");
+      await fetch("/api/theme", {
+        method: "POST",
+        body: JSON.stringify({ theme: "light" }),
+      });
+    } else {
+      setTheme("dark");
+      await fetch("/api/theme", {
+        method: "POST",
+        body: JSON.stringify({ theme: "dark" }),
+      });
+    }
   };
   return (
     <>
@@ -65,6 +85,8 @@ export default function Header({
         className={` fixed top-0 left-0 right-0 z-20 min-h-15.5 w-full ${
           page === "nuPick"
             ? ""
+            : theme === "dark"
+            ? "bg-[#121212]/85 backdrop-blur-[28px]"
             : "bg-[var(--color-white)]/85 backdrop-blur-[28px] "
         }`}
       >
@@ -72,7 +94,13 @@ export default function Header({
           {/* 로고유무 */}
           {logo ? (
             <Image
-              src={page === "nuPick" ? Logo : dark ? LogoDark : LogoBlack}
+              src={
+                page === "nuPick"
+                  ? Logo
+                  : theme === "dark"
+                  ? LogoDark
+                  : LogoBlack
+              }
               alt="logo"
               width={68}
               height={25}
@@ -102,9 +130,15 @@ export default function Header({
                   <IconButton
                     ref={buttonRef}
                     icon={LuListFilter}
-                    className="bg-[var(--color-gray-10)] hover:bg-[var(--color-gray-20)] rounded-full w-8 h-8"
+                    className={`rounded-full w-8 h-8 ${
+                      theme === "dark"
+                        ? "bg-[var(--color-gray-100)] hover:bg-[var(--color-gray-90)]"
+                        : "bg-[var(--color-gray-10)] hover:bg-[var(--color-gray-20)]"
+                    }`}
                     size={18}
-                    color="#191919"
+                    color={`${
+                      theme === "dark" ? "var(--color-white)" : "#191919"
+                    }`}
                     onClick={() => {
                       setOpen((prev) => !prev);
                     }}
@@ -130,20 +164,21 @@ export default function Header({
                   )}
                 </div>
               )}
-              {dark && (
+              {theme === "dark" ? (
                 <IconButton
                   icon={IoMoonOutline}
                   className="w-9 h-9 rounded-full bg-[var(--color-gray-100)] hover:bg-[var(--color-gray-90)]"
                   size={20}
                   color="#ffffff"
+                  onClick={() => themeHandler("light")}
                 />
-              )}
-              {!dark && (
+              ) : (
                 <IconButton
                   icon={IoSunnyOutline}
                   className="w-9 h-9 rounded-full bg-[var(--color-gray-10)] hover:bg-[var(--color-gray-20)]"
                   size={20}
                   color="var(--color-gray-100)"
+                  onClick={() => themeHandler("dark")}
                 />
               )}
             </div>

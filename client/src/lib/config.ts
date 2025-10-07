@@ -1,6 +1,6 @@
 export const API_CONFIG: ApiConfig = {
   BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000/api",
-  OPENAI_API_KEY: process.env.OPENAI_API_KEY || "",
+  OPENAI_API_KEY: process.env.NEXT_PUBLIC_OPENAI_API_KEY || "",
   NEWSDATA_API_KEY: process.env.NEXT_PUBLIC_NEWS_IO_KEY || "",
 };
 

@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import Footer from "../layout/footer";
 import Header from "../layout/header";
 import NewsSection from "./NewsSection";
-import entertainment from "@/assets/images/entertainment.png";
 import { fetchRandomNews } from "@/lib/api/fetchNews";
-import { getCategoryIcon, getCategoryKorean } from "@/lib/categoryMap";
+import { getSupabase } from "@/lib/api/getSupabase";
+import { saveNewstoSupabase } from "@/lib/api/saveSupabase";
 
 export default function Home() {
   const [newsData, setNewsData] = useState<NewsData[]>([]);
@@ -12,34 +12,42 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const loadNews = async () => {
+    const loadRandomNews = async () => {
       try {
         setLoading(true);
+        const existingNews = await getSupabase();
+
+        // 기존 뉴스가 있는지 확인
+        if (existingNews && existingNews.length > 0) {
+          setNewsData(existingNews);
+          setError(null);
+          return;
+        }
+
+        // 없다면 fetch 진행
         const data = await fetchRandomNews("ko");
 
-        // newsIO 데이터를 기존 형식으로 변환
-        const transformedData = data
-          .filter((item) => item.image_url && item.image_url.trim()) // 이미지가 있는 것만 필터링
-          .slice(0, 10)
-          .map((item, index) => ({
-            id: index + 1,
-            category: getCategoryKorean(item.category[0] || "기타"),
-            title: item.title,
-            description:
-              item.description ||
-              item.content?.substring(0, 100) + "..." ||
-              "설명이 없습니다.",
-            image: item.image_url,
-            categoryIcon: getCategoryIcon(item.category[0] || "기타"),
-            likes: Math.floor(Math.random() * 50),
-            views: Math.floor(Math.random() * 200),
-            link: item.link,
-            source: item.source_id,
-            pubDate: item.pubDate,
-          }));
+        const transformedData: NewsData[] = data.map((data: NewsData) => {
+          const originalCategory = data.category[0] || "etc";
 
-        setNewsData(transformedData);
-        console.log(transformedData);
+          return {
+            article_id: data.article_id,
+            category: originalCategory,
+            description: data.description || "내용이 없습니다.",
+            image_url: data.image_url,
+            language: data.language,
+            link: data.link,
+            pubDate: data.pubDate,
+            source_name: data.source_name,
+            source_url: data.source_url,
+            title: data.title,
+            content: data.content || data.description || "내용이 없습니다.",
+          };
+        });
+
+        const savedNews = await saveNewstoSupabase(transformedData);
+
+        setNewsData(savedNews || []);
         setError(null);
       } catch (err) {
         console.error("뉴스 데이터 로딩 실패:", err);
@@ -48,12 +56,16 @@ export default function Home() {
         // 에러 시 기본 더미 데이터 사용
         setNewsData([
           {
-            id: 1,
-            category: "연예",
-            title: "뉴스를 불러오는 중입니다...",
+            article_id: "dummy-1",
+            category: "",
             description: "잠시만 기다려주세요.",
-            image: "/images/handsomeLee.png",
-            categoryIcon: entertainment,
+            image_url: "/images/handsomeLee.png",
+            language: "ko",
+            link: "#",
+            pubDate: new Date().toISOString(),
+            source_name: "NUNEWS",
+            source_url: "#",
+            title: "뉴스를 불러오는 중입니다...",
             likes: 0,
             views: 0,
           },
@@ -63,7 +75,7 @@ export default function Home() {
       }
     };
 
-    loadNews();
+    loadRandomNews();
   }, []);
 
   return (
@@ -76,9 +88,14 @@ export default function Home() {
           interest={["정치", "연예"]}
         />
         <main className="h-screen overflow-y-scroll snap-y snap-mandatory">
-          {newsData.map((item) => (
-            <NewsSection key={item.id} className="snap-start" data={item} />
-          ))}
+          {newsData.length > 0 &&
+            newsData.map((data) => (
+              <NewsSection
+                key={data.article_id}
+                className="snap-start"
+                data={data}
+              />
+            ))}
         </main>
         <Footer isNuPick />
       </div>

@@ -8,6 +8,7 @@ import { IoBookmarkOutline, IoBookmark, IoEyeOutline } from "react-icons/io5";
 import { IconButton as BookmarkButton } from "../ui/IconButton";
 import { AiOutlineLike } from "react-icons/ai";
 import SummaryModal from "../ui/SummaryModal";
+import { allCategoryMap } from "@/lib/categoryUUID";
 
 interface NewsSectionProps {
   className: string;
@@ -35,12 +36,21 @@ export default function NewsSection({
   };
 
   const handleDetail = () => {
-    router.push(`/newsDetail/${data.id}`);
+    router.push(`/newsDetail/${data.article_id}`);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
   };
+
+  // 카테고리 맵핑
+  const categoryInfo = allCategoryMap.find(
+    (item) => item.label === data.category
+  );
+  const categoryIcon =
+    categoryInfo?.icon ||
+    allCategoryMap.find((item) => item.label === "그 외")?.icon;
+  const categoryKorean = data.category || "그 외";
 
   return (
     <section
@@ -51,7 +61,7 @@ export default function NewsSection({
         <div className="pt-[113px] max-h-screen">
           <div className="flex w-full min-w-80 h-90 [@media(max-height:700px)]:h-60 mx-auto justify-center overflow-hidden">
             <Image
-              src={data.image || "/images/handsomeLee.png"}
+              src={data.image_url || "/images/handsomeLee.png"}
               alt="news image"
               width={320}
               height={360}
@@ -65,13 +75,13 @@ export default function NewsSection({
             <div className="mr-6 flex-1">
               <div className="flex gap-0.5">
                 <Image
-                  src={data.categoryIcon}
-                  alt={data.category}
-                  width={20}
-                  height={20}
+                  src={categoryIcon || ""}
+                  alt={categoryKorean}
+                  width={24}
+                  height={24}
                   priority
                 />
-                <p className="text-[var(--color-white)]">{data.category}</p>
+                <p className="text-[var(--color-white)]">{categoryKorean}</p>
               </div>
 
               <div className="flex flex-col cursor-default gap-2 mt-2 [@media(max-height:700px)]:gap-0.5">
@@ -79,7 +89,7 @@ export default function NewsSection({
                   {data.title}
                 </h1>
                 <span className="min-h-15 text-[var(--color-gray-60)] text-sm mt-2 text-ellipsis line-clamp-3 [@media(max-height:70px)]:line-clamp-2">
-                  {data.description}
+                  {data.content}
                 </span>
 
                 {/* 버튼 영역 */}

@@ -156,7 +156,7 @@ export default function NewsSection({
           <SummaryModal
             isOpen={isModalOpen}
             onClose={handleCloseModal}
-            newsContent={data.description}
+            newsContent={data.content || ""}
           />
         </div>
       )}

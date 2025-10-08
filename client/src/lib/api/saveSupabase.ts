@@ -21,11 +21,9 @@ export const saveNewstoSupabase = async (newsData: NewsData[]) => {
         // uuid 찾기
         const categoryId =
           categoryIdMap[koreanCategory as keyof typeof categoryIdMap];
-        console.log("매핑된 category_id:", categoryId);
 
-        // 매칭된 카테고리가 없으면 기타로 설정
-        const finalCategoryId = categoryId || categoryIdMap["기타"];
-        console.log("변환된 category_id:", finalCategoryId);
+        // 매칭된 카테고리가 없으면 그 외
+        const finalCategoryId = categoryId || categoryIdMap["그 외"];
         const { data, error } = await supabase
           .from("News")
           .insert({
@@ -46,14 +44,12 @@ export const saveNewstoSupabase = async (newsData: NewsData[]) => {
         if (error) {
           console.error("뉴스 저장 실패", error);
         } else {
-          console.log("뉴스 저장 완료");
           savedNews.push(data);
         }
       } else {
         savedNews.push(news);
       }
     }
-    console.log("🔄 저장된 뉴스:", savedNews);
     return savedNews;
   } catch (error) {
     console.error("뉴스 저장 중 오류", error);

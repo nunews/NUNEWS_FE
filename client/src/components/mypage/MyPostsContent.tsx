@@ -1,46 +1,110 @@
-import { MyPostItem } from "./MyPostItem";
+// MyPostsContent.tsx
+'use client';
 
-const myPostsData = [
-  {
-    id: 1,
-    title: "야끼니꾸 갈사람",
-    content:
-      "코스닥 시장 육성방안, 기업지배구조 모범규준, 기간산업안정자금 등 경제정책 입안 경험이 풍부해 가계·소상공인 활력...",
-    category: "사회",
-    timeAgo: "2시간전",
-    likes: 32,
-    views: 124,
-    image: "/images/handsomeLee.png",
-  },
-  {
-    id: 2,
-    title: "오늘 저녁은 치킨이닭",
-    content:
-      "전 세계적으로 인기를 끌고 있는 K-드라마의 성공 비결과 앞으로의 전망에 대해 전문가와 이야기 나눠봅니다. 새로운 한류의 바람이...",
-    category: "문화",
-    timeAgo: "5시간전",
-    likes: 102,
-    views: 543,
-    image: "/images/handsomeLee.png",
-  },
-];
+import { useEffect, useState, useCallback } from 'react';
+import createClient from '@/utils/supabase/client';
+import { MyPostItem } from './MyPostItem';
+import { timeAgo } from '@/utils/timeAgo';
 
-export const MyPostsContent = () => {
+type Category = {
+  title: string;
+};
+
+type Post = {
+  post_id: string;
+  user_id: string;
+  category_id: string;
+  title: string;
+  contents: string;
+  content_image: string;
+  created_at: string;
+  Category?: Category | null;
+};
+
+interface MyPostsContentProps {
+  onPostCountChange?: (count: number) => void;
+}
+
+export const MyPostsContent = ({ onPostCountChange }: MyPostsContentProps) => {
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [userId, setUserId] = useState<string | null>(null);
+
+  const supabase = createClient();
+
+  const fetchUser = useCallback(async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (user) setUserId(user.id);
+  }, [supabase]);
+
+  const fetchPosts = useCallback(async () => {
+    if (!userId) return;
+
+    const { data, error } = await supabase
+      .from('Post')
+      .select(
+        `
+        post_id,
+        user_id,
+        category_id,
+        title,
+        contents,
+        content_image,
+        created_at,
+        Category:category_id (title)
+      `
+      )
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('❌ Error fetching posts:', error);
+      setPosts([]);
+      return;
+    }
+
+    const formattedPosts: Post[] = (data || []).map((p) => ({
+      ...p,
+      Category: Array.isArray(p.Category)
+        ? p.Category[0]
+        : p.Category || { title: '' },
+    }));
+
+    setPosts(formattedPosts);
+  }, [userId, supabase]);
+
+  useEffect(() => {
+    fetchUser();
+  }, [fetchUser]);
+
+  useEffect(() => {
+    fetchPosts();
+  }, [fetchPosts]);
+
+  useEffect(() => {
+    if (onPostCountChange) onPostCountChange(posts.length);
+  }, [posts, onPostCountChange]);
+
   return (
-    <div className="flex flex-col space-y-4 px-5">
-      {myPostsData.map((post) => (
-        <MyPostItem
-          key={post.id}
-          id={post.id}
-          title={post.title}
-          content={post.content}
-          category={post.category}
-          timeAgo={post.timeAgo}
-          likes={post.likes}
-          views={post.views}
-          image={post.image}
-        />
-      ))}
+    <div className='flex flex-col space-y-4 px-5'>
+      {posts.length > 0 ? (
+        posts.map((post) => (
+          <MyPostItem
+            key={post.post_id}
+            id={post.post_id}
+            title={post.title}
+            content={post.contents}
+            category={post.Category?.title || ''}
+            timeAgo={timeAgo(post.created_at)}
+            likes={0}
+            views={0}
+            image={post.content_image || '/images/dance.jpg'}
+          />
+        ))
+      ) : (
+        <p className='text-center text-gray-500 mt-4'>작성한 글이 없습니다.</p>
+      )}
     </div>
   );
 };

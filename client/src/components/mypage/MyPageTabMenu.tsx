@@ -6,6 +6,8 @@ import TabMenu from '../ui/TabMenu';
 const MyPageTabMenu = () => {
   const [activeTab, setActiveTab] = useState('scrapped');
   const [scrappedCount, setScrappedCount] = useState(0);
+  const [myPostsCount, setMyPostsCount] = useState(0);
+
   const tabs = [
     {
       id: 'scrapped',
@@ -20,8 +22,12 @@ const MyPageTabMenu = () => {
     {
       id: 'myPosts',
       label: '내가 작성한 글',
-      count: 43,
-      content: <MyPostsContent />,
+      count: myPostsCount,
+      content: (
+        <MyPostsContent
+          onPostCountChange={(count: number) => setMyPostsCount(count)}
+        />
+      ),
     },
   ];
 
@@ -32,6 +38,7 @@ const MyPageTabMenu = () => {
   }));
 
   const activeTabData = tabs.find((tab) => tab.id === activeTab);
+
   return (
     <div className='w-full'>
       <TabMenu

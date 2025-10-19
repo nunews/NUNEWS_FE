@@ -78,7 +78,6 @@ export default function DefaultCard({
           width={120}
           height={120}
           className='object-cover w-full h-full'
-          unoptimized
         />
         <div
           onClick={handleBookmark}

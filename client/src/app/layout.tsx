@@ -3,7 +3,11 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/ui/theme-provider";
+<<<<<<< HEAD
 import { cookies } from "next/headers";
+=======
+import TanstackProvider from "./provider/TanstackProvider";
+>>>>>>> 30e95e350fe6fdf854e71a23b6f1a2a73a4ef471
 
 export const metadata: Metadata = {
   title: "NUNEW",
@@ -32,7 +36,9 @@ export default async function RootLayout({
           enableSystem={true} // 시스템 설정 허용으로 변경
           disableTransitionOnChange
         >
-          <div className="max-w-screen-lg mx-auto">{children}</div>
+          <div className="max-w-screen-lg mx-auto">
+            <TanstackProvider>{children}</TanstackProvider>
+          </div>
           <Toaster position="top-center" />
         </ThemeProvider>
       </body>

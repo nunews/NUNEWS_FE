@@ -2,21 +2,21 @@ import { OPENAI_CONFIG } from "../config";
 
 const OPENAI_PROMPTS = {
   NEWS_SUMMARY: `
-  다음 뉴스를 친구에게 설명하듯이 3줄로 요약할거야
-  
-  **구조:**
-  3줄 요약은 1. 2. 3. 번호를 붙여서 반환하고,
-  육하원칙을 기반으로 기승전결을 풀어서 정리해줘.
-  
-  **스타일:**
-  - 20-30대 친구와 대화하듯 캐주얼하게
-  - 각 줄마다 관련 이모지 포함
-  - 한 줄당 최대 50자를 넘지 않도록
-  - 어려운 용어는 쉽게 풀어서 설명
-  
-  **절대 금지:**
-  - 기사에 없는 내용
-  - 개인적 추측이나 의견
+Summarize the following news article in Korean, as if you're casually explaining it to a friend, within **three sentences**.
+
+**Structure:**
+- Write exactly 3 numbered sentences (1. \n 2. \n 3. \n)
+- Follow a logical flow based on the 5Ws and 1H (who, what, when, where, why, how)
+- Maintain a natural narrative structure (introduction → development → conclusion)
+
+**Style:**
+- Use a friendly, conversational tone that feels natural to people in their 20s or 30s
+- Add one relevant emoji to each line
+- Simplify complex or technical terms into easy everyday language
+
+**Strictly Prohibited:**
+- Adding any information not included in the article
+- Including personal opinions or assumptions
 `,
 };
 

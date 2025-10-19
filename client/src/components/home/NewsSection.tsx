@@ -7,7 +7,6 @@ import { TextButton } from "../ui/TextButton";
 import { IoBookmarkOutline, IoBookmark, IoEyeOutline } from "react-icons/io5";
 import { IconButton as BookmarkButton } from "../ui/IconButton";
 import { AiOutlineLike } from "react-icons/ai";
-import SummaryModal from "../ui/SummaryModal";
 import { allCategoryMap } from "@/lib/categoryUUID";
 
 interface NewsSectionProps {
@@ -15,6 +14,7 @@ interface NewsSectionProps {
   data: NewsData;
   likes?: number;
   views?: number;
+  handleSummary: () => void;
 }
 
 export default function NewsSection({
@@ -22,25 +22,17 @@ export default function NewsSection({
   data,
   likes,
   views,
+  handleSummary,
 }: NewsSectionProps) {
   const [isBookmarked, setIsBookmarked] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const router = useRouter();
 
   const handleBookmark = () => {
     setIsBookmarked(!isBookmarked);
   };
 
-  const handleSummary = () => {
-    setIsModalOpen(true);
-  };
-
   const handleDetail = () => {
     router.push(`/newsDetail/${data.article_id}`);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
   };
 
   // 카테고리 맵핑
@@ -146,20 +138,6 @@ export default function NewsSection({
           </div>
         </div>
       </main>
-
-      {/* 요약 모달창 */}
-      {isModalOpen && (
-        <div
-          className="absolute bottom-20 left-1/2 transform -translate-x-1/2 w-full px-2.5 z-50"
-          style={{ maxWidth: "1024px" }}
-        >
-          <SummaryModal
-            isOpen={isModalOpen}
-            onClose={handleCloseModal}
-            newsContent={data.content || ""}
-          />
-        </div>
-      )}
     </section>
   );
 }

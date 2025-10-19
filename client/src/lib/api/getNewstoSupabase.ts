@@ -1,7 +1,7 @@
 import supabase from "@/lib/supabase";
 import { categoryIdMap } from "@/lib/categoryUUID";
 
-const getKoreanCategoryFromUUID = (categoryId: string): string => {
+export const getKoreanCategoryFromUUID = (categoryId: string): string => {
   // categoryIdMap을 뒤집어서 UUID -> 한글 매핑
   const uuidToKorean: { [key: string]: string } = {};
   Object.entries(categoryIdMap).forEach(([korean, uuid]) => {

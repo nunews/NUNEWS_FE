@@ -8,8 +8,9 @@ import RecommendPost from "@/components/ui/RecommendPost";
 import AudienceAnalyticsChart from "@/components/articleDetail/AudienceAnalyticsChart";
 import { toast } from "sonner";
 import { useParams } from "next/navigation";
-import Typed from "typed.js";
-import { useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import { getSupabaseOneNews } from "@/lib/api/getSupabaseOneNews";
+import { useTyping } from "@/hooks/useTyping";
 
 export default function NewsDetailPage() {
   const params = useParams();
@@ -18,55 +19,39 @@ export default function NewsDetailPage() {
   const [error, setError] = useState<string>("");
   const [showTyping, setShowTyping] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
+  const [newsData, setNewsData] = useState<NewsData | null>(null);
 
-  const typedElement = useRef<HTMLDivElement>(null);
-  const typedInstance = useRef<Typed | null>(null);
+  const { typedRef, runTyped } = useTyping();
 
+  useEffect(() => {
+    const fetchNewsData = async () => {
+      try {
+        setLoading(true);
+        const data = await getSupabaseOneNews(newsId as string);
+        setNewsData(data);
+      } catch (err) {
+        console.error("뉴스데이터 불러오기 실패", err);
+        setError("뉴스데이터를 불러오는데 실패했습니다.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (newsId) {
+      fetchNewsData();
+    }
+  }, [newsId]);
   const handleSummary = () => {
     setShowSummary(true);
-    generateSummary();
+    setShowTyping(true);
   };
 
-  const generateSummary = async () => {
-    setLoading(true);
-    setError("");
-    setShowTyping(false);
-
-    try {
-      // 2초 후 타이핑
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      console.log("로딩 완료, 타이핑 시작!");
-
-      const summaryData = `
-      1. 마르타 구민지 선수가 강속구를 던지다가 사고가 발생했다고 해 ⚾
-      2. 까마귀가 공에 맞고 굴절되어 심판이 다쳤다는데 😱  
-      3. 얼마나 힘이 세길래! 빠른 회복을 기원합니다 🙏`;
-
-      setLoading(false);
-      setShowTyping(true);
-
-      setTimeout(() => {
-        if (typedElement.current) {
-          typedInstance.current = new Typed(typedElement.current, {
-            strings: [summaryData],
-            typeSpeed: 30,
-            showCursor: false,
-          });
-        }
-      }, 100);
-    } catch (err) {
-      setError("요약 생성 중 오류가 발생했습니다.");
-      setLoading(false);
-      console.log(err);
-    }
-  };
   const handleShare = async () => {
     const currentUrl = window.location.href;
     const newsTitle = "뉴스 제목";
 
     // 모바일에서는 공유, 데스크톱에서는 클립보드 복사
     if (
-      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      /Android|webOS|iPhone|iPad|iPod|IEMobile|Opera Mini/i.test(
         navigator.userAgent
       ) &&
       navigator.share
@@ -91,7 +76,7 @@ export default function NewsDetailPage() {
   const copyToClipboard = async (url: string) => {
     try {
       await navigator.clipboard.writeText(url);
-      toast.success("링크가 복사되었습니다! 😀", {
+      toast.success("링크가 복사되었습니다!", {
         duration: 3000,
       });
     } catch (err) {
@@ -102,7 +87,8 @@ export default function NewsDetailPage() {
       document.execCommand("copy");
       document.body.removeChild(textArea);
 
-      toast.success("링크가 복사되었습니다! 😀");
+      toast.success("링크가 복사되었습니다!");
+      console.error("복사 중 에러 발생", err);
     }
   };
   // 다른 유저의 생각 데이터
@@ -163,23 +149,6 @@ export default function NewsDetailPage() {
       image: "/images/handsomeLee.png",
     },
   ];
-  const newsData = {
-    category: "스포츠",
-    title:
-      "나는 자연인이다...붉은 빛 골짜기에서 찍은 자연인의 사장이 세간의 엄청난 화제로 떠올라 광고",
-    date: "2025.09.07",
-    source: "매일경제",
-    image: "/images/handsomeLee.png",
-    content: `코스닥 시장 육성, 기업 지배구조, 산업 안정 자금 등 경제 정책 입안 경험이 풍부한 인사가 대통령의 공약 이행을 뒷받침할 적임자라는 대통령실의 설명이 있습니다.
-강 실장이 해당 인사를 경제 정책 전반에 대한 높은 이해력과 국제 감각을 가졌으며, 코로나19 위기 대응 경험이 있는 민생 위기 극복 정책 집행의 적임자라고 소개했습니다.
-대통령이 경제수석 명칭을 경제성장수석으로 변경하고 하준경 한양대 경제학부 교수를 발탁했다는 내용이 있습니다.
-하 수석이 한국은행 출신으로 실물 경제와 이론을 겸비했으며, 국민경제자문위원회 자문위원으로 활동했다는 설명이 있습니다.
-강 실장이 해당 인사를 거시경제와 산업 정책에 해박한 학자로, 대통령의 공약 수립 과정에 참여하여 경제 성장 철학에 대한 이해도가 높다고 설명했습니다.
-대통령이 재정기획보좌관을 신설하고 류덕현 중앙대 경제학부 교수를 임명했다는 내용이 있습니다.
-류 보좌관이 한국조세재정연구원과 한국재정학회 이사를 지낸 재정 전문가로, 재정의 역할을 강조하는 입장이라고 알려져 있습니다.`,
-    likes: 32,
-    views: 124,
-  };
 
   return (
     <div className="min-h-screen">
@@ -187,25 +156,25 @@ export default function NewsDetailPage() {
 
       <div className="px-5 pt-18">
         <div className="text-sm text-[var(--color-gray-70)] mb-2">
-          {newsData.category}
+          {newsData?.category}
         </div>
         <h1 className="text-[22px] font-bold leading-[140%] mb-3">
-          {newsData.title}
+          {newsData?.title}
         </h1>
         <div className="flex items-center gap-2 text-sm text-[var(--color-gray-70)] mb-7">
-          <span>{newsData.date}</span>
+          <span>{newsData?.pubDate}</span>
           <span>•</span>
-          <span>{newsData.source}</span>
+          <span>{newsData?.source_name}</span>
           <div className="flex items-center justify-end flex-1 gap-[3px]">
             <AiOutlineEye className="w-5 h-5 text-[var(--color-gray-70)]" />
             <span className="text-sm text-[var(--color-gray-70)]">
-              {newsData.views}
+              {newsData?.views}
             </span>
           </div>
         </div>
         <div className="w-full h-64 mb-7.5 rounded-lg overflow-hidden">
           <Image
-            src={newsData.image}
+            src={newsData?.image_url || "/images/handsomeLee.png"}
             alt="뉴스 이미지"
             width={400}
             height={256}
@@ -243,7 +212,7 @@ export default function NewsDetailPage() {
                   <div className="text-center py-6">
                     <p className="text-red-400 text-sm mb-4">{error}</p>
                     <button
-                      onClick={generateSummary}
+                      // onClick={generateSummary}
                       className="px-4 py-2 bg-gradient-to-r from-[#F0FFBC] to-[var(--color-primary-40)] text-black rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
                     >
                       다시 시도
@@ -253,7 +222,7 @@ export default function NewsDetailPage() {
 
                 {showTyping && !loading && (
                   <div className="text-[var(--color-gray-100)] text-base leading-[140%] whitespace-pre-line">
-                    <div ref={typedElement}></div>
+                    <div ref={typedRef}></div>
                   </div>
                 )}
               </div>
@@ -263,7 +232,7 @@ export default function NewsDetailPage() {
         {/* 기사 내용 */}
         <div className="mb-7.5">
           <div className="text-base leading-[160%] whitespace-pre-line text-[var(--color-gray-100)]">
-            {newsData.content}
+            {newsData?.content}
           </div>
         </div>
         <div className="flex items-center justify-center gap-4 pt-4">

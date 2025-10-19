@@ -2,7 +2,6 @@
 import Image from "next/image";
 import profileImg from "../../assets/images/profile1.png";
 import postImg from "../../assets/images/postImg.png";
-import profileImg2 from "../../assets/images/profile2.png";
 import { AiFillLike, AiOutlineLike, AiOutlineMore } from "react-icons/ai";
 import { IoEyeOutline } from "react-icons/io5";
 import Input from "../ui/Input";
@@ -11,36 +10,111 @@ import { useState } from "react";
 import Dropdown from "../ui/Dropdown";
 import { RiDeleteBinLine } from "react-icons/ri";
 import { IconButton } from "../ui/IconButton";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+  fetchComment,
+  fetchPostById,
+  fetchWriter,
+  postComment,
+} from "@/app/api/community";
+import { CategoryInv } from "@/lib/interest";
+import { getCurrentUser } from "@/app/api/auth";
+import Comment from "./Comment";
 
 export default function CommunityPostDetail() {
-  const comments = [
-    {
-      profileImg: profileImg2,
-      nickName: "공허의 코끼리",
-      time: "방금전",
-      comment: "님아 동족은 좀... 그렇지 않냐코 ㅠ 너무하다코 ㅠ",
-    },
-    {
-      profileImg: profileImg,
-      nickName: "역병의 산토끼",
-      time: "방금전",
-      comment: "님아 동족은 좀... 그렇지 않냐코 ㅠ 너무하다코 ㅠ",
-    },
-    {
-      profileImg: profileImg2,
-      nickName: "공허의 코끼리",
-      time: "방금전",
-      comment: "님아 동족은 좀... 그렇지 않냐코 ㅠ 너무하다코 ㅠ",
-    },
-  ];
+  // const comments = [
+  //   {
+  //     profileImg: profileImg2,
+  //     nickName: "공허의 코끼리",
+  //     time: "방금전",
+  //     comment: "님아 동족은 좀... 그렇지 않냐코 ㅠ 너무하다코 ㅠ",
+  //   },
+  //   {
+  //     profileImg: profileImg,
+  //     nickName: "역병의 산토끼",
+  //     time: "방금전",
+  //     comment: "님아 동족은 좀... 그렇지 않냐코 ㅠ 너무하다코 ㅠ",
+  //   },
+  //   {
+  //     profileImg: profileImg2,
+  //     nickName: "공허의 코끼리",
+  //     time: "방금전",
+  //     comment: "님아 동족은 좀... 그렇지 않냐코 ㅠ 너무하다코 ㅠ",
+  //   },
+  // ]
+  const [comment, setComment] = useState("");
   const router = useRouter();
+  const params = useParams();
+  const postId = params.postId;
 
-  const [open, setOpen] = useState(Array(comments.length).fill(false));
+  const { data: postDetailData, isLoading } = useQuery<Post>({
+    queryKey: ["postDetail"],
+    queryFn: async () => {
+      const post = await fetchPostById(postId as string);
+      if (!post) {
+        console.error("게시글 정보가 없습니다");
+        return;
+      }
+      return post;
+    },
+    enabled: !!postId,
+  });
+
+  const writerId = postDetailData?.user_id;
+  // console.log("writerId", writerId);
+
+  //사용자 정보 불러오기
+  const { data: authData } = useQuery({
+    queryKey: ["currentUser"],
+    queryFn: async () => {
+      const user = await getCurrentUser();
+      if (!user) throw new Error("사용자 정보가 없습니다");
+      return user;
+    },
+  });
+
+  //게시글 작성자 정보 불러오기
+  const { data: writerData } = useQuery({
+    queryKey: ["writerDetail", writerId],
+    queryFn: () => fetchWriter(writerId as string),
+    enabled: !!writerId,
+  });
+
+  //댓글 불러오기
+  const { data: commentData } = useQuery({
+    queryKey: ["comment", postDetailData?.post_id],
+    queryFn: () => fetchComment(postDetailData!.post_id),
+    enabled: !!postDetailData?.post_id,
+  });
+
+  //댓글 추가하기
+  const { mutate: addComment } = useMutation({
+    mutationFn: () =>
+      postComment(comment, authData!.id, postDetailData!.post_id),
+    onSuccess: () => {
+      alert("댓글 업로드 성공!");
+    },
+    onError: (error) => {
+      console.error(error);
+      alert("댓글 업로드 실패!");
+    },
+  });
+
+  //댓글 작성자 불러오기
+  // const { data: commentWriterData } = useQuery({
+  //     queryKey: ["writerDetail", writerId],
+  //     queryFn: () => fetchWriter(writerId as string),
+  //     enabled: !!writerId,
+  //   });
+  //const [open, setOpen] = useState(Array(commentData?.length).fill(false));
   const [like, setLike] = useState(false);
-  const toggleOpen = (i: number) => {
-    setOpen((prev) => prev.map((v, idx) => (idx === i ? !open[i] : v)));
-  };
+  // const toggleOpen = (i: number) => {
+  //   setOpen((prev) => prev.map((v, idx) => (idx === i ? !open[i] : v)));
+  // };
+  if (isLoading || !postDetailData) {
+    return <div>로딩중..</div>;
+  }
   return (
     <>
       <div className="pt-[62px] min-h-screen w-full px-5 pb-[90px] relative">
@@ -49,30 +123,25 @@ export default function CommunityPostDetail() {
           <div className="flex items-center w-auto h-9">
             <Image src={profileImg} alt="profileImg" width={36} height={36} />
             <span className="ml-[10px] text-[var(--color-black)] text-base font-semibold">
-              궁극의 흑소
+              {writerData?.nickname}
             </span>
           </div>
-          <p className="text-[var(--color-gray-100)] text-sm">#스포츠</p>
+          <p className="text-[var(--color-gray-100)] text-sm">
+            #{CategoryInv[postDetailData.category_id]}
+          </p>
         </div>
         <div className="relative w-full aspect-[16/10] mt-6">
           <Image
-            src={postImg}
+            src={postDetailData.content_image ?? postImg}
             alt="postImg"
             fill
             className=" rounded-[12px] object-cover"
           />
         </div>
         <p className="mt-6 text-var(--color-black) text-[22px] font-bold">
-          소고기가 최고지
+          {postDetailData.title}
         </p>
-        <p className="mt-2 h-auto">
-          코스닥 시장 육성방안, 기업지배구조 모범규준, 기간산업안정자금 등
-          경제정책 입안 경험이 풍부해 가계·소상공인 활력 제고, 공정한 경제구조
-          실현 등 이 대통령의 공약 이행을 뒷받침할 적임자라고 대통령실은
-          설명했다. 강 실장은 경제정책 전반에 높은 이해력과 국제감각을 가졌다며
-          코로나19 당시 위기 대응을 담당한 경험을 가진 인사로, 민생 위기 극복을
-          위한 정책 집행에 적임자라고 소개했다.
-        </p>
+        <p className="mt-2 h-auto">{postDetailData.contents}</p>
 
         <div className="mt-6 flex items-center text-[#b7b7b7]">
           {!like && (
@@ -97,17 +166,28 @@ export default function CommunityPostDetail() {
         <div className="mt-6">
           <Input
             rightSlot={
-              <PiPaperPlaneTiltLight className="w-4 h-4 text-[var(--color-gray-100)] cursor-pointer" />
+              <PiPaperPlaneTiltLight
+                onClick={() => addComment()}
+                className="w-4 h-4 text-[var(--color-gray-100)] cursor-pointer"
+              />
             }
             placeholder="댓글을 입력해주세요"
             className="rounded-[50px] w-[320px] h-[50px] text-[var(--color-gray-50)] text-base"
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
           />
         </div>
 
         {/* 댓글 */}
-        {comments.map((comment, i) => (
+        {commentData?.map((comment, i) => (
           <div key={i} className="relative">
-            <div className="mt-6 w-full h-auto flex justify-between">
+            <Comment
+              commentId={comment.comment_id}
+              userId={comment.user_id}
+              comment={comment.content}
+              created_at={comment.created_at}
+            />
+            {/* <div className="mt-6 w-full h-auto flex justify-between">
               <div className="flex items-start">
                 <Image
                   src={comment.profileImg}
@@ -158,7 +238,7 @@ export default function CommunityPostDetail() {
                   },
                 ]}
               />
-            </div>
+            </div> */}
           </div>
         ))}
       </div>

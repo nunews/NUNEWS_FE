@@ -1,4 +1,5 @@
 import supabase from "@/utils/supabase";
+
 //게시글 목록 전체 불러오기
 export const fetchPost = async () => {
   const { data, error } = await supabase
@@ -11,8 +12,23 @@ export const fetchPost = async () => {
   }
   return data ?? [];
 };
+
+// 아이디로 게시글 불러오기
+export const fetchPostById = async (postId: string) => {
+  const { data, error } = await supabase
+    .from("Post")
+    .select("*")
+    .eq("post_id", postId)
+    .single();
+  if (error) {
+    console.error("게시글 불러오기 실패");
+    throw new Error("게시글을 불러오는데 실패했습니다.");
+  }
+  return data;
+};
+
 // 게시글 작성자 정보 불러오기(이름,프로필사진)
-export const fetchWriter = async (userId: number) => {
+export const fetchWriter = async (userId: string) => {
   const { data, error } = await supabase
     .from("User")
     .select("nickname, profile_image")
@@ -26,7 +42,7 @@ export const fetchWriter = async (userId: number) => {
 };
 
 //게시글 좋아요 수 불러오기
-export const fetchLike = async (postId: number) => {
+export const fetchLike = async (postId: string) => {
   const { count, error } = await supabase
     .from("Like")
     .select("*", { count: "exact", head: true })
@@ -40,7 +56,7 @@ export const fetchLike = async (postId: number) => {
 };
 
 //게시글 좋아요 수 업데이트
-export const postLike = async (postId: number, userId: number) => {
+export const postLike = async (postId: string, userId: string) => {
   if (userId) {
     const { error } = await supabase
       .from("Like")
@@ -48,24 +64,23 @@ export const postLike = async (postId: number, userId: number) => {
         {
           user_id: userId,
           post_id: postId,
-          comments_id: null,
+          comment_id: null,
           news_id: null,
         },
       ])
       .select();
 
     if (error) {
-      alert("좋아요 업로드 실패");
       console.error("좋아요 업로드 실패!:", error);
       throw new Error("좋아요 저장 실패");
     } else {
-      console.log("좋아요업로드완료:", postId, userId);
+      //console.log("좋아요업로드완료:", postId, userId);
     }
   }
 };
 
 //좋아요 삭제
-export const postUnlike = async (postId: number, userId: number) => {
+export const postUnlike = async (postId: string, userId: string) => {
   if (!userId || !postId) {
     console.warn("userId나 postId가 없습니다");
     return;
@@ -101,3 +116,86 @@ export const isLikedByUser = async (postId: number, userId: number) => {
 //post-detail
 
 //post-create
+export const postCreate = async (
+  userId: string,
+  categoryId: string,
+  title: string,
+  content: string,
+  content_image: string | null
+) => {
+  const { data, error } = await supabase
+    .from("Post")
+    .insert([
+      {
+        user_id: userId,
+        category_id: categoryId,
+        title: title,
+        contents: content,
+        content_image: content_image,
+      },
+    ])
+    .select();
+  if (error) {
+    console.error("게시글 업로드 실패:", error);
+  } else {
+    console.log("게시글 업로드완료:", title);
+  }
+  return data;
+};
+
+//사용자 정보 불러오기
+export const fetchUser = async (email: string) => {
+  const { data, error } = await supabase
+    .from("User")
+    .select("*")
+    .eq("email", email)
+    .single();
+  if (error) {
+    console.error("사용자 정보 불러오기 실패:", error);
+  } else {
+    console.log("사용자 정보:", data);
+    return data;
+  }
+};
+//댓글 불러오기
+export const fetchComment = async (postId: string) => {
+  const { data, error } = await supabase
+    .from("Comments")
+    .select("*")
+    .eq("post_id", postId);
+  if (error) {
+    console.error("댓글 정보 불러오기 실패:", error);
+  } else {
+    console.log("댓글 정보:", data);
+    return data;
+  }
+};
+//댓글 추가
+export const postComment = async (
+  comment: string,
+  userId: string,
+  postId: string
+) => {
+  if (!userId || !postId || !comment) {
+    console.warn("userId,postId 또는 comment가 없습니다");
+    return;
+  }
+  const { data, error } = await supabase
+    .from("Comments")
+    .insert([
+      {
+        user_id: userId,
+        post_id: postId,
+        content: comment,
+      },
+    ])
+    .select();
+
+  if (error) {
+    console.error("댓글 업로드 실패!:", error);
+    throw new Error("댓글 저장 실패");
+  } else {
+    console.log("댓글업로드완료:", postId, userId, comment);
+  }
+  return data;
+};

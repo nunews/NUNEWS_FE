@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-// import postImg from "../../assets/images/postImg.png";
+import defaultImg from "../../assets/images/postImg.png";
 import profile1 from "../../assets/images/profile1.png";
 import { AiFillLike, AiOutlineLike } from "react-icons/ai";
 import { IoEyeOutline } from "react-icons/io5";
@@ -13,8 +13,9 @@ import {
   postLike,
   postUnlike,
 } from "@/app/api/community";
-import { INTERESTS_DATA } from "@/lib/interest";
-import { getCurrentUser } from "@/app/api/auth";
+import { CategoryInv } from "@/lib/interest";
+//import { INTERESTS_DATA } from "@/lib/interest";
+//import { getCurrentUser } from "@/app/api/auth";
 export default function CommunityPost({
   postId,
   postImage,
@@ -22,20 +23,18 @@ export default function CommunityPost({
   categoryId,
   title,
   content,
+  userId,
 }: {
-  postId: number;
+  postId: string;
   postImage: string;
-  writerId: number;
-  categoryId: number;
+  writerId: string;
+  categoryId: string;
   title: string;
   content: string;
+  userId: string;
 }) {
   const router = useRouter();
   const [like, setLike] = useState(false);
-  const { data: userData } = useQuery({
-    queryKey: ["user"],
-    queryFn: () => getCurrentUser(),
-  });
 
   const { data: writerData } = useQuery({
     queryKey: ["writer"],
@@ -51,10 +50,12 @@ export default function CommunityPost({
   const [likeCount, setLikeCount] = useState(likeData ?? 0);
   const queryClient = useQueryClient();
   const mutation = useMutation({
-    mutationFn: (liked: boolean) =>
-      liked
-        ? postLike(postId, userData?.user_id)
-        : postUnlike(postId, userData?.user_id),
+    mutationFn: (liked: boolean) => {
+      if (!userId) {
+        throw new Error("로그인이 필요합니다");
+      }
+      return liked ? postLike(postId, userId) : postUnlike(postId, userId);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["likes", postId] });
     },
@@ -66,6 +67,10 @@ export default function CommunityPost({
   });
 
   const likeHandler = () => {
+    if (!userId) {
+      alert("로그인이 필요합니다.");
+      return;
+    }
     setLike((prev) => !prev);
     setLikeCount((prev) => prev + (like ? -1 : 1));
     mutation.mutate(!like);
@@ -75,11 +80,11 @@ export default function CommunityPost({
       <div className="group py-6 w-full h-auto border-b border-[#ebebeb] ">
         <div
           className="cursor-pointer"
-          onClick={() => router.push("/community/1")}
+          onClick={() => router.push(`/community/${postId}`)}
         >
           <div className="relative  w-full aspect-[16/9]">
             <Image
-              src={postImage}
+              src={postImage ?? defaultImg}
               alt="postImage"
               fill
               className="rounded-[12px]"
@@ -89,17 +94,17 @@ export default function CommunityPost({
           <div className="mt-4 w-full flex justify-between">
             <div className="w-auto h-9 flex items-center cursor-pointer">
               <Image
-                src={writerData.profile_image}
+                src={writerData?.profile_image ?? profile1}
                 alt="profile1"
                 width={36}
                 height={36}
               />
               <p className="ml-2 text-[var(--color-gray-100)] text-base font-semibold">
-                {writerData.nickname}
+                {writerData?.nickname}
               </p>
             </div>
             <p className="text-[var(--color-gray-100)] text-sm">
-              #{INTERESTS_DATA[categoryId].title}
+              #{CategoryInv[categoryId]}
             </p>
           </div>
 

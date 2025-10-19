@@ -153,7 +153,7 @@ export const fetchUser = async (email: string) => {
   if (error) {
     console.error("사용자 정보 불러오기 실패:", error);
   } else {
-    console.log("사용자 정보:", data);
+    // console.log("사용자 정보:", data);
     return data;
   }
 };

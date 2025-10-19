@@ -35,7 +35,7 @@ export default function CommunityPost({
 }) {
   const router = useRouter();
   const [like, setLike] = useState(false);
-
+  // console.log("postImage", postImage, postId);
   const { data: writerData } = useQuery({
     queryKey: ["writer"],
     queryFn: () => fetchWriter(writerId),

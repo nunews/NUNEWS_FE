@@ -1,7 +1,9 @@
+import { useRouter } from "next/navigation";
 import { AiOutlineLike } from "react-icons/ai";
 import { IoEyeOutline } from "react-icons/io5";
 
 interface RecommendPostProps {
+  postId: number;
   title: string;
   content: string;
   likes: number;
@@ -9,13 +11,23 @@ interface RecommendPostProps {
 }
 
 export default function RecommendPost({
+  postId,
   title,
   content,
   likes,
   views,
 }: RecommendPostProps) {
+  const router = useRouter();
+
+  const handleClick = () => {
+    router.push(`/community/${postId}`);
+  };
+
   return (
-    <div className="bg-[var(--color-white)] hover:bg-[var(--color-gray-10)] transition-colors duration-300 rounded-xl py-5 px-4 border border-[var(--color-gray-30)] cursor-pointer">
+    <div
+      onClick={handleClick}
+      className="bg-[var(--color-white)] hover:bg-[var(--color-gray-10)] transition-colors duration-300 rounded-xl py-5 px-4 border border-[var(--color-gray-30)] cursor-pointer"
+    >
       <div className="mb-2">
         <p className="text-[#313131] font-semibold line-clamp-1">{title}</p>
       </div>

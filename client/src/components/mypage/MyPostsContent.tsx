@@ -83,7 +83,9 @@ export const MyPostsContent = ({ onPostCountChange }: MyPostsContentProps) => {
   }, [fetchPosts]);
 
   useEffect(() => {
-    if (onPostCountChange) onPostCountChange(posts.length);
+    if (posts.length > 0 || posts.length === 0) {
+      onPostCountChange?.(posts.length);
+    }
   }, [posts, onPostCountChange]);
 
   return (

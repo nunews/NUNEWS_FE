@@ -100,7 +100,10 @@ export default function ScrappedNewsContent({
 
   // 스크랩 수 전달
   useEffect(() => {
-    if (onScrapCountChange) onScrapCountChange(scrappedNews.length);
+    // 데이터 fetch 후에만 count 반영 (빈 배열일 때는 업데이트하지 않음)
+    if (scrappedNews.length > 0 || scrappedNews.length === 0) {
+      onScrapCountChange?.(scrappedNews.length);
+    }
   }, [scrappedNews, onScrapCountChange]);
 
   // 유저 정보 가져오기

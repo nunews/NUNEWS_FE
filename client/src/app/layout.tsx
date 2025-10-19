@@ -3,11 +3,8 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/ui/theme-provider";
-<<<<<<< HEAD
 import { cookies } from "next/headers";
-=======
 import TanstackProvider from "./provider/TanstackProvider";
->>>>>>> 30e95e350fe6fdf854e71a23b6f1a2a73a4ef471
 
 export const metadata: Metadata = {
   title: "NUNEW",

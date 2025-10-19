@@ -3,40 +3,139 @@ import Image from "next/image";
 import { AiOutlineEye, AiOutlineLike, AiOutlineShareAlt } from "react-icons/ai";
 import { TextButton } from "@/components/ui/TextButton";
 import Header from "@/components/layout/header";
-import Footer from "@/components/layout/footer";
 import RecommendNews from "@/components/ui/RecommendNews";
 import RecommendPost from "@/components/ui/RecommendPost";
 import AudienceAnalyticsChart from "@/components/articleDetail/AudienceAnalyticsChart";
+import { toast } from "sonner";
+import { useParams } from "next/navigation";
+import Typed from "typed.js";
+import { useRef, useState } from "react";
 
 export default function NewsDetailPage() {
+  const params = useParams();
+  const newsId = params.id;
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string>("");
+  const [showTyping, setShowTyping] = useState(false);
+  const [showSummary, setShowSummary] = useState(false);
+
+  const typedElement = useRef<HTMLDivElement>(null);
+  const typedInstance = useRef<Typed | null>(null);
+
+  const handleSummary = () => {
+    setShowSummary(true);
+    generateSummary();
+  };
+
+  const generateSummary = async () => {
+    setLoading(true);
+    setError("");
+    setShowTyping(false);
+
+    try {
+      // 2초 후 타이핑
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      console.log("로딩 완료, 타이핑 시작!");
+
+      const summaryData = `
+      1. 마르타 구민지 선수가 강속구를 던지다가 사고가 발생했다고 해 ⚾
+      2. 까마귀가 공에 맞고 굴절되어 심판이 다쳤다는데 😱  
+      3. 얼마나 힘이 세길래! 빠른 회복을 기원합니다 🙏`;
+
+      setLoading(false);
+      setShowTyping(true);
+
+      setTimeout(() => {
+        if (typedElement.current) {
+          typedInstance.current = new Typed(typedElement.current, {
+            strings: [summaryData],
+            typeSpeed: 30,
+            showCursor: false,
+          });
+        }
+      }, 100);
+    } catch (err) {
+      setError("요약 생성 중 오류가 발생했습니다.");
+      setLoading(false);
+      console.log(err);
+    }
+  };
+  const handleShare = async () => {
+    const currentUrl = window.location.href;
+    const newsTitle = "뉴스 제목";
+
+    // 모바일에서는 공유, 데스크톱에서는 클립보드 복사
+    if (
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent
+      ) &&
+      navigator.share
+    ) {
+      try {
+        await navigator.share({
+          title: newsTitle,
+          url: currentUrl,
+        });
+      } catch (err) {
+        if (err instanceof Error && err.name !== "AbortError") {
+          // 공유 실패 시 클립보드 복사로 폴백
+          await copyToClipboard(currentUrl);
+        }
+      }
+    } else {
+      // 데스크톱에서는 바로 클립보드 복사
+      await copyToClipboard(currentUrl);
+    }
+  };
+
+  const copyToClipboard = async (url: string) => {
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success("링크가 복사되었습니다! 😀", {
+        duration: 3000,
+      });
+    } catch (err) {
+      const textArea = document.createElement("textarea");
+      textArea.value = url;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textArea);
+
+      toast.success("링크가 복사되었습니다! 😀");
+    }
+  };
   // 다른 유저의 생각 데이터
   const posts = [
     {
+      postId: 1,
       title: "손흥민 이번에 사우디 가나요?",
       content: "나는 좀 회의적임........",
       likes: 32,
       views: 124,
     },
     {
+      postId: 2,
       title: "이강인 이번에 몇 골 넣었는지 아시는분 빨리 댓글좀",
       content: "나는 좀 회의적임........",
       likes: 32,
       views: 124,
     },
     {
+      postId: 3,
       title: "골프는 이렇게 치면 안되는데",
       content: "나는 좀 긍정적임........",
       likes: 32,
       views: 124,
     },
     {
+      postId: 4,
       title: "수영은 역시 마이클 조던",
       content: "나는 좀 보수적임........",
       likes: 32,
       views: 124,
     },
   ];
-
   // 관심가질만한 다른 뉴스 데이터
   const relatedNews = [
     {
@@ -115,14 +214,52 @@ export default function NewsDetailPage() {
         </div>
 
         <div className="mb-6 flex items-center gap-3">
-          <TextButton className="w-[97px] h-9 px-4 bg-[var(--color-black)] hover:bg-[var(--color-gray-100)] hover:bg-blur-[4px]">
+          <TextButton
+            onClick={handleSummary}
+            className="w-[97px] h-9 px-4 bg-[var(--color-black)] hover:bg-[var(--color-gray-100)] hover:backdrop-blur-[4px]"
+          >
             <p className="text-sm whitespace-nowrap text-transparent bg-clip-text bg-gradient-to-r from-[#F0FFBC] to-[var(--color-primary-40)]">
               AI 세줄요약
             </p>
           </TextButton>
-          <p className="text-sm">기사를 세 줄로 요약해드려요!</p>
+          <p className="text-sm">기사를 세 줄로 요약해 드려요!</p>
         </div>
 
+        {/* 요약 섹션 */}
+        {showSummary && (
+          <div className="w-full mb-6 animate-in slide-in-from-top-4 duration-300">
+            <div className="bg-[#f6f6f6] rounded-2xl py-6 px-5 border border-[var(--color-gray-30)]">
+              <div>
+                {loading && (
+                  <div className="flex items-center justify-center py-8">
+                    <div className="flex flex-col items-center space-y-3">
+                      <div className="animate-spin rounded-full h-6 w-6 border-2 border-[#181818] border-t-transparent"></div>
+                      <p className="text-sm text-gray-400">요약중입니다...</p>
+                    </div>
+                  </div>
+                )}
+
+                {error && (
+                  <div className="text-center py-6">
+                    <p className="text-red-400 text-sm mb-4">{error}</p>
+                    <button
+                      onClick={generateSummary}
+                      className="px-4 py-2 bg-gradient-to-r from-[#F0FFBC] to-[var(--color-primary-40)] text-black rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
+                    >
+                      다시 시도
+                    </button>
+                  </div>
+                )}
+
+                {showTyping && !loading && (
+                  <div className="text-[var(--color-gray-100)] text-base leading-[140%] whitespace-pre-line">
+                    <div ref={typedElement}></div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
         {/* 기사 내용 */}
         <div className="mb-7.5">
           <div className="text-base leading-[160%] whitespace-pre-line text-[var(--color-gray-100)]">
@@ -131,16 +268,17 @@ export default function NewsDetailPage() {
         </div>
         <div className="flex items-center justify-center gap-4 pt-4">
           <div className="flex items-center gap-[3px]">
-            <TextButton
-              color="default"
-              className="flex items-center gap-[3px] "
-            >
+            <TextButton color="default" className="flex items-center gap-[3px]">
               <AiOutlineLike className="w-5 h-5 text-[var(--color-black)]" />
               <span className="text-[var(--color-black)]">좋아요</span>
             </TextButton>
           </div>
           <div className="flex items-center gap-[3px]">
-            <TextButton className="flex items-center gap-[3px]" color="default">
+            <TextButton
+              onClick={handleShare}
+              className="flex items-center gap-[3px]"
+              color="default"
+            >
               <AiOutlineShareAlt className="w-5 h-5 text-[var(--color-black)]" />
               <span className="text-[var(--color-black)]">공유하기</span>
             </TextButton>
@@ -161,9 +299,10 @@ export default function NewsDetailPage() {
             </span>
           </h2>
           <div className="space-y-[10px]">
-            {posts.map((content, index) => (
+            {posts.map((content) => (
               <RecommendPost
-                key={index}
+                key={content.postId}
+                postId={content.postId}
                 title={content.title}
                 content={content.content}
                 likes={content.likes}
@@ -175,7 +314,7 @@ export default function NewsDetailPage() {
         <div className="border-b border-[var(--color-gray-20)] mt-9" />
 
         {/* 관심 가질만한 다른 뉴스 */}
-        <div className="mb-24 mt-10">
+        <div className="mb-[75px] mt-10">
           <h2 className="text-lg font-bold mb-6">관심 가질만한 다른 뉴스</h2>
           <div className="space-y-4">
             {relatedNews.map((news, index) => (
@@ -189,7 +328,6 @@ export default function NewsDetailPage() {
           </div>
         </div>
       </div>
-      <Footer isNuPick={false} />
     </div>
   );
 }

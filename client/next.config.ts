@@ -4,6 +4,13 @@ const nextConfig: NextConfig = {
   /* config options here */
   images: {
     domains: ["fphzfpdzjejbowwvniqx.supabase.co"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "**",
+      },
+    ],
+    unoptimized: true,
   },
 };
 export default nextConfig;

@@ -20,12 +20,12 @@ export const createSummary = async (
     throw new Error("newsId와 newsContent가 필요합니다.");
   }
 
-  // 1. 메모리 캐시 확인
+  // 1. 처리중인 요청이 있는지 확인
   if (summaryCache.has(newsId)) {
     return await summaryCache.get(newsId)!;
   }
 
-  // 2. 요약 생성 프로세스를 캐시에 저장
+  // 2. 요약 생성 저장
   const summaryPromise = generateSummary(newsId, newsContent);
   summaryCache.set(newsId, summaryPromise);
 
@@ -40,7 +40,7 @@ export const createSummary = async (
   }
 };
 
-// 요약 생성
+// 실제 요약 생성 로직
 const generateSummary = async (
   newsId: string,
   newsContent: string

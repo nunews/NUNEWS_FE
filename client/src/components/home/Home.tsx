@@ -1,75 +1,33 @@
-import { useEffect, useState } from "react";
+"use client";
+
+import { useState } from "react";
 import Footer from "../layout/footer";
 import Header from "../layout/header";
 import NewsSection from "./NewsSection";
-import { loadNewsData } from "@/lib/actions/newsActions";
 import SummaryModal from "../ui/SummaryModal";
+import { useQuery } from "@tanstack/react-query";
+import { fetchNewsData, fetchRandomNews } from "@/lib/api/fetchNews";
 
-export default function Home() {
-  const [newsData, setNewsData] = useState<NewsData[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+export default function Home({ initialNews }: { initialNews: NewsData[] }) {
   const [selectedNews, setSelectedNews] = useState<NewsData | null>(null);
 
-  useEffect(() => {
-    const initializeNews = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+  const {
+    data: newsData,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["newsData"],
+    queryFn: async () => {
+      const freshNews = await fetchRandomNews("ko");
+      return freshNews;
+    },
+    initialData: initialNews,
+    staleTime: 1000 * 60 * 60,
+    refetchInterval: 1000 * 60 * 60,
+  });
 
-        const data = await loadNewsData();
-
-        if (data && data.length > 0) {
-          setNewsData(data);
-        } else {
-          // 데이터가 없을 경우 기본 더미 데이터
-          setNewsData([
-            {
-              article_id: "dummy-1",
-              category: "그 외",
-              description: "잠시만 기다려주세요.",
-              image_url: "/images/handsomeLee.png",
-              language: "ko",
-              link: "#",
-              pubDate: new Date().toISOString(),
-              source_name: "NUNEWS",
-              source_url: "#",
-              title: "뉴스를 불러오는 중입니다...",
-              likes: 0,
-              views: 0,
-            },
-          ]);
-        }
-      } catch (err) {
-        console.error("뉴스 데이터 로딩 실패:", err);
-        setError("뉴스를 불러오는데 실패했습니다.");
-
-        // 에러 시 기본 더미 데이터 사용
-        setNewsData([
-          {
-            article_id: "dummy-error",
-            category: "그 외",
-            description: "네트워크 오류가 발생했습니다.",
-            image_url: "/images/handsomeLee.png",
-            language: "ko",
-            link: "#",
-            pubDate: new Date().toISOString(),
-            source_name: "NUNEWS",
-            source_url: "#",
-            title: "뉴스 로딩 실패",
-            likes: 0,
-            views: 0,
-          },
-        ]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    initializeNews();
-  }, []);
-
-  if (loading) {
+  // 임시 로딩화면
+  if (isLoading) {
     return (
       <div className="h-screen flex items-center justify-center">
         <div className="flex flex-col items-center space-y-4">
@@ -93,20 +51,9 @@ export default function Home() {
           interest={["정치", "연예"]}
         />
         <main className="h-screen overflow-y-scroll snap-y snap-mandatory">
-          {error && (
-            <div className="flex items-center justify-center min-h-screen">
-              <div className="text-center p-6">
-                <p className="text-red-500 text-lg mb-2">{error}</p>
-                <p className="text-gray-500 text-sm">
-                  페이지를 새로고침해주세요
-                </p>
-              </div>
-            </div>
-          )}
-
-          {!error &&
+          {!isError &&
             newsData.length > 0 &&
-            newsData.map((data) => (
+            newsData.map((data: NewsData) => (
               <NewsSection
                 key={data.article_id}
                 className="snap-start"

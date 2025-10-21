@@ -6,7 +6,7 @@ import Header from "../layout/header";
 import NewsSection from "./NewsSection";
 import SummaryModal from "../ui/SummaryModal";
 import { useQuery } from "@tanstack/react-query";
-import { fetchNewsData, fetchRandomNews } from "@/lib/api/fetchNews";
+import { fetchNewsData } from "@/lib/api/fetchNews";
 
 export default function Home({ initialNews }: { initialNews: NewsData[] }) {
   const [selectedNews, setSelectedNews] = useState<NewsData | null>(null);
@@ -18,7 +18,7 @@ export default function Home({ initialNews }: { initialNews: NewsData[] }) {
   } = useQuery({
     queryKey: ["newsData"],
     queryFn: async () => {
-      const freshNews = await fetchRandomNews("ko");
+      const freshNews = await fetchNewsData("korean");
       return freshNews;
     },
     initialData: initialNews,

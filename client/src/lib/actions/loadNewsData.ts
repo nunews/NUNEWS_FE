@@ -1,24 +1,16 @@
+// page.tsx 에서 뉴스 데이터 패치 작업
 "use server";
 
-import { fetchRandomNews } from "@/lib/api/fetchNews";
-import { getSupabase } from "@/lib/api/getNewstoSupabase";
 import { saveNewstoSupabase } from "@/lib/api/saveNewstoSupabase";
+import { fetchNewsData } from "../api/fetchNews";
 
 export async function loadNewsData(): Promise<NewsData[]> {
   try {
-    const existingNews = await getSupabase();
-
-    if (existingNews && existingNews.length > 0) {
-      return existingNews;
-    }
-
-    const fetchedNews = await fetchRandomNews("ko");
+    const fetchedNews = await fetchNewsData("korean");
     const transformedData: NewsData[] = fetchedNews.map((data: NewsData) => {
-      const originalCategory = data.category[0] || "etc";
-
       return {
-        article_id: data.article_id,
-        category: originalCategory,
+        news_id: data.article_id,
+        category: data.category[0] || "etc",
         description: data.description || "내용이 없습니다.",
         image_url: data.image_url,
         language: data.language,
@@ -27,9 +19,9 @@ export async function loadNewsData(): Promise<NewsData[]> {
         source_name: data.source_name,
         source_url: data.source_url,
         title: data.title,
-        content: data.content || data.description || "내용이 없습니다.",
       };
     });
+    console.log(fetchedNews);
 
     const savedNews = await saveNewstoSupabase(transformedData);
     return savedNews || transformedData;

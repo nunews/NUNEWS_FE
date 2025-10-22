@@ -5,25 +5,7 @@ import { useEffect, useState, useCallback } from 'react';
 import createClient from '@/utils/supabase/client';
 import { MyPostItem } from './MyPostItem';
 import { timeAgo } from '@/utils/timeAgo';
-
-type Category = {
-  title: string;
-};
-
-type Post = {
-  post_id: string;
-  user_id: string;
-  category_id: string;
-  title: string;
-  contents: string;
-  content_image: string;
-  created_at: string;
-  Category?: Category | null;
-};
-
-interface MyPostsContentProps {
-  onPostCountChange?: (count: number) => void;
-}
+import type { Post, MyPostsContentProps } from '@/types/post';
 
 export const MyPostsContent = ({ onPostCountChange }: MyPostsContentProps) => {
   const [posts, setPosts] = useState<Post[]>([]);

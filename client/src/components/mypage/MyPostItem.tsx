@@ -1,17 +1,7 @@
 import Image from 'next/image';
 import { AiOutlineLike } from 'react-icons/ai';
 import { IoEyeOutline } from 'react-icons/io5';
-
-interface MyPostItemProps {
-  id: string;
-  title: string;
-  content: string;
-  category: string;
-  timeAgo: string;
-  likes: number;
-  views: number;
-  image: string;
-}
+import { MyPostItemProps } from '@/types/myPostItem';
 
 export const MyPostItem = ({
   title,

@@ -5,47 +5,19 @@ import createClient from '@/utils/supabase/client';
 import DefaultCard from '../ui/DefaultCard';
 import CategoryFilter from './CategoryFilter';
 import { timeAgo } from '@/utils/timeAgo';
-
-type Category = {
-  title: string;
-  category_id: string;
-};
-
-type News = {
-  news_id: string;
-  title: string;
-  content: string;
-  source: string;
-  published_at: string;
-  url: string;
-  view_count: number;
-  like_count: number;
-  image_url: string;
-  Category?: Category;
-};
-
-type UserScrapItem = {
-  created_at: string;
-  News: News;
-};
-
-// Supabase에서 오는 원본 데이터 타입
-type SupabaseUserScrapResponse = {
-  created_at: string;
-  News?: News[]; // join 결과는 배열
-};
-
-interface ScrappedNewsContentProps {
-  onScrapCountChange?: (count: number) => void;
-}
+import { categoryIdMap } from '@/lib/categoryUUID';
+import type {
+  ScrappedNewsContentProps,
+  SupabaseUserScrapResponse,
+  UserScrapItem,
+} from '@/types/scrapNews';
 
 export default function ScrappedNewsContent({
   onScrapCountChange,
 }: ScrappedNewsContentProps) {
   const [scrappedNews, setScrappedNews] = useState<UserScrapItem[]>([]);
-  const [activeCategory, setActiveCategory] = useState('all');
+  const [activeCategory, setActiveCategory] = useState('전체');
   const [userId, setUserId] = useState<string | null>(null);
-
   const supabase = createClient();
 
   // 로그인 사용자 정보 가져오기
@@ -59,7 +31,6 @@ export default function ScrappedNewsContent({
   const fetchScrappedNews = useCallback(async () => {
     if (!userId) return;
 
-    // Supabase에서 모든 스크랩 뉴스 가져오기
     const { data, error } = await supabase
       .from('User_scrap')
       .select(
@@ -80,7 +51,6 @@ export default function ScrappedNewsContent({
       return;
     }
 
-    // 배열 첫 요소 사용 후 React에서 카테고리 필터링
     const formattedData: UserScrapItem[] = (data || [])
       .map((item: SupabaseUserScrapResponse) => {
         const news = Array.isArray(item.News) ? item.News[0] : item.News;
@@ -88,11 +58,11 @@ export default function ScrappedNewsContent({
       })
       .filter((item): item is UserScrapItem => item !== null)
       .filter((item) => {
-        // activeCategory가 'all'이면 모두 통과, 아니면 카테고리 ID 매칭
-        return (
-          activeCategory === 'all' ||
-          item.News.Category?.category_id === activeCategory
-        );
+        if (activeCategory === '전체') return true;
+
+        const selectedCategoryId =
+          categoryIdMap[activeCategory as keyof typeof categoryIdMap];
+        return selectedCategoryId === item.News.Category?.category_id;
       });
 
     setScrappedNews(formattedData);
@@ -100,10 +70,7 @@ export default function ScrappedNewsContent({
 
   // 스크랩 수 전달
   useEffect(() => {
-    // 데이터 fetch 후에만 count 반영 (빈 배열일 때는 업데이트하지 않음)
-    if (scrappedNews.length > 0 || scrappedNews.length === 0) {
-      onScrapCountChange?.(scrappedNews.length);
-    }
+    onScrapCountChange?.(scrappedNews.length);
   }, [scrappedNews, onScrapCountChange]);
 
   // 유저 정보 가져오기

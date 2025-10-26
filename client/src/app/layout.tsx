@@ -1,19 +1,19 @@
-import type { Metadata } from "next";
-import localFont from "next/font/local";
-import "./globals.css";
-import { Toaster } from "@/components/ui/sonner";
-import { ThemeProvider } from "@/components/ui/theme-provider";
-import Providers from "./providers/providers";
+import type { Metadata } from 'next';
+import localFont from 'next/font/local';
+import './globals.css';
+import { Toaster } from '@/components/ui/sonner';
+import { ThemeProvider } from '@/components/ui/theme-provider';
+import TanstackProvider from './provider/TanstackProvider';
 
 export const metadata: Metadata = {
-  title: "NUNEW",
-  description: "누구나 간단히 읽는 쉬운 뉴스, 누뉴",
+  title: 'NUNEW',
+  description: '누구나 간단히 읽는 쉬운 뉴스, 누뉴',
 };
 const pretendard = localFont({
-  src: "../../public/fonts/PretendardVariable.woff2",
-  display: "swap",
-  weight: "100 900",
-  variable: "--font-pretendard",
+  src: '../../public/fonts/PretendardVariable.woff2',
+  display: 'swap',
+  weight: '100 900',
+  variable: '--font-pretendard',
 });
 
 export default function RootLayout({
@@ -24,7 +24,7 @@ export default function RootLayout({
   return (
     <html lang="ko" suppressHydrationWarning>
       <body className={`${pretendard.variable} w-full`}>
-        <Providers>
+        <TanstackProvider>
           <ThemeProvider
             attribute="class"
             defaultTheme="light"
@@ -34,7 +34,7 @@ export default function RootLayout({
             <div className="max-w-screen-lg mx-auto">{children}</div>
             <Toaster position="top-center" />
           </ThemeProvider>
-        </Providers>
+        </TanstackProvider>
       </body>
     </html>
   );

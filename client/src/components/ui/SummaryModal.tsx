@@ -48,13 +48,11 @@ export default function SummaryModal({
       // 이후 타이핑 시작
       setTimeout(() => {
         if (isOpen && summaryResult) {
-          console.log("⌨타이핑 애니메이션 시작");
           setShowTyping(true);
 
           // DOM 업데이트 후 타이핑 실행
           setTimeout(() => {
             runTyped(summaryResult);
-            console.log("타이핑 애니메이션 완료");
           }, 50);
         }
       }, 200);

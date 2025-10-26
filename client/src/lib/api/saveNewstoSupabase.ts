@@ -34,7 +34,7 @@ export const saveNewstoSupabase = async (newsData: NewsData[]) => {
               published_at: news.pubDate,
               url: news.link,
               view_count: 0,
-              created_at: news.pubDate,
+              created_at: new Date().toISOString(),
               image_url: news.image_url,
             },
             { onConflict: "news_id", ignoreDuplicates: true }

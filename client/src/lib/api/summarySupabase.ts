@@ -46,8 +46,6 @@ const generateSummary = async (
   newsContent: string
 ): Promise<string> => {
   try {
-    console.log("기존 요약 검색:", newsId);
-
     // 기존 요약 확인
     const { data: existingSummary, error: fetchError } = await supabase
       .from("news_summary")

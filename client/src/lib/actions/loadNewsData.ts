@@ -3,10 +3,51 @@
 
 import { saveNewstoSupabase } from "@/lib/api/saveNewstoSupabase";
 import { fetchNewsData } from "../api/fetchNews";
+import { getSupabaseRandomNews } from "../api/getNewstoSupabase";
+import supabase from "../supabase";
 
+async function isDataStale(): Promise<boolean> {
+  try {
+    const { data: latestNews } = await supabase
+      .from("News")
+      .select("created_at")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .single();
+
+    if (!latestNews?.created_at) {
+      return true;
+    }
+
+    const lastFetchTime = new Date(latestNews?.created_at).getTime();
+    const now = Date.now();
+    const oneHour = 60 * 60 * 1000;
+
+    return now - lastFetchTime > oneHour;
+  } catch (error) {
+    console.error("데이터 신선도 확인 실패:", error);
+    return true;
+  }
+}
 export async function loadNewsData(): Promise<NewsData[]> {
   try {
-    const fetchedNews = await fetchNewsData("korean");
+    const existingNews = await getSupabaseRandomNews();
+    const refreshNews = await isDataStale();
+
+    if (!refreshNews) {
+      console.log("뉴스가 최신 상태입니다.");
+      return existingNews;
+    }
+
+    // 신선하지 않으면 외부 API에서 새 데이터 패치
+    console.log("새로 패치 중...");
+    const fetchedNews = await fetchNewsData("ko");
+
+    if (!fetchedNews?.length) {
+      console.warn("새로운 뉴스가 없습니다. 기존 뉴스 반환");
+      return existingNews;
+    }
+
     const transformedData: NewsData[] = fetchedNews.map((data: NewsData) => {
       return {
         news_id: data.article_id,

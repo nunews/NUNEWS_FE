@@ -21,7 +21,7 @@ export default function NewsDetailPage() {
   const [showSummary, setShowSummary] = useState(false);
   const [newsData, setNewsData] = useState<NewsData | null>(null);
 
-  const { typedRef, runTyped } = useTyping();
+  const { typedRef } = useTyping();
 
   useEffect(() => {
     const fetchNewsData = async () => {

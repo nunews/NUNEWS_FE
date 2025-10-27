@@ -1,22 +1,17 @@
-'use client';
+"use client";
 
-import { useEffect, useState, useCallback } from 'react';
-import createClient from '@/utils/supabase/client';
-import DefaultCard from '../ui/DefaultCard';
-import CategoryFilter from './CategoryFilter';
-import { timeAgo } from '@/utils/timeAgo';
-import { categoryIdMap } from '@/lib/categoryUUID';
-import type {
-  ScrappedNewsContentProps,
-  SupabaseUserScrapResponse,
-  UserScrapItem,
-} from '@/types/scrapNews';
+import { useEffect, useState, useCallback } from "react";
+import createClient from "@/utils/supabase/client";
+import DefaultCard from "../ui/DefaultCard";
+import CategoryFilter from "./CategoryFilter";
+import { timeAgo } from "@/utils/timeAgo";
+import { categoryIdMap } from "@/lib/categoryUUID";
 
 export default function ScrappedNewsContent({
   onScrapCountChange,
 }: ScrappedNewsContentProps) {
   const [scrappedNews, setScrappedNews] = useState<UserScrapItem[]>([]);
-  const [activeCategory, setActiveCategory] = useState('전체');
+  const [activeCategory, setActiveCategory] = useState("전체");
   const [userId, setUserId] = useState<string | null>(null);
   const supabase = createClient();
 
@@ -32,7 +27,7 @@ export default function ScrappedNewsContent({
     if (!userId) return;
 
     const { data, error } = await supabase
-      .from('User_scrap')
+      .from("User_scrap")
       .select(
         `
       created_at,
@@ -42,11 +37,11 @@ export default function ScrappedNewsContent({
       )
     `
       )
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false });
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false });
 
     if (error) {
-      console.error('❌ Error fetching scrapped news:', error);
+      console.error("❌ Error fetching scrapped news:", error);
       setScrappedNews([]);
       return;
     }
@@ -58,11 +53,13 @@ export default function ScrappedNewsContent({
       })
       .filter((item): item is UserScrapItem => item !== null)
       .filter((item) => {
-        if (activeCategory === '전체') return true;
+        if (activeCategory === "전체") return true;
 
         const selectedCategoryId =
           categoryIdMap[activeCategory as keyof typeof categoryIdMap];
-        return selectedCategoryId === item.News.Category?.category_id;
+        return (
+          selectedCategoryId === (item.News.Category as Category)?.category_id
+        );
       });
 
     setScrappedNews(formattedData);
@@ -100,7 +97,7 @@ export default function ScrappedNewsContent({
               newsId={item.News.news_id}
               userId={userId}
               title={item.News.title}
-              category={item.News.Category?.title || ''}
+              category={item.News.Category?.title || ""}
               timeAgo={timeAgo(item.News.published_at)}
               likes={item.News.like_count}
               views={item.News.view_count}

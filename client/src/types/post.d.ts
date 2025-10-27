@@ -1,4 +1,4 @@
-type Category = {
+type PostCategory = {
   title: string;
 };
 

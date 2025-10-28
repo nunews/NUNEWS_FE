@@ -3,8 +3,15 @@ import InterestItem from "./InterestItem";
 import { useState } from "react";
 import { toast } from "sonner";
 
-export const InterestList = () => {
-  const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
+interface InterestListProps {
+  selectedInterests: string[];
+  setSelectedInterests: React.Dispatch<React.SetStateAction<string[]>>;
+}
+
+export const InterestList = ({
+  selectedInterests,
+  setSelectedInterests,
+}: InterestListProps) => {
   const MAX_SELECTIONS = 3;
 
   const handleInterestClick = (title: string) => {

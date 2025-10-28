@@ -2,6 +2,7 @@
  *  @param isNuPick - 누픽 페이지인지 아닌지 여부
  */
 "use client";
+import { useTheme } from "next-themes";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { PiListStar } from "react-icons/pi";
@@ -10,6 +11,7 @@ import { TbMessageChatbot } from "react-icons/tb";
 import { VscBook } from "react-icons/vsc";
 
 export default function Footer({ isNuPick }: { isNuPick?: boolean }) {
+  const { theme, setTheme } = useTheme();
   const channels = [
     { icon: PiListStar, label: "누픽" },
     { icon: VscBook, label: "올픽" },
@@ -44,7 +46,7 @@ export default function Footer({ isNuPick }: { isNuPick?: boolean }) {
     <>
       <div
         className={`max-w-screen-lg mx-auto rounded-t-2xl fixed bottom-0 left-0 right-0 z-20  ${
-          isNuPick
+          isNuPick || theme === "dark"
             ? "bg-[#121212] shadow-[inset_0_0_0_1px_#181818]"
             : "bg-[var(--color-white)] shadow-[inset_0_0_0_1px_#ebebeb]"
         }`}
@@ -54,7 +56,7 @@ export default function Footer({ isNuPick }: { isNuPick?: boolean }) {
             <button
               key={index}
               className={`flex flex-col items-center justify-center flex-1 cursor-pointer transition duration-300 ease-in-out ${
-                isNuPick
+                isNuPick || theme === "dark"
                   ? select === index
                     ? "text-[var(--color-white)]"
                     : "text-[var(--color-gray-80)]"

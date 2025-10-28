@@ -5,7 +5,7 @@ import HotNewsCard from "@/components/ui/HotNewsCard";
 import DefaultCard from "@/components/ui/DefaultCard";
 import hotICon from "@/assets/images/fire.png";
 import Image from "next/image";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Swiper } from "swiper/react";
 import { SwiperSlide } from "swiper/react";
 import "swiper/css";
@@ -66,7 +66,7 @@ export default function AllPickPage() {
   return (
     <>
       <div className="h-screen scrollbar-hide">
-        <Header logo={true} dark={false} interest={[]} />
+        <Header logo={true} interest={[]} />
         <main className="h-screen overflow-y-scroll pt-16 pb-18">
           <div>
             <div className="px-4 whitespace-nowrap">

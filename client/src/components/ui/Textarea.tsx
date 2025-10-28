@@ -8,9 +8,7 @@
 export default function Textarea({
   className,
   ...props
-}: {
-  className: string;
-}) {
+}: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
   return (
     <>
       <div>

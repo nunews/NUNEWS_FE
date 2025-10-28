@@ -10,17 +10,35 @@ import { PiPencilSimple } from "react-icons/pi";
 import { VscListSelection } from "react-icons/vsc";
 import { IconButton } from "../ui/IconButton";
 import { useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+import { fetchLike, fetchPost, fetchUser } from "@/app/api/community";
+import TabMenu from "../ui/TabMenu";
+import { getCurrentUser } from "@/app/api/auth";
+import { Category, CategoryInv } from "@/lib/interest";
 
-export default function Community() {
+export default function CommunityList() {
   const categories = [
-    "전체",
-    "정치/경제",
-    "연예/스포츠",
-    "사회/문화",
-    "해외/기타",
+    { id: "all", label: "전체" },
+    {
+      id: "politics/economy",
+      label: "정치/경제",
+    },
+    {
+      id: "entertainment/sports",
+      label: "연예/스포츠",
+    },
+    {
+      id: "social/culture",
+      label: "사회/문화",
+    },
+    {
+      id: "global/etc",
+      label: "해외/기타",
+    },
   ];
-  const [selected, setSelected] = useState("전체");
+  const [selected, setSelected] = useState("all");
   const [add, setAdd] = useState(false);
+  const [sort, setSort] = useState("최신순");
   const buttonRef = useRef<HTMLButtonElement>(null);
   const router = useRouter();
   const goToCreate = () => {
@@ -30,7 +48,44 @@ export default function Community() {
   const goToMypage = () => {
     router.push("/mypage");
   };
+  const { data: authData } = useQuery({
+    queryKey: ["currentUser"],
+    queryFn: getCurrentUser,
+  });
+  const email = authData?.email;
+  const userId = authData?.id ?? null;
 
+  const { data: postData } = useQuery<Post[]>({
+    queryKey: ["communityList", sort, selected],
+    queryFn: () => fetchPost(),
+    staleTime: 1000 * 60 * 3,
+  });
+
+  const { data: userDatas } = useQuery<User>({
+    queryKey: ["fetchUser"],
+    queryFn: () => fetchUser(email!),
+    enabled: !!email,
+  });
+
+  const filteredPosts = () => {
+    if (!postData) return [];
+
+    const filtered = postData.filter((post) => {
+      if (selected === "all") return true;
+
+      const selectedKo = categories.find((item) => item.id === selected)?.label;
+      return selectedKo?.includes(CategoryInv[post.category_id]);
+    });
+
+    // if(sort==="최신순"){
+    //   filtered=filtered.sort((a,b)=>new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    // } else if(sort==="인기순"){
+    //   filterd=filtered.sort((a,b)=>b.)
+    // }
+    return filtered;
+  };
+
+  //console.log("사용자정보", userDatas);
   return (
     <>
       <div className="min-h-screen w-full pt-[62px] pb-[72px]">
@@ -40,11 +95,16 @@ export default function Community() {
           className="mt-4 px-5 flex items-center h-[72px]"
         >
           <div className="w-18 h-18 bg-[#f6f6f6] rounded-full flex items-center justify-center">
-            <Image src={defaultImg} alt="defaultImg" width={36} height={36} />
+            <Image
+              src={userDatas?.profile_image ?? defaultImg}
+              alt="defaultImg"
+              width={36}
+              height={36}
+            />
           </div>
           <div className="flex flex-col pl-[14px]">
             <p className="text-[var(--color-gray-100)] font-bold text-lg">
-              독재자 강아지
+              {userDatas?.name}
             </p>
             <p className="text-[var(--color-gray-70)] text-[13px]">
               스포츠, 정치, 문화
@@ -53,37 +113,28 @@ export default function Community() {
         </button>
 
         {/* 채널 */}
-        <div className="flex items-center w-full mt-[22px] h-[54px] border-b border-[#ebebeb] overflow-hidden">
-          <Swiper spaceBetween={16} slidesPerView="auto">
-            {categories.map((category) => (
-              <SwiperSlide
-                key={category}
-                style={{ width: "auto" }}
-                className=" inline-flex items-center"
-              >
-                <div
-                  onClick={() => {
-                    setSelected(category);
-                  }}
-                  className={`tabChoose h-[54px] px-4 cursor-pointer flex items-center font-semibold ${
-                    selected === category
-                      ? "tabChoose-active text-[var(--color-gray-100)] border-b-2 border-[var(--color-gray-100)]"
-                      : "text-[var(--color-gray-60)]"
-                  }`}
-                >
-                  <h5>{category}</h5>
-                </div>
-              </SwiperSlide>
-            ))}
-          </Swiper>
+        <div className="w-full">
+          <TabMenu
+            tabs={categories}
+            activeTab={selected}
+            onTabClick={setSelected}
+          />
         </div>
 
         {/* 게시글 목록 */}
         <div className="flex flex-col items-center px-5">
-          <CommunityPost />
-          <CommunityPost />
-          <CommunityPost />
-          <CommunityPost />
+          {filteredPosts().map((post, i) => (
+            <CommunityPost
+              key={i}
+              postId={post.post_id}
+              postImage={post.content_image}
+              writerId={post.user_id}
+              categoryId={post.category_id}
+              title={post.title}
+              content={post.contents}
+              userId={userId!}
+            />
+          ))}
         </div>
 
         {/* 새 글 추가 */}

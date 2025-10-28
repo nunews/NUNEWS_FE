@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import { cookies } from "next/headers";
 import TanstackProvider from "./provider/TanstackProvider";
+import { cookies } from "next/headers";
 
 export const metadata: Metadata = {
   title: "NUNEW",

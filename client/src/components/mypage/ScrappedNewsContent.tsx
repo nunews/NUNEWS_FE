@@ -1,91 +1,118 @@
-import { useState } from "react";
-import CategoryFilter from "./CategoryFilter";
-import DefaultCard from "../ui/DefaultCard";
-const newsData = [
-  {
-    title:
-      "발리 포세이돈 박은서.. 높이 2,400m 해일을 돌파 해 기네스 기록세워...지구인 최초",
-    category: "사회",
-    timeAgo: "2시간전",
-    likes: 32,
-    views: 124,
-    image: "/images/dance.jpg",
-  },
-  {
-    title: "마르타 구민지 강스윙에 맞은 심판 두개골 골절...모두 애도를 표해",
-    category: "연예",
-    timeAgo: "1시간전",
-    likes: 45,
-    views: 89,
-    image: "/images/manji.png",
-  },
-  {
-    title: "대통령, AI 기반 뉴스 요약 서비스에 깊은 관심 표명",
-    category: "정치",
-    timeAgo: "3시간전",
-    likes: 67,
-    views: 156,
-    image: "/images/positive.png",
-  },
-  {
-    title: "유강민 선수 최고기록 돌파...시 속 620km로 압도적 우승",
-    category: "스포츠",
-    timeAgo: "4시간전",
-    likes: 89,
-    views: 234,
-    image: "/images/dogdog.png",
-  },
-  {
-    title: "새로운 AI 기술로 뉴스 요약 서비스 혁신",
-    category: "기술",
-    timeAgo: "5시간전",
-    likes: 123,
-    views: 456,
-    image: "/images/handsomeLee.png",
-  },
-  {
-    title: "경제 전망 보고서 발표...내년 성장률 예상",
-    category: "경제",
-    timeAgo: "6시간전",
-    likes: 78,
-    views: 234,
-    image: "/images/happy2.png",
-  },
-];
+'use client';
 
-const ScrappedNewsContent = () => {
-  const [activeCategory, setActiveCategory] = useState("all");
+import { useEffect, useState, useCallback } from 'react';
+import createClient from '@/utils/supabase/client';
+import DefaultCard from '../ui/DefaultCard';
+import CategoryFilter from './CategoryFilter';
+import { timeAgo } from '@/utils/timeAgo';
+import { categoryIdMap } from '@/lib/categoryUUID';
+import type {
+  ScrappedNewsContentProps,
+  SupabaseUserScrapResponse,
+  UserScrapItem,
+} from '@/types/scrapNews';
 
-  const filteredNews =
-    activeCategory === "all"
-      ? newsData
-      : newsData.filter((news) => news.category === activeCategory);
+export default function ScrappedNewsContent({
+  onScrapCountChange,
+}: ScrappedNewsContentProps) {
+  const [scrappedNews, setScrappedNews] = useState<UserScrapItem[]>([]);
+  const [activeCategory, setActiveCategory] = useState('전체');
+  const [userId, setUserId] = useState<string | null>(null);
+  const supabase = createClient();
+
+  // 로그인 사용자 정보 가져오기
+  const fetchUser = useCallback(async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (user) setUserId(user.id);
+  }, [supabase]);
+
+  const fetchScrappedNews = useCallback(async () => {
+    if (!userId) return;
+
+    const { data, error } = await supabase
+      .from('User_scrap')
+      .select(
+        `
+      created_at,
+      News:news_id (
+        *,
+        Category:category_id (title, category_id)
+      )
+    `
+      )
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('❌ Error fetching scrapped news:', error);
+      setScrappedNews([]);
+      return;
+    }
+
+    const formattedData: UserScrapItem[] = (data || [])
+      .map((item: SupabaseUserScrapResponse) => {
+        const news = Array.isArray(item.News) ? item.News[0] : item.News;
+        return news ? { created_at: item.created_at, News: news } : null;
+      })
+      .filter((item): item is UserScrapItem => item !== null)
+      .filter((item) => {
+        if (activeCategory === '전체') return true;
+
+        const selectedCategoryId =
+          categoryIdMap[activeCategory as keyof typeof categoryIdMap];
+        return selectedCategoryId === item.News.Category?.category_id;
+      });
+
+    setScrappedNews(formattedData);
+  }, [userId, activeCategory, supabase]);
+
+  // 스크랩 수 전달
+  useEffect(() => {
+    onScrapCountChange?.(scrappedNews.length);
+  }, [scrappedNews, onScrapCountChange]);
+
+  // 유저 정보 가져오기
+  useEffect(() => {
+    fetchUser();
+  }, [fetchUser]);
+
+  // 스크랩 뉴스 가져오기
+  useEffect(() => {
+    fetchScrappedNews();
+  }, [fetchScrappedNews]);
 
   return (
-    <div className="flex flex-col px-5 py-6 mb-18">
-      <div className="mr-[-20px]">
+    <div className='flex flex-col px-5 py-6 mb-18'>
+      <div className='mr-[-20px]'>
         <CategoryFilter
           activeCategory={activeCategory}
           setActiveCategory={setActiveCategory}
         />
       </div>
-      <div className="space-y-4">
-        {filteredNews.map((news, index) => {
-          return (
+
+      <div className='space-y-4'>
+        {scrappedNews.length > 0 ? (
+          scrappedNews.map((item) => (
             <DefaultCard
-              key={index}
-              title={news.title}
-              category={news.category}
-              timeAgo={news.timeAgo}
-              likes={news.likes}
-              views={news.views}
-              image={news.image}
+              key={item.News.news_id}
+              newsId={item.News.news_id}
+              userId={userId}
+              title={item.News.title}
+              category={item.News.Category?.title || ''}
+              timeAgo={timeAgo(item.News.published_at)}
+              likes={item.News.like_count}
+              views={item.News.view_count}
+              image={item.News.image_url}
             />
-          );
-        })}
+          ))
+        ) : (
+          <p className='text-center text-gray-500 mt-4'>
+            불러올 뉴스가 없습니다.
+          </p>
+        )}
       </div>
     </div>
   );
-};
-
-export default ScrappedNewsContent;
+}

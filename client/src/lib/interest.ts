@@ -15,8 +15,6 @@ export const INTERESTS_DATA = [
   { imageSrc: globalImage, title: "해외", subtitle: "aboard" },
   { imageSrc: societyImage, title: "사회", subtitle: "society" },
   { imageSrc: economyImage, title: "경제", subtitle: "economy" },
-  { imageSrc: economyImage, title: "경제", subtitle: "business" },
-  { imageSrc: economyImage, title: "경제", subtitle: "business" },
   { imageSrc: etcImage, title: "기타", subtitle: "etc" },
 ];
 

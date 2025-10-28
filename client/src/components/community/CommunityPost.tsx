@@ -108,7 +108,9 @@ export default function CommunityPost({
             </p>
           </div>
 
-          <p className="mt-4 text-[#191919] text-lg font-bold">{title}</p>
+          <p className="mt-4 text-[#191919] text-lg font-bold line-clamp-1">
+            {title}
+          </p>
           <p className="text-[#191919] group-hover:text-black text-sm line-clamp-2">
             {content}
           </p>

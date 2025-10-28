@@ -8,7 +8,7 @@ import createClient from '@/utils/supabase/client';
 
 interface DefaultCardProps {
   newsId: string;
-  userId: string | null;
+  userId?: string | null;
   title: string;
   category: string;
   timeAgo: string;

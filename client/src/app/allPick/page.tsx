@@ -5,17 +5,34 @@ import HotNewsCard from "@/components/ui/HotNewsCard";
 import DefaultCard from "@/components/ui/DefaultCard";
 import hotICon from "@/assets/images/fire.png";
 import Image from "next/image";
-import { useState } from "react";
+import { use, useEffect, useState } from "react";
 import { Swiper } from "swiper/react";
 import { SwiperSlide } from "swiper/react";
 import "swiper/css";
 import PostCard from "@/components/ui/PostCard";
 import { TextButton } from "@/components/ui/TextButton";
 import CategoryFilter from "@/components/mypage/CategoryFilter";
+import { getSupabaseInterestNews } from "@/lib/api/getNewstoSupabase";
 
 export default function AllPickPage() {
   const [selectedCategory, setSelectedCategory] = useState("전체");
+  const [newsData, setNewsData] = useState<NewsData[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState("");
 
+  useEffect(() => {
+    const fetchNewsData = async () => {
+      const categoryIds = selectedCategory === "전체" ? [] : [selectedCategory];
+      try {
+        setIsLoading(true);
+        const newsList = await getSupabaseInterestNews(categoryIds);
+        setNewsData(newsList);
+      } catch (error) {
+        console.error("뉴스 데이터 가져오기 실패", error);
+      }
+    };
+    fetchNewsData();
+  }, [selectedCategory]);
   // post card data
   const postData = [
     {
@@ -43,51 +60,6 @@ export default function AllPickPage() {
       content: "오늘은 점심을 뭘 먹으면 좋을까? 매일 왜 점심을 먹어야할까?",
       likes: 32,
       views: 124,
-    },
-  ];
-
-  // 더미 뉴스 데이터
-  const newsData = [
-    {
-      title:
-        "발리 포세이돈 박은서.. 높이 2,400m 해일을 돌파 해 기네스 기록세워...지구인 최초",
-      category: "사회",
-      timeAgo: "2시간전",
-      likes: 32,
-      views: 124,
-      image: "/images/dance.jpg",
-    },
-    {
-      title: "마르타 구민지 강스윙에 맞은 심판 두개골 골절...모두 애도를 표해",
-      category: "연예",
-      timeAgo: "1시간전",
-      likes: 45,
-      views: 89,
-      image: "/images/manji.png",
-    },
-    {
-      title: "대통령, AI 기반 뉴스 요약 서비스에 깊은 관심 표명",
-      category: "정치",
-      timeAgo: "3시간전",
-      likes: 67,
-      views: 156,
-      image: "/images/positive.png",
-    },
-    {
-      title: "유강민 선수 최고기록 돌파...시 속 620km로 압도적 우승",
-      category: "스포츠",
-      timeAgo: "4시간전",
-      likes: 89,
-      views: 234,
-      image: "/images/dogdog.png",
-    },
-    {
-      title: "새로운 AI 기술로 뉴스 요약 서비스 혁신",
-      category: "기술",
-      timeAgo: "5시간전",
-      likes: 123,
-      views: 456,
-      image: "/images/handsomeLee.png",
     },
   ];
 
@@ -156,6 +128,7 @@ export default function AllPickPage() {
                     likes={news.likes}
                     views={news.views}
                     image={news.image}
+                    newsId={news.newsId!}
                   />
                 ))}
               </div>
@@ -210,6 +183,7 @@ export default function AllPickPage() {
                   likes={news.likes}
                   views={news.views}
                   image={news.image}
+                  newsId={news.newsId!}
                 />
               ))}
             </div>

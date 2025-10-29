@@ -58,8 +58,7 @@ export default function NewsSection({
               width={320}
               height={360}
               priority
-              className="object-cover rounded-2xl"
-              style={{ width: "100%", height: "auto", minWidth: "320px" }}
+              className="object-cover rounded-2xl w-full h-auto min-w-[320px] aspect-[8/9]"
             />
           </div>
 
@@ -72,7 +71,6 @@ export default function NewsSection({
                   width={24}
                   height={24}
                   priority
-                  style={{ width: "24px", height: "24px" }}
                 />
                 <p className="text-[var(--color-white)]">{categoryKorean}</p>
               </div>

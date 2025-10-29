@@ -12,56 +12,104 @@ import "swiper/css";
 import PostCard from "@/components/ui/PostCard";
 import { TextButton } from "@/components/ui/TextButton";
 import CategoryFilter from "@/components/mypage/CategoryFilter";
-import { getSupabaseInterestNews } from "@/lib/api/getNewstoSupabase";
-
+import {
+  getSupabaseInterestNews,
+  getSupabaseRandomNews,
+} from "@/lib/api/getNewstoSupabase";
+import { Category } from "@/lib/interest";
+import { timeAgo } from "@/utils/timeAgo";
+import { fetchPost, fetchWriter } from "../api/community";
+import { Post } from "@/types/post";
+import { useRouter } from "next/navigation";
 export default function AllPickPage() {
   const [selectedCategory, setSelectedCategory] = useState("전체");
   const [newsData, setNewsData] = useState<NewsData[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState("");
+  const [postData, setPostData] = useState<Post[]>([]);
+  const [isPostLoading, setIsPostLoading] = useState(true);
+
+  const router = useRouter();
+
+  const handlePostCreate = () => {
+    router.push("/community/postCreate");
+  };
 
   useEffect(() => {
     const fetchNewsData = async () => {
-      const categoryIds = selectedCategory === "전체" ? [] : [selectedCategory];
       try {
         setIsLoading(true);
-        const newsList = await getSupabaseInterestNews(categoryIds);
-        setNewsData(newsList);
+        setIsError("");
+
+        let newsList: NewsData[] = [];
+        if (selectedCategory === "전체") {
+          newsList = await getSupabaseRandomNews();
+        } else {
+          const categoryUUID =
+            Category[selectedCategory as keyof typeof Category];
+
+          if (categoryUUID) {
+            console.log("카테고리 UUID:", categoryUUID);
+            newsList = await getSupabaseInterestNews([categoryUUID]);
+
+            // 카테고리에 뉴스가 없으면 랜덤한 뉴스를 가져오기
+            if (!newsList || newsList.length < 10) {
+              console.log("뉴스가 없습니다. 랜덤 뉴스를 가져옵니다.");
+              newsList = await getSupabaseRandomNews();
+            }
+          } else {
+            setIsError(`"${selectedCategory}" 카테고리를 찾을 수 없습니다.`);
+          }
+        }
+
+        // 뉴스를 최신순으로 가져오기 때문에 랜덤으로 섞음
+        const shuffled = newsList?.sort(() => Math.random() - 0.5);
+        const transformedNews = shuffled.map((news) => ({
+          ...news,
+          newsId: news.news_id,
+          timeAgo: timeAgo(news.pubDate),
+          image: news.image_url,
+          likes: news.likes || 0,
+          views: news.views || 0,
+        }));
+
+        setNewsData(transformedNews);
+        console.log(`뉴스 로딩 완료`);
       } catch (error) {
         console.error("뉴스 데이터 가져오기 실패", error);
+        setIsError("뉴스를 가져오는데 실패했습니다.");
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchNewsData();
   }, [selectedCategory]);
-  // post card data
-  const postData = [
-    {
-      profileImage: "/images/profile1.png",
-      username: "혁신적인 돼지",
-      category: "스포츠",
-      content:
-        "아니 나는 진짜 이강인이 결승전 못뛰어서 너무 아쉽꿀꿀다음엔 꼭 이강인이 결승전 뛰었으면 좋겠다꿀ㅠ 어디까지나 팬 입장에서...",
-      likes: 32,
-      views: 124,
-    },
-    {
-      profileImage: "/images/profile1.png",
-      username: "당당한 돼지",
-      category: "스포츠",
-      content:
-        "아니 나는 진짜 이강인이 결승전 못뛰어서 너무 아쉽꿀꿀다음엔 꼭 이강인이 결승전 뛰었으면 좋겠다꿀ㅠ 어디까지나 팬 입장에서...",
-      likes: 32,
-      views: 124,
-    },
-    {
-      profileImage: "/images/profile1.png",
-      username: "배고픈 돼지",
-      category: "연예",
-      content: "오늘은 점심을 뭘 먹으면 좋을까? 매일 왜 점심을 먹어야할까?",
-      likes: 32,
-      views: 124,
-    },
-  ];
+
+  useEffect(() => {
+    const fetchPostData = async () => {
+      try {
+        setIsPostLoading(true);
+        const posts = await fetchPost();
+
+        const postWithUserInfo = await Promise.all(
+          posts.map(async (post) => {
+            const userProfile = await fetchWriter(post.user_id);
+            return {
+              ...post,
+              User: userProfile,
+            };
+          })
+        );
+        setPostData(postWithUserInfo);
+      } catch (error) {
+        console.error("게시글 데이터 가져오기 실패", error);
+        setPostData([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchPostData();
+  }, []);
 
   return (
     <>
@@ -97,15 +145,16 @@ export default function AllPickPage() {
                   grabCursor={true}
                   freeMode={true}
                 >
-                  {newsData.slice(0, 4).map((news, index) => (
-                    <SwiperSlide key={index} className="!w-[300px]">
+                  {newsData.slice(0, 4).map((news) => (
+                    <SwiperSlide key={news.news_id} className="!w-[300px]">
                       <HotNewsCard
+                        newsId={news.news_id || ""}
                         title={news.title}
                         category={news.category}
-                        timeAgo={news.timeAgo}
-                        likes={news.likes}
-                        views={news.views}
-                        image={news.image}
+                        timeAgo={timeAgo(news.pubDate)}
+                        likes={news.likes || 0}
+                        views={news.views || 0}
+                        image={news.image_url || ""}
                       />
                     </SwiperSlide>
                   ))}
@@ -119,16 +168,16 @@ export default function AllPickPage() {
                 모든 뉴스
               </h2>
               <div>
-                {newsData.slice(0, 5).map((news, index) => (
+                {newsData.slice(0, 5).map((news) => (
                   <DefaultCard
-                    key={index}
+                    key={news.news_id}
+                    newsId={news.news_id!}
                     title={news.title}
                     category={news.category}
-                    timeAgo={news.timeAgo}
-                    likes={news.likes}
-                    views={news.views}
-                    image={news.image}
-                    newsId={news.newsId!}
+                    timeAgo={timeAgo(news.pubDate)}
+                    likes={news.likes || 0}
+                    views={news.views || 0}
+                    image={news.image_url || ""}
                   />
                 ))}
               </div>
@@ -148,15 +197,16 @@ export default function AllPickPage() {
                   navigation={false}
                   pagination={{ clickable: true }}
                 >
-                  {postData.map((post, index) => (
-                    <SwiperSlide key={index} className="!w-[278px]">
+                  {postData.map((post) => (
+                    <SwiperSlide key={post?.post_id} className="!w-[278px]">
                       <PostCard
-                        profileImage={post.profileImage}
-                        username={post.username}
-                        category={post.category}
-                        content={post.content}
-                        likes={post.likes}
-                        views={post.views}
+                        postId={post.post_id}
+                        profileImage={post.User?.profile_image || ""}
+                        username={post.User?.nickname || "익명의 누누"}
+                        category={post.category_id}
+                        content={post.contents}
+                        likes={post.like_count || 0}
+                        views={post.view_count || 0}
                       />
                     </SwiperSlide>
                   ))}
@@ -164,7 +214,10 @@ export default function AllPickPage() {
               </div>
 
               <div className="flex justify-center">
-                <TextButton className="bg-[var(--color-black)] w-31 h-10 rounded-full hover:bg-[var(--color-gray-100)]">
+                <TextButton
+                  onClick={handlePostCreate}
+                  className="bg-[var(--color-black)] w-31 h-10 rounded-full hover:bg-[var(--color-gray-100)]"
+                >
                   <p className="text-[var(--color-white)]">글쓰러 가기</p>
                 </TextButton>
               </div>
@@ -174,18 +227,21 @@ export default function AllPickPage() {
               <h2 className="text-lg font-bold text-[var(--color-black)] mb-4">
                 많은 사람들이 좋아한 뉴스
               </h2>
-              {newsData.slice(0, 5).map((news, index) => (
-                <DefaultCard
-                  key={index}
-                  title={news.title}
-                  category={news.category}
-                  timeAgo={news.timeAgo}
-                  likes={news.likes}
-                  views={news.views}
-                  image={news.image}
-                  newsId={news.newsId!}
-                />
-              ))}
+              {newsData
+                .sort((a, b) => (b.views || 0) - (a.views || 0))
+                .slice(0, 5)
+                .map((news) => (
+                  <DefaultCard
+                    key={news.news_id}
+                    newsId={news.news_id!}
+                    title={news.title}
+                    category={news.category}
+                    timeAgo={timeAgo(news.pubDate)}
+                    likes={news.likes || 0}
+                    views={news.views || 0}
+                    image={news.image_url || ""}
+                  />
+                ))}
             </div>
           </div>
         </main>

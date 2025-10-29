@@ -7,9 +7,11 @@ import NewsSection from "./NewsSection";
 import SummaryModal from "../ui/SummaryModal";
 import { useQuery } from "@tanstack/react-query";
 import { fetchNewsData } from "@/lib/api/fetchNews";
+import { useAutoNewsFetch } from "@/hooks/useAutoNewsFetch";
 
 export default function Home({ initialNews }: { initialNews: NewsData[] }) {
   const [selectedNews, setSelectedNews] = useState<NewsData | null>(null);
+  useAutoNewsFetch();
 
   const {
     data: newsData,
@@ -44,18 +46,13 @@ export default function Home({ initialNews }: { initialNews: NewsData[] }) {
   return (
     <>
       <div className="h-screen scrollbar-hide">
-        <Header
-          logo={true}
-          page="nuPick"
-          dark={false}
-          interest={["정치", "연예"]}
-        />
+        <Header logo={true} page="nuPick" interest={["정치", "연예"]} />
         <main className="h-screen overflow-y-scroll snap-y snap-mandatory">
           {!isError &&
             newsData.length > 0 &&
             newsData.map((data: NewsData) => (
               <NewsSection
-                key={data.article_id}
+                key={data.news_id}
                 className="snap-start"
                 data={data}
                 handleSummary={() => setSelectedNews(data)}
@@ -65,14 +62,14 @@ export default function Home({ initialNews }: { initialNews: NewsData[] }) {
         <Footer isNuPick />
         {selectedNews && (
           <div
-            key={selectedNews.article_id}
+            key={selectedNews.news_id}
             className="fixed bottom-20 left-1/2 -translate-x-1/2 w-full px-2.5 z-50 max-w-[1024px]"
           >
             <SummaryModal
               isOpen={!!selectedNews}
               onClose={() => setSelectedNews(null)}
               newsContent={selectedNews.content || ""}
-              newsId={selectedNews.article_id || ""}
+              newsId={selectedNews.news_id || ""}
             />
           </div>
         )}

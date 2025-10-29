@@ -32,7 +32,7 @@ export default function NewsSection({
   };
 
   const handleDetail = () => {
-    router.push(`/newsDetail/${data.article_id}`);
+    router.push(`/newsDetail/${data.news_id}`);
   };
 
   // 카테고리 맵핑
@@ -72,6 +72,7 @@ export default function NewsSection({
                   width={24}
                   height={24}
                   priority
+                  style={{ width: "24px", height: "24px" }}
                 />
                 <p className="text-[var(--color-white)]">{categoryKorean}</p>
               </div>

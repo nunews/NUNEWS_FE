@@ -1,15 +1,16 @@
 import supabase from "@/lib/supabase";
-import { CategoryInv } from "@/lib/interest";
+import { categoryIdMap } from "@/lib/categoryUUID";
 import { getAuthUser } from "../auth/getAuthUser";
 
 export const getKoreanCategoryFromUUID = (categoryId: string): string => {
   // categoryIdMap을 뒤집어서 UUID -> 한글 매핑
   const uuidToKorean: { [key: string]: string } = {};
-  Object.entries(CategoryInv).forEach(([korean, uuid]) => {
+  Object.entries(categoryIdMap).forEach(([korean, uuid]) => {
     uuidToKorean[uuid] = korean;
   });
 
   const koreanCategory = uuidToKorean[categoryId] || "그 외";
+  console.log("UUID 변환 결과:", categoryId, "→", koreanCategory);
   return koreanCategory;
 };
 

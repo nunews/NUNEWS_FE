@@ -1,6 +1,6 @@
 // 뉴스 데이터 타입 정의
 interface NewsData {
-  article_id?: string;
+  news_id?: string;
   category: string;
   content?: string;
   description: string;

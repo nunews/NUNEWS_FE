@@ -4,13 +4,63 @@ import Header from "@/components/layout/header";
 import { InterestList } from "@/components/mypage/InteresetList";
 import ProfileEditForm from "@/components/mypage/ProfileEditForm";
 import { TextButton } from "@/components/ui/TextButton";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import createClient from "@/utils/supabase/client";
 import { toast } from "sonner";
 
 const ProfileSettingPage = () => {
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
+  const [nickname, setNickname] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [currentNickname, setCurrentNickname] = useState("");
+
   const supabase = createClient();
+
+  //유저 정보 가져오기 (닉네임, 관심사)
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+
+      if (userError || !user) {
+        toast.error("로그인이 필요합니다.");
+        return;
+      }
+
+      const userId = user.id;
+
+      const [profileRes, interestRes] = await Promise.all([
+        supabase.from("User").select("nickname").eq("user_id", userId).single(),
+        supabase
+          .from("User_Interests")
+          .select("Category(title)")
+          .eq("user_id", userId),
+      ]);
+
+      const { data: profile, error: profileError } = profileRes;
+      const { data: userInterests, error: interestError } = interestRes;
+
+      if (profileError) {
+        toast.error("프로필 정보를 불러오는 중 오류가 발생했습니다.");
+        return;
+      }
+      if (interestError) {
+        toast.error("관심사를 불러오는 중 오류가 발생했습니다.");
+        return;
+      }
+
+      setCurrentNickname(profile.nickname);
+      const titles =
+        userInterests?.map((item) => item.Category?.title).filter(Boolean) ||
+        [];
+      setSelectedInterests(titles);
+    };
+
+    fetchUserInfo();
+  }, [supabase]);
 
   const handleSave = async () => {
     try {
@@ -24,7 +74,30 @@ const ProfileSettingPage = () => {
         return;
       }
 
+      if (password && password !== confirmPassword) {
+        toast.error("비밀번호가 일치하지 않습니다.");
+        return;
+      }
+
       const userId = user.id;
+
+      //닉네임
+      if (nickname && nickname !== currentNickname) {
+        const { error: profileError } = await supabase
+          .from("User")
+          .update({ nickname })
+          .eq("user_id", userId);
+
+        if (profileError) throw profileError;
+      }
+
+      //비밀번호
+      if (password) {
+        const { error: pwError } = await supabase.auth.updateUser({
+          password,
+        });
+        if (pwError) throw pwError;
+      }
 
       // Category ID 조회
       const { data: categories, error: catErr } = await supabase
@@ -63,7 +136,15 @@ const ProfileSettingPage = () => {
     <div className="flex flex-col min-h-screen">
       <Header logo={false} />
       <main className="flex-grow px-5 pt-18 pb-23">
-        <ProfileEditForm />
+        <ProfileEditForm
+          nickname={nickname}
+          setNickname={setNickname}
+          password={password}
+          setPassword={setPassword}
+          confirmPassword={confirmPassword}
+          setConfirmPassword={setConfirmPassword}
+          currentNickname={currentNickname}
+        />
         <InterestList
           selectedInterests={selectedInterests}
           setSelectedInterests={setSelectedInterests}

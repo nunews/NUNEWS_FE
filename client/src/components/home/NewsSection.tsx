@@ -7,14 +7,14 @@ import { TextButton } from "../ui/TextButton";
 import { IoBookmarkOutline, IoBookmark, IoEyeOutline } from "react-icons/io5";
 import { IconButton as BookmarkButton } from "../ui/IconButton";
 import { AiOutlineLike } from "react-icons/ai";
-import SummaryModal from "../ui/SummaryModal";
 import { allCategoryMap } from "@/lib/categoryUUID";
 
 interface NewsSectionProps {
   className: string;
-  data: NewsData;
+  data: SupabaseNewsData;
   likes?: number;
   views?: number;
+  handleSummary: () => void;
 }
 
 export default function NewsSection({
@@ -22,25 +22,17 @@ export default function NewsSection({
   data,
   likes,
   views,
+  handleSummary,
 }: NewsSectionProps) {
   const [isBookmarked, setIsBookmarked] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const router = useRouter();
 
   const handleBookmark = () => {
     setIsBookmarked(!isBookmarked);
   };
 
-  const handleSummary = () => {
-    setIsModalOpen(true);
-  };
-
   const handleDetail = () => {
-    router.push(`/newsDetail/${data.article_id}`);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
+    router.push(`/newsDetail/${data.news_id}`);
   };
 
   // 카테고리 맵핑
@@ -66,8 +58,7 @@ export default function NewsSection({
               width={320}
               height={360}
               priority
-              className="object-cover rounded-2xl"
-              style={{ width: "100%", height: "auto", minWidth: "320px" }}
+              className="object-cover rounded-2xl w-full h-auto min-w-[320px] aspect-[8/9]"
             />
           </div>
 
@@ -146,20 +137,6 @@ export default function NewsSection({
           </div>
         </div>
       </main>
-
-      {/* 요약 모달창 */}
-      {isModalOpen && (
-        <div
-          className="absolute bottom-20 left-1/2 transform -translate-x-1/2 w-full px-2.5 z-50"
-          style={{ maxWidth: "1024px" }}
-        >
-          <SummaryModal
-            isOpen={isModalOpen}
-            onClose={handleCloseModal}
-            newsContent={data.content || ""}
-          />
-        </div>
-      )}
     </section>
   );
 }

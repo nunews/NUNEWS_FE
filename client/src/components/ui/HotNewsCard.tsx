@@ -3,7 +3,9 @@ import { IoBookmark, IoBookmarkOutline, IoEyeOutline } from "react-icons/io5";
 import { useState } from "react";
 import { IconButton as BookmarkButton } from "./IconButton";
 import { AiOutlineLike } from "react-icons/ai";
+import { useRouter } from "next/navigation";
 interface NewsCardProps {
+  newsId: string;
   title: string;
   category: string;
   timeAgo: string;
@@ -13,6 +15,7 @@ interface NewsCardProps {
 }
 
 export default function NewsCard({
+  newsId,
   title,
   category,
   timeAgo,
@@ -22,9 +25,17 @@ export default function NewsCard({
 }: NewsCardProps) {
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const router = useRouter();
+
+  const handleDetail = () => {
+    router.push(`/newsDetail/${newsId}`);
+  };
 
   return (
-    <div className="w-[300px] h-[280px] bg-[var(--color-white)] rounded-lg overflow-hidden cursor-pointer group">
+    <div
+      onClick={handleDetail}
+      className="w-[300px] h-[280px] bg-[var(--color-white)] rounded-lg overflow-hidden cursor-pointer group"
+    >
       {/* 이미지 영역 */}
       <div className="relative w-full h-[200px]">
         <Image

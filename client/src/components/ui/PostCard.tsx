@@ -1,8 +1,12 @@
 import Image, { StaticImageData } from "next/image";
+import { useRouter } from "next/navigation";
 import { AiOutlineLike } from "react-icons/ai";
 import { IoEyeOutline } from "react-icons/io5";
-
+import defaultProfileImg from "@/assets/images/profile1.png";
+import { CategoryInv } from "@/lib/interest";
+import { Post } from "@/types/post";
 interface PostCardProps {
+  postId: string;
   profileImage: string | StaticImageData;
   username: string;
   category: string;
@@ -13,6 +17,7 @@ interface PostCardProps {
 }
 
 export default function PostCard({
+  postId,
   profileImage,
   username,
   category,
@@ -21,14 +26,23 @@ export default function PostCard({
   views,
   className = "",
 }: PostCardProps) {
+  const router = useRouter();
+
+  const handlePostDetail = () => {
+    router.push(`/community/${postId}`);
+  };
+
+  const koreanCategory = CategoryInv[category];
+
   return (
     <div
+      onClick={handlePostDetail}
       className={`w-[278px] h-[208px] bg-[var(--color-white)] rounded-xl border border-[#e3e3e3] p-4 flex flex-col ${className}`}
     >
       <div className="flex items-center gap-3 mb-3">
         <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
           <Image
-            src={profileImage}
+            src={profileImage || defaultProfileImg}
             alt={username}
             width={32}
             height={32}
@@ -41,11 +55,13 @@ export default function PostCard({
       </div>
 
       <div className="mb-2">
-        <span className="text-[var(--color-gray-70)] text-sm">#{category}</span>
+        <span className="text-[var(--color-gray-70)] text-sm">
+          #{koreanCategory}
+        </span>
       </div>
 
       <div className="flex-1 mb-4">
-        <p className="text-[var(--color-gray-100)] text-sm leading-[140%] line-clamp-6">
+        <p className="text-[var(--color-gray-100)] text-sm leading-[140%] line-clamp-3">
           {content}
         </p>
       </div>

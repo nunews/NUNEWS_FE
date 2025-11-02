@@ -20,7 +20,7 @@ export const getSupabaseOneNews = async (newsId: string) => {
 
     const koreanCategory = getKoreanCategoryFromUUID(data.category_id);
     return {
-      article_id: data.article_id,
+      article_id: data.news_id,
       category: koreanCategory,
       title: data.title,
       description: data.content,

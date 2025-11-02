@@ -1,6 +1,6 @@
 // 뉴스 데이터 타입 정의
 interface NewsData {
-  news_id?: string;
+  article_id?: string;
   category: string;
   content?: string;
   description: string;
@@ -24,5 +24,7 @@ interface SupabaseNewsData {
   published_at: string;
   url: string;
   view_count: number;
+  like_count: number;
   created_at: string;
+  image_url: string;
 }

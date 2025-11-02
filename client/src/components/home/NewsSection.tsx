@@ -11,7 +11,7 @@ import { allCategoryMap } from "@/lib/categoryUUID";
 
 interface NewsSectionProps {
   className: string;
-  data: NewsData;
+  data: SupabaseNewsData;
   likes?: number;
   views?: number;
   handleSummary: () => void;

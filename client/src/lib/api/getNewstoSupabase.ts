@@ -1,6 +1,6 @@
-import supabase from "@/lib/supabase";
-import { categoryIdMap } from "@/lib/categoryUUID";
-import { getAuthUser } from "../auth/getAuthUser";
+import supabase from '@/lib/supabase';
+import { categoryIdMap } from '@/lib/categoryUUID';
+import { getAuthUser } from '../auth/getAuthUser';
 
 export const getKoreanCategoryFromUUID = (categoryId: string): string => {
   // categoryIdMap을 뒤집어서 UUID -> 한글 매핑
@@ -9,8 +9,8 @@ export const getKoreanCategoryFromUUID = (categoryId: string): string => {
     uuidToKorean[uuid] = korean;
   });
 
-  const koreanCategory = uuidToKorean[categoryId] || "그 외";
-  console.log("UUID 변환 결과:", categoryId, "→", koreanCategory);
+  const koreanCategory = uuidToKorean[categoryId] || '그 외';
+  console.log('UUID 변환 결과:', categoryId, '→', koreanCategory);
   return koreanCategory;
 };
 
@@ -18,13 +18,13 @@ export const getKoreanCategoryFromUUID = (categoryId: string): string => {
 export const getSupabaseRandomNews = async () => {
   try {
     const { data, error } = await supabase
-      .from("News")
-      .select("*")
-      .order("created_at", { ascending: false })
+      .from('News')
+      .select('*')
+      .order('created_at', { ascending: false })
       .limit(10);
 
     if (error) {
-      console.error("뉴스 가져오기 실패", error);
+      console.error('뉴스 가져오기 실패', error);
       return [];
     }
 
@@ -49,7 +49,7 @@ export const getSupabaseRandomNews = async () => {
 
     return transformedData;
   } catch (error) {
-    console.error("뉴스 가져오기 실패", error);
+    console.error('뉴스 가져오기 실패', error);
     return [];
   }
 };
@@ -59,24 +59,24 @@ export const getSupabaseInterestNews = async (categoryIds: string[]) => {
   try {
     const { user, isLoggedIn } = await getAuthUser();
     if (!isLoggedIn || !user) {
-      console.log("로그인된 유저가 없습니다.");
+      console.log('로그인된 유저가 없습니다.');
       return [];
     }
 
     // 관심사에 맞는 뉴스 가져오기
     const { data: newsData, error } = await supabase
-      .from("News")
-      .select("*")
-      .in("category_id", categoryIds)
+      .from('News')
+      .select('*')
+      .in('category_id', categoryIds)
       .limit(20);
 
     if (error) {
-      console.error("뉴스 가져오기 실패", error);
+      console.error('뉴스 가져오기 실패', error);
       return [];
     }
 
     if (!newsData?.length) {
-      console.log("선택된 관심사 카테고리에 해당하는 뉴스가 없습니다.");
+      console.log('선택된 관심사 카테고리에 해당하는 뉴스가 없습니다.');
       return [];
     }
 
@@ -101,7 +101,7 @@ export const getSupabaseInterestNews = async (categoryIds: string[]) => {
 
     return transformedData;
   } catch (error) {
-    console.error("뉴스 가져오기 실패", error);
+    console.error('뉴스 가져오기 실패', error);
     return [];
   }
 };

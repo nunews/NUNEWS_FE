@@ -9,7 +9,11 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchNewsData } from "@/lib/api/fetchNews";
 import { useAutoNewsFetch } from "@/hooks/useAutoNewsFetch";
 
-export default function Home({ initialNews }: { initialNews: NewsData[] }) {
+export default function Home({
+  initialNews,
+}: {
+  initialNews: SupabaseNewsData[];
+}) {
   const [selectedNews, setSelectedNews] = useState<NewsData | null>(null);
   useAutoNewsFetch();
 
@@ -50,7 +54,7 @@ export default function Home({ initialNews }: { initialNews: NewsData[] }) {
         <main className="h-screen overflow-y-scroll snap-y snap-mandatory">
           {!isError &&
             newsData.length > 0 &&
-            newsData.map((data: NewsData) => (
+            newsData.map((data: SupabaseNewsData) => (
               <NewsSection
                 key={data.news_id}
                 className="snap-start"

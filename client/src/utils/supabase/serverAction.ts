@@ -1,5 +1,4 @@
-// 서버 컴포넌트에서 사용할 읽기 전용
-"use server";
+// 기존 server.ts 파일을 serverAction.ts 파일로 변경
 
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
@@ -15,7 +14,15 @@ export async function createServerSupabase() {
         getAll() {
           return cookieStore.getAll();
         },
-        setAll() {},
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              cookieStore.set(name, value, options);
+            });
+          } catch (error) {
+            console.error(error);
+          }
+        },
       },
     }
   );

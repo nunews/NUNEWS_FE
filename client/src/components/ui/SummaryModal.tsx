@@ -1,79 +1,88 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { IoClose } from "react-icons/io5";
 import { IconButton } from "./IconButton";
-import { fetchOpenAi } from "@/lib/prompt/openai";
 import { useTyping } from "@/hooks/useTyping";
-
-interface SummaryModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  newsContent: string;
-}
+import { createSummary } from "@/lib/api/summarySupabase";
 
 export default function SummaryModal({
   isOpen,
   onClose,
   newsContent,
+  newsId,
 }: SummaryModalProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
   const [showTyping, setShowTyping] = useState(false);
-
   const { typedRef, runTyped } = useTyping();
 
+  // 중복 실행 방지
+  const isGeneratingRef = useRef(false);
+  const lastNewsIdRef = useRef<string | null>(null);
+
+  const generateSummary = async () => {
+    if (
+      !newsId ||
+      !newsContent ||
+      isGeneratingRef.current ||
+      lastNewsIdRef.current === newsId
+    ) {
+      return;
+    }
+
+    isGeneratingRef.current = true;
+    lastNewsIdRef.current = newsId;
+
+    console.log("요약 생성 시작:", newsId);
+    setLoading(true);
+    setError("");
+    setShowTyping(false);
+
+    try {
+      const summaryResult = await createSummary(newsId, newsContent);
+
+      // 먼저 로딩 종료
+      setLoading(false);
+
+      // 이후 타이핑 시작
+      setTimeout(() => {
+        if (isOpen && summaryResult) {
+          setShowTyping(true);
+
+          // DOM 업데이트 후 타이핑 실행
+          setTimeout(() => {
+            runTyped(summaryResult);
+          }, 50);
+        }
+      }, 200);
+    } catch (err) {
+      console.error("요약 생성 실패:", err);
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "요약 생성 중 오류가 발생했습니다.";
+      setError(errorMessage);
+      setLoading(false);
+      setShowTyping(false);
+    } finally {
+      isGeneratingRef.current = false;
+    }
+  };
+
   useEffect(() => {
-    if (isOpen && newsContent) {
+    if (isOpen && newsContent && newsId) {
       generateSummary();
     }
     if (!isOpen) {
       setLoading(false);
       setError("");
       setShowTyping(false);
+      // 모달 닫힐 때 ref 초기화
+      isGeneratingRef.current = false;
+      lastNewsIdRef.current = null;
     }
-  }, [isOpen, newsContent]);
-
-  const generateSummary = async () => {
-    console.log("AI 요약 시작");
-    console.log("원본 내용:", newsContent);
-
-    setLoading(true);
-    setError("");
-    setShowTyping(false);
-
-    try {
-      // 실제 OpenAI API 호출
-      const summaryResult = await fetchOpenAi(newsContent);
-
-      if (summaryResult) {
-        console.log("AI 요약 생성 완료:", summaryResult);
-
-        setLoading(false);
-        setShowTyping(true);
-
-        // 타이핑 애니메이션 시작
-        setTimeout(async () => {
-          if (isOpen) {
-            console.log("타이핑 시작");
-            setShowTyping(true);
-
-            await runTyped(summaryResult);
-            console.log("타이핑 완료");
-          }
-        }, 100);
-      } else {
-        throw new Error("요약 결과가 없습니다.");
-      }
-    } catch (err) {
-      console.error("요약 생성 실패:", err);
-      setError("요약 생성 중 오류가 발생했습니다. 다시 시도해주세요.");
-      setLoading(false);
-      setShowTyping(false);
-    }
-  };
-
-  if (!isOpen) return null;
+  }, [isOpen, newsId, newsContent]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="z-50 w-full max-w-sm mx-auto px-2.5">
@@ -108,7 +117,7 @@ export default function SummaryModal({
             </div>
           )}
 
-          {showTyping && !loading && (
+          {showTyping && !loading && !error && (
             <div className="text-white text-base leading-relaxed whitespace-pre-line">
               <div ref={typedRef}></div>
             </div>

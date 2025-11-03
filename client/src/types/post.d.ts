@@ -11,6 +11,12 @@ type Post = {
   content_image: string;
   created_at: string;
   Category?: Category | null;
+  view_count: number;
+  like_count?: number;
+  User?: {
+    nickname: string;
+    profile_image: string;
+  } | null;
 };
 
 interface MyPostsContentProps {

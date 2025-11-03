@@ -7,7 +7,7 @@ import { MyPostItem } from "./MyPostItem";
 import { timeAgo } from "@/utils/timeAgo";
 
 export const MyPostsContent = ({ onPostCountChange }: MyPostsContentProps) => {
-  const [posts, setPosts] = useState<Post[]>([]);
+  const [posts, setPosts] = useState<MyPost[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
 
   const supabase = createClient();
@@ -33,7 +33,9 @@ export const MyPostsContent = ({ onPostCountChange }: MyPostsContentProps) => {
         contents,
         content_image,
         created_at,
-        PostCategory:category_id (title)
+        PostCategory:category_id (title),
+        view_count,
+        like_count
       `
       )
       .eq("user_id", userId)
@@ -45,7 +47,7 @@ export const MyPostsContent = ({ onPostCountChange }: MyPostsContentProps) => {
       return;
     }
 
-    const formattedPosts: Post[] = (data || []).map((p) => ({
+    const formattedPosts: MyPost[] = (data || []).map((p) => ({
       ...p,
       PostCategory: Array.isArray(p.PostCategory)
         ? p.PostCategory[0]
@@ -80,8 +82,8 @@ export const MyPostsContent = ({ onPostCountChange }: MyPostsContentProps) => {
             content={post.contents}
             category={post.Category?.title || ""}
             timeAgo={timeAgo(post.created_at)}
-            likes={0}
-            views={0}
+            likes={post.like_count ?? 0}
+            views={post.view_count ?? 0}
             image={post.content_image || "/images/default_nunew.svg"}
           />
         ))

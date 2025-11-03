@@ -4,7 +4,7 @@ import { StaticImageData } from "next/image";
 interface InterestItemProps {
   imageSrc: StaticImageData;
   title: string;
-  subtitle: string;
+  subtitle: string | string[];
   isActive: boolean;
   onClick: () => void;
 }
@@ -28,19 +28,19 @@ const InterestItem = ({
       }`}
       onClick={onClick}
     >
-      <div className="relative w-8 h-8">
+      <div className='relative w-8 h-8'>
         <Image
           src={imageSrc}
           alt={`${title}icon`}
-          layout="fill"
-          objectFit="contain"
+          layout='fill'
+          objectFit='contain'
         />
       </div>
-      <div className="flex-col flex gap-1 items-center pt-3.5">
-        <p className="text-[var(--color-gray-100)] dark:text-[var(--color-white)]">
+      <div className='flex-col flex gap-1 items-center pt-3.5'>
+        <p className='text-[var(--color-gray-100)] dark:text-[var(--color-white)]'>
           {title}
         </p>
-        <p className="text-[var(--color-gray-60)] ">{subtitle}</p>
+        <p className='text-[var(--color-gray-60)] '>{subtitle}</p>
       </div>
     </div>
   );

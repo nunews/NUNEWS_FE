@@ -1,9 +1,10 @@
-import Image from 'next/image';
-import { AiOutlineLike } from 'react-icons/ai';
-import { IoEyeOutline } from 'react-icons/io5';
-import { MyPostItemProps } from '@/types/myPostItem';
+import Image from "next/image";
+import { AiOutlineLike } from "react-icons/ai";
+import { IoEyeOutline } from "react-icons/io5";
+import { useRouter } from "next/navigation";
 
 export const MyPostItem = ({
+  id,
   title,
   content,
   category,
@@ -12,8 +13,17 @@ export const MyPostItem = ({
   views,
   image,
 }: MyPostItemProps) => {
+  const router = useRouter();
+
+  const handleDetail = () => {
+    router.push(`/community/${id}`);
+  };
+
   return (
-    <div className='flex flex-col gap-4 py-6 border-b-1 border-[var(--color-gray-20)]'>
+    <div
+      onClick={handleDetail}
+      className='flex flex-col cursor-pointer gap-4 py-6 border-b-1 border-[var(--color-gray-20)]'
+    >
       <div className='relative w-full aspect-[16/10] overflow-hidden rounded-xl'>
         <Image
           src={image}

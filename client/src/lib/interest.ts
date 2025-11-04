@@ -16,7 +16,9 @@ export const INTERESTS_DATA = [
   { imageSrc: societyImage, title: "사회", subtitle: "society" },
   { imageSrc: economyImage, title: "경제", subtitle: "economy" },
   { imageSrc: etcImage, title: "기타", subtitle: "etc" },
-];
+] as const;
+
+export type Interest = (typeof INTERESTS_DATA)[number];
 
 export const Category: Record<string, string> = {
   정치: "6cb26f12-f252-4dc5-84e1-ca6508c9be92",

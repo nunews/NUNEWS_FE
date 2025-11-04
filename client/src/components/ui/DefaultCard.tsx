@@ -6,6 +6,7 @@ import { IoBookmark, IoBookmarkOutline, IoEyeOutline } from "react-icons/io5";
 import { AiOutlineLike } from "react-icons/ai";
 import createClient from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
+import { useTheme } from "next-themes";
 
 interface DefaultCardProps {
   newsId: string;
@@ -31,6 +32,7 @@ export default function DefaultCard({
   const [isBookmarked, setIsBookmarked] = useState(false);
   const router = useRouter();
   const supabase = createClient();
+  const { theme } = useTheme();
 
   // 초기 상태: 현재 사용자가 이미 스크랩했는지 확인
   useEffect(() => {
@@ -77,45 +79,75 @@ export default function DefaultCard({
   return (
     <div
       onClick={handleDetail}
-      className="w-full h-[169px] bg-white rounded-lg overflow-hidden flex items-center cursor-pointer group"
+      className={`w-full h-[149px] ${
+        theme === "dark" ? "bg-black" : "bg-white"
+      } rounded-lg overflow-hidden flex items-center cursor-pointer group p-4 my-5`}
     >
-      <div className="relative w-30 h-30 flex-shrink-0 flex overflow-hidden rounded-lg">
+      <div className='relative w-30 h-30 flex-shrink-0 flex overflow-hidden rounded-lg'>
         <Image
           src={image}
-          alt="뉴스 이미지"
+          alt='뉴스 이미지'
           width={120}
           height={120}
-          className="object-cover w-full h-full"
+          className='object-cover w-full h-full'
         />
         <div
           onClick={handleBookmark}
-          className="absolute top-2 right-2 z-10 w-7.5 h-7.5 bg-white rounded-full flex items-center justify-center cursor-pointer"
+          className='absolute top-2 right-2 z-10 w-7.5 h-7.5 bg-white rounded-full flex items-center justify-center cursor-pointer'
         >
           {isBookmarked ? (
-            <IoBookmark size={16} color="black" />
+            <IoBookmark size={16} color='black' />
           ) : (
-            <IoBookmarkOutline size={16} color="#999" />
+            <IoBookmarkOutline size={16} color='#999' />
           )}
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col justify-between py-8 min-h-44 pl-4">
+      <div className='flex-1 flex flex-col justify-between py-8 min-h-44 pl-4'>
         <div>
-          <h3 className="text-[15px] font-semibold text-gray-800 line-clamp-2 mb-1.5">
+          <h3
+            className={`text-[15px] font-semibold ${
+              theme === "dark" ? "text-white" : "text-gray-800"
+            } line-clamp-2 mb-1.5`}
+          >
             {title}
           </h3>
-          <div className="text-[13px] text-gray-500">
+          <div
+            className={`text-[13px] ${
+              theme === "dark" ? "text-gray-200" : "text-gray-500"
+            }`}
+          >
             {category} · {timeAgo}
           </div>
         </div>
-        <div className="flex gap-4 mt-[15px] justify-end">
-          <div className="flex items-center gap-1">
-            <AiOutlineLike className="w-4 h-4 text-gray-500" />
-            <span className="text-[13px] text-gray-500">{likes}</span>
+        <div className='flex gap-4 mt-[15px] justify-end'>
+          <div className='flex items-center gap-1'>
+            <AiOutlineLike
+              className={`w-4 h-4 ${
+                theme === "dark" ? "text-gray-200" : "text-gray-500"
+              }`}
+            />
+            <span
+              className={`text-[13px] ${
+                theme === "dark" ? "text-gray-200" : "text-gray-500"
+              }`}
+            >
+              {likes}
+            </span>
           </div>
-          <div className="flex items-center gap-1">
-            <IoEyeOutline className="w-4 h-4 text-gray-500" />
-            <span className="text-[13px] text-gray-500">{views}</span>
+          <div className='flex items-center gap-1'>
+            <IoEyeOutline
+              className={`w-4 h-4 ${
+                theme === "dark" ? "text-gray-200" : "text-gray-500"
+              }`}
+            />
+            <span
+              className={`text-[13px] ${
+                theme === "dark" ? "text-gray-200" : "text-gray-500"
+              }`}
+            >
+              {views}
+            </span>
           </div>
         </div>
       </div>

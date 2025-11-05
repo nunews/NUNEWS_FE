@@ -2,6 +2,7 @@ import Image from "next/image";
 import { AiOutlineLike } from "react-icons/ai";
 import { IoEyeOutline } from "react-icons/io5";
 import { useRouter } from "next/navigation";
+import { useTheme } from "next-themes";
 
 export const MyPostItem = ({
   id,
@@ -14,7 +15,7 @@ export const MyPostItem = ({
   image,
 }: MyPostItemProps) => {
   const router = useRouter();
-
+  const { theme } = useTheme();
   const handleDetail = () => {
     router.push(`/community/${id}`);
   };
@@ -34,19 +35,47 @@ export const MyPostItem = ({
         />
       </div>
       <div className='flex flex-col gap-2'>
-        <p className='text-[#191919] text-lg font-bold'>{title}</p>
-        <p className='text-[#191919] text-sm line-clamp-2'>{content}</p>
+        <p
+          className={` ${
+            theme === "dark" ? "text-gray-200" : "text-[#191919]"
+          } text-lg font-bold`}
+        >
+          {title}
+        </p>
+        <p
+          className={` ${
+            theme === "dark" ? "text-gray-200" : "text-[#191919]"
+          } text-sm line-clamp-2`}
+        >
+          {content}
+        </p>
       </div>
       <div className='flex justify-between items-center text-[13px]'>
-        <div className='flex text-[var(--color-gray-70)] space-x-1'>
+        <div
+          className={`flex ${
+            theme === "dark" ? "text-gray-200" : "text-[var(--color-gray-70)]"
+          } space-x-1`}
+        >
           <p>{category}</p>
           <span>·</span>
           <p>{timeAgo}</p>
         </div>
-        <div className='flex items-center text-[#727272]'>
-          <AiOutlineLike className='w-4 h-4 text-[#979797] cursor-pointer' />
+        <div
+          className={`flex items-center  ${
+            theme === "dark" ? "text-gray-200" : "text-gray-500"
+          } `}
+        >
+          <AiOutlineLike
+            className={`w-4 h-4 ${
+              theme === "dark" ? "text-gray-200" : "text-gray-500"
+            } cursor-pointer`}
+          />
           <p className='ml-[3px] '>{likes}</p>
-          <IoEyeOutline className='ml-[11px] w-4 h-4 text-[#979797] cursor-pointer' />
+          <IoEyeOutline
+            className={`ml-[11px] w-4 h-4 ${
+              theme === "dark" ? "text-gray-200" : "text-gray-500"
+            } cursor-pointer`}
+          />
           <p className='ml-[3px]  '>{views}</p>
         </div>
       </div>

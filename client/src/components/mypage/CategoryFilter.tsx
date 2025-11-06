@@ -21,7 +21,7 @@ const CategoryFilter = ({
     }));
 
   return (
-    <div className='flex space-x-2 overflow-x-auto pb-2 no-scrollbar'>
+    <div className='flex space-x-2 overflow-x-auto pb-2 no-scrollbar '>
       {uniqueCategories.map((category) => {
         const isActive = activeCategory === category.id;
         return (
@@ -29,6 +29,13 @@ const CategoryFilter = ({
             key={category.id}
             onClick={() => setActiveCategory(category.id)}
             state={isActive ? 'category-active' : 'category-default'}
+            className={`
+    ${
+      isActive
+        ? ' dark:bg-[var(--color-white)] dark:text-[var(--color-black)]'
+        : ' dark:bg-[var(--color-gray-100)] dark:text-[var(--color-white)]'
+    }
+  `}
           >
             {category.label}
           </TextButton>

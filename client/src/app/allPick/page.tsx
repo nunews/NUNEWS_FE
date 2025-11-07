@@ -113,7 +113,7 @@ export default function AllPickPage() {
     fetchPostData();
   }, []);
 
-  if (isLoading) return <Loading />;
+  if (!isLoading) return <Loading />;
 
   return (
     <>

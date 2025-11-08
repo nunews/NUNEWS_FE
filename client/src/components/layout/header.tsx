@@ -6,29 +6,29 @@
  *  @param dark - 다크모드인지 아닌지 (로고 색상이 결정됨)
  */
 
-"use client";
-import Image, { StaticImageData } from "next/image";
-import Logo from "../../assets/images/NUNEW.png";
-import LogoBlack from "../../assets/images/NUNEWblack.png";
-import LogoDark from "../../assets/images/NUNEWDark.png";
+'use client';
+import Image, { StaticImageData } from 'next/image';
+import Logo from '../../assets/images/NUNEW.png';
+import LogoBlack from '../../assets/images/NUNEWblack.png';
+import LogoDark from '../../assets/images/NUNEWDark.png';
 
-import Politics from "../../assets/images/politics.png";
-import Sports from "../../assets/images/sports.png";
-import Entertainment from "../../assets/images/entertainment.png";
-import Culture from "../../assets/images/culture.png";
-import Global from "../../assets/images/global.png";
-import Society from "../../assets/images/society.png";
-import Economy from "../../assets/images/economy.png";
-import Etc from "../../assets/images/etc.png";
+import Politics from '../../assets/images/politics.png';
+import Sports from '../../assets/images/sports.png';
+import Entertainment from '../../assets/images/entertainment.png';
+import Culture from '../../assets/images/culture.png';
+import Global from '../../assets/images/global.png';
+import Society from '../../assets/images/society.png';
+import Economy from '../../assets/images/economy.png';
+import Etc from '../../assets/images/etc.png';
 
-import { IoMoonOutline, IoSunnyOutline } from "react-icons/io5";
-import { BiChevronLeft } from "react-icons/bi";
-import { useRouter } from "next/navigation";
-import { IconButton } from "../ui/IconButton";
-import { LuListFilter } from "react-icons/lu";
-import Dropdown from "../ui/Dropdown";
-import { useRef, useState } from "react";
-import { useTheme } from "next-themes";
+import { IoMoonOutline, IoSunnyOutline } from 'react-icons/io5';
+import { BiChevronLeft } from 'react-icons/bi';
+import { useRouter } from 'next/navigation';
+import { IconButton } from '../ui/IconButton';
+import { LuListFilter } from 'react-icons/lu';
+import Dropdown from '../ui/Dropdown';
+import { useRef, useState } from 'react';
+import { useTheme } from 'next-themes';
 
 export default function Header({
   logo,
@@ -51,11 +51,11 @@ export default function Header({
     해외: Global,
     사회: Society,
     경제: Economy,
-    "그 외": Etc,
+    '그 외': Etc,
   };
   const buttonRef = useRef<HTMLButtonElement>(null);
   const router = useRouter();
-  const [filter, setFilter] = useState("최신순");
+  const [filter, setFilter] = useState('최신순');
   const [open, setOpen] = useState(false);
 
   const filterHandler = (filtered: string) => {
@@ -65,17 +65,17 @@ export default function Header({
   };
 
   const themeHandler = async (theme: string) => {
-    if (theme === "light") {
-      setTheme("light");
-      await fetch("/api/theme", {
-        method: "POST",
-        body: JSON.stringify({ theme: "light" }),
+    if (theme === 'light') {
+      setTheme('light');
+      await fetch('/api/theme', {
+        method: 'POST',
+        body: JSON.stringify({ theme: 'light' }),
       });
     } else {
-      setTheme("dark");
-      await fetch("/api/theme", {
-        method: "POST",
-        body: JSON.stringify({ theme: "dark" }),
+      setTheme('dark');
+      await fetch('/api/theme', {
+        method: 'POST',
+        body: JSON.stringify({ theme: 'dark' }),
       });
     }
   };
@@ -83,80 +83,80 @@ export default function Header({
     <>
       <div
         className={` fixed top-0 left-0 right-0 z-20 min-h-15.5 w-full ${
-          page === "nuPick"
-            ? ""
-            : theme === "dark"
-            ? "bg-[#121212]/85 backdrop-blur-[28px]"
-            : "bg-[var(--color-white)]/85 backdrop-blur-[28px] "
+          page === 'nuPick'
+            ? ''
+            : theme === 'dark'
+            ? 'bg-[#121212]/85 backdrop-blur-[28px]'
+            : 'bg-[var(--color-white)]/85 backdrop-blur-[28px] '
         }`}
       >
-        <div className="max-w-screen-lg mx-auto flex items-center h-15.5 px-5 justify-between ">
+        <div className='max-w-screen-lg mx-auto flex items-center h-15.5 px-5 justify-between '>
           {/* 로고유무 */}
           {logo ? (
             <Image
               src={
-                page === "nuPick"
+                page === 'nuPick'
                   ? Logo
-                  : theme === "dark"
+                  : theme === 'dark'
                   ? LogoDark
                   : LogoBlack
               }
-              alt="logo"
+              alt='logo'
               width={68}
               height={25}
-              onClick={() => router.push("/")}
-              className="cursor-pointer"
+              onClick={() => router.push('/')}
+              className='cursor-pointer'
             />
-          ) : page === "login" ? (
+          ) : page === 'login' ? (
             <div />
           ) : (
             <button
               onClick={() => router.back()}
-              className="flex items-center justify-center w-9 h-9 rounded-full hover:bg-[var(--color-gray-10)] transition-all duration-300 ease-in-out cursor-pointer"
+              className='flex items-center justify-center w-9 h-9 rounded-full hover:bg-[var(--color-gray-10)] transition-all duration-300 ease-in-out cursor-pointer'
             >
-              <BiChevronLeft className="w-6 h-6" />
+              <BiChevronLeft className='w-6 h-6' />
             </button>
           )}
 
           {/* 관심사 수정 or 모드전환 */}
-          {page === "nuPick" ? (
-            <button className="flex items-center justify-center w-22 h-8 rounded-[50px] bg-[var(--color-white)]/10 hover:bg-[var(--color-white)]/15 backdrop-blur-lg text-[var(--color-white)] text-sm transition-all duration-300 ease-in-out cursor-pointer">
-              {!!interest ? "관심사 수정" : "관심사 추가"}
+          {page === 'nuPick' ? (
+            <button className='flex items-center justify-center w-22 h-8 rounded-[50px] bg-[var(--color-white)]/10 hover:bg-[var(--color-white)]/15 backdrop-blur-lg text-[var(--color-white)] text-sm transition-all duration-300 ease-in-out cursor-pointer'>
+              {!!interest ? '관심사 수정' : '관심사 추가'}
             </button>
           ) : (
-            <div className="gap-[6px] flex items-center ">
-              {page === "community" && (
-                <div className="relative inline-block">
+            <div className='gap-[6px] flex items-center '>
+              {page === 'community' && (
+                <div className='relative inline-block'>
                   <IconButton
                     ref={buttonRef}
                     icon={LuListFilter}
                     className={`rounded-full w-8 h-8 ${
-                      theme === "dark"
-                        ? "bg-[var(--color-gray-100)] hover:bg-[var(--color-gray-90)]"
-                        : "bg-[var(--color-gray-10)] hover:bg-[var(--color-gray-20)]"
+                      theme === 'dark'
+                        ? 'bg-[var(--color-gray-100)] hover:bg-[var(--color-gray-90)]'
+                        : 'bg-[var(--color-gray-10)] hover:bg-[var(--color-gray-20)]'
                     }`}
                     size={18}
                     color={`${
-                      theme === "dark" ? "var(--color-white)" : "#191919"
+                      theme === 'dark' ? 'var(--color-white)' : '#191919'
                     }`}
                     onClick={() => {
                       setOpen((prev) => !prev);
                     }}
                   />
                   {open && (
-                    <div className="absolute z-30 top-[39px] right-[-6px]">
+                    <div className='absolute z-30 top-[39px] right-[-6px]'>
                       <Dropdown
                         isOpen={open}
                         onClose={() => setOpen(false)}
                         triggerRef={buttonRef}
                         items={[
                           {
-                            label: "최신순",
-                            onClick: () => filterHandler("최신순"),
+                            label: '최신순',
+                            onClick: () => filterHandler('최신순'),
                           },
                           {
-                            label: "인기순",
-                            onClick: () => filterHandler("인기순"),
+                            label: '인기순',
+                            onClick: () => filterHandler('인기순'),
                           },
                         ]}
                       />
@@ -164,44 +164,44 @@ export default function Header({
                   )}
                 </div>
               )}
-              {theme === "dark" ? (
+              {theme === 'dark' ? (
                 <IconButton
                   icon={IoMoonOutline}
-                  className="w-9 h-9 rounded-full bg-[var(--color-gray-100)] hover:bg-[var(--color-gray-90)]"
+                  className='w-9 h-9 rounded-full bg-[var(--color-gray-100)] hover:bg-[var(--color-gray-90)]'
                   size={20}
-                  color="#ffffff"
-                  onClick={() => themeHandler("light")}
+                  color='#ffffff'
+                  onClick={() => themeHandler('light')}
                 />
               ) : (
                 <IconButton
                   icon={IoSunnyOutline}
-                  className="w-9 h-9 rounded-full bg-[var(--color-gray-10)] hover:bg-[var(--color-gray-20)]"
+                  className='w-9 h-9 rounded-full bg-[var(--color-gray-10)] hover:bg-[var(--color-gray-20)]'
                   size={20}
-                  color="var(--color-gray-100)"
-                  onClick={() => themeHandler("dark")}
+                  color='var(--color-gray-100)'
+                  onClick={() => themeHandler('dark')}
                 />
               )}
             </div>
           )}
         </div>
-        <div className="max-w-screen-lg mx-auto">
-          {page === "nuPick" &&
+        <div className='max-w-screen-lg mx-auto'>
+          {page === 'nuPick' &&
             (!interest || interest.length === 0 ? (
-              <div className="bubble mx-5">
-                <p className="flex justify-center items-center text-sm text-[var(--color-white)]">
+              <div className='bubble mx-5'>
+                <p className='flex justify-center items-center text-sm text-[var(--color-white)]'>
                   관심사를 선택하고 관심있는 뉴스만 보세요!
                 </p>
               </div>
             ) : (
-              <div className="flex h-9 gap-2 overflow-x-auto px-5">
+              <div className='flex h-9 gap-2 overflow-x-auto px-5'>
                 {interest.map((category, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-center min-w-9 h-9 bg-[var(--color-white)]/10 hover:bg-[var(--color-white)]/15 backdrop-blur-lg rounded-full transition-all duration-300 ease-in-out cursor-pointer"
+                    className='flex items-center justify-center min-w-9 h-9 bg-[var(--color-white)]/10 hover:bg-[var(--color-white)]/15 backdrop-blur-lg rounded-full transition-all duration-300 ease-in-out cursor-pointer'
                   >
                     <Image
                       src={categoryMap[category]}
-                      alt="sports"
+                      alt='sports'
                       width={24}
                       height={24}
                     />

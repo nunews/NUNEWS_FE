@@ -89,3 +89,16 @@ body {
 .recharts-legend-item .recharts-surface {
   transform: translateY(-2px);
 }
+
+.splash-text {
+  animation: textFade 2s ease-in-out forwards;
+}
+
+@keyframes textFade {
+  0% {
+    color: var(--color-white);
+  }
+  100% {
+    color: var(--color-primary-40);
+  }
+}

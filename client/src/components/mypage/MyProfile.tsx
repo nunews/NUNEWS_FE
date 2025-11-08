@@ -95,7 +95,7 @@ const MyProfile = () => {
         />
       </div>
       <div>
-        <h1 className="font-semibold text-[#191919] text-lg text-center">
+        <h1 className="font-semibold text-[#191919] dark:text-white text-lg text-center">
           {nickname || "독재자 강아지"}
         </h1>
         <h2 className="font-medium text-sm text-[#8f8f8f]">

@@ -4,7 +4,7 @@ import { StaticImageData } from "next/image";
 interface InterestItemProps {
   imageSrc: StaticImageData;
   title: string;
-  subtitle: string;
+  subtitle: string | string[];
   isActive: boolean;
   onClick: () => void;
 }
@@ -40,7 +40,9 @@ const InterestItem = ({
         <p className="text-[var(--color-gray-100)] dark:text-[var(--color-white)]">
           {title}
         </p>
-        <p className="text-[var(--color-gray-60)] ">{subtitle}</p>
+        <p className="text-[var(--color-gray-60)] ">
+          {Array.isArray(subtitle) ? subtitle[0] : subtitle}
+        </p>
       </div>
     </div>
   );

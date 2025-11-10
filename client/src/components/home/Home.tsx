@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Footer from "../layout/footer";
 import Header from "../layout/header";
 import NewsSection from "./NewsSection";
@@ -9,10 +9,13 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchNewsData } from "@/lib/api/fetchNews";
 import { useAutoNewsFetch } from "@/hooks/useAutoNewsFetch";
 import Splash from "./Splash";
+import createClient from "@/utils/supabase/client";
 
 export default function Home({ initialNews }: { initialNews: NewsData[] }) {
   const [selectedNews, setSelectedNews] = useState<NewsData | null>(null);
   useAutoNewsFetch();
+  const supabase = createClient();
+  const [userId, setUserId] = useState<string | null>(null);
 
   const {
     data: newsData,
@@ -29,23 +32,36 @@ export default function Home({ initialNews }: { initialNews: NewsData[] }) {
     refetchInterval: 1000 * 60 * 60,
   });
 
+  const fetchUser = useCallback(async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (user) setUserId(user.id);
+  }, [supabase]);
+
+  useEffect(() => {
+    fetchUser();
+  }, [fetchUser]);
+
   if (isLoading) {
     return <Splash />;
   }
 
   return (
     <>
-      <div className="h-screen scrollbar-hide">
-        <Header logo={true} page="nuPick" interest={["정치", "연예"]} />
-        <main className="h-screen overflow-y-scroll snap-y snap-mandatory">
+      <div className='h-screen scrollbar-hide'>
+        <Header logo={true} page='nuPick' interest={["정치", "연예"]} />
+        <main className='h-screen overflow-y-scroll snap-y snap-mandatory'>
           {!isError &&
             newsData.length > 0 &&
             newsData.map((data: NewsData) => (
               <NewsSection
                 key={data.article_id}
-                className="snap-start"
+                className='snap-start'
                 data={data}
                 handleSummary={() => setSelectedNews(data)}
+                userId={userId}
+                newsId={data.article_id}
               />
             ))}
         </main>
@@ -53,7 +69,7 @@ export default function Home({ initialNews }: { initialNews: NewsData[] }) {
         {selectedNews && (
           <div
             key={selectedNews.article_id}
-            className="fixed bottom-20 left-1/2 -translate-x-1/2 w-full px-2.5 z-50 max-w-[1024px]"
+            className='fixed bottom-20 left-1/2 -translate-x-1/2 w-full px-2.5 z-50 max-w-[1024px]'
           >
             <SummaryModal
               isOpen={!!selectedNews}

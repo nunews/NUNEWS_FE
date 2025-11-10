@@ -6,7 +6,6 @@ import { IoBookmark, IoBookmarkOutline, IoEyeOutline } from "react-icons/io5";
 import { AiOutlineLike } from "react-icons/ai";
 import createClient from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
-import { useTheme } from "next-themes";
 
 interface DefaultCardProps {
   newsId: string;
@@ -32,7 +31,6 @@ export default function DefaultCard({
   const [isBookmarked, setIsBookmarked] = useState(false);
   const router = useRouter();
   const supabase = createClient();
-  const { theme } = useTheme();
 
   // 초기 상태: 현재 사용자가 이미 스크랩했는지 확인
   useEffect(() => {
@@ -44,7 +42,7 @@ export default function DefaultCard({
         .select("*")
         .eq("user_id", userId)
         .eq("news_id", newsId)
-        .single();
+        .maybeSingle();
 
       setIsBookmarked(!!data);
     };
@@ -55,7 +53,9 @@ export default function DefaultCard({
   const handleDetail = () => {
     router.push(`/newsDetail/${newsId}`);
   };
-  const handleBookmark = async () => {
+
+  const handleBookmark = async (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (!userId) return alert("로그인이 필요합니다.");
 
     if (!isBookmarked) {
@@ -78,10 +78,8 @@ export default function DefaultCard({
 
   return (
     <div
+      className='w-full h-[169px] bg-white dark:bg-white/0 rounded-lg overflow-hidden flex items-center cursor-pointer group'
       onClick={handleDetail}
-      className={`w-full h-[149px] ${
-        theme === "dark" ? "bg-black" : "bg-white"
-      } rounded-lg overflow-hidden flex items-center cursor-pointer group p-4 my-5`}
     >
       <div className='relative w-30 h-30 flex-shrink-0 flex overflow-hidden rounded-lg'>
         <Image
@@ -105,47 +103,23 @@ export default function DefaultCard({
 
       <div className='flex-1 flex flex-col justify-between py-8 min-h-44 pl-4'>
         <div>
-          <h3
-            className={`text-[15px] font-semibold ${
-              theme === "dark" ? "text-white" : "text-gray-800"
-            } line-clamp-2 mb-1.5`}
-          >
+          <h3 className='text-[15px] font-semibold text-[var(--color-gray-100)] group-hover:text-[var(--color-black)] dark:text-[var(--color-gray-20)] dark:group-hover:text-[var(--color-white)] line-clamp-2 mb-1.5 duration-300 transition-colors'>
             {title}
           </h3>
-          <div
-            className={`text-[13px] ${
-              theme === "dark" ? "text-gray-200" : "text-gray-500"
-            }`}
-          >
+          <div className='text-[13px] text-[var(--color-gray-70)]'>
             {category} · {timeAgo}
           </div>
         </div>
-        <div className='flex gap-4 mt-[15px] justify-end'>
+        <div className='flex gap-3 mt-[15px] justify-start'>
           <div className='flex items-center gap-1'>
-            <AiOutlineLike
-              className={`w-4 h-4 ${
-                theme === "dark" ? "text-gray-200" : "text-gray-500"
-              }`}
-            />
-            <span
-              className={`text-[13px] ${
-                theme === "dark" ? "text-gray-200" : "text-gray-500"
-              }`}
-            >
+            <AiOutlineLike className='w-4 h-4 text-[var(--color-gray-70)]' />
+            <span className='text-[13px] text-[var(--color-gray-70)]'>
               {likes}
             </span>
           </div>
           <div className='flex items-center gap-1'>
-            <IoEyeOutline
-              className={`w-4 h-4 ${
-                theme === "dark" ? "text-gray-200" : "text-gray-500"
-              }`}
-            />
-            <span
-              className={`text-[13px] ${
-                theme === "dark" ? "text-gray-200" : "text-gray-500"
-              }`}
-            >
+            <IoEyeOutline className='w-4 h-4 text-[var(--color-gray-70)]' />
+            <span className='text-[13px] text-[var(--color-gray-70)]'>
               {views}
             </span>
           </div>

@@ -1,62 +1,75 @@
-'use client';
-import Header from '@/components/layout/header';
-import Footer from '@/components/layout/footer';
-import HotNewsCard from '@/components/ui/HotNewsCard';
-import DefaultCard from '@/components/ui/DefaultCard';
-import hotICon from '@/assets/images/fire.png';
-import Image from 'next/image';
-import { useEffect, useState } from 'react';
-import { Swiper } from 'swiper/react';
-import { SwiperSlide } from 'swiper/react';
-import 'swiper/css';
-import PostCard from '@/components/ui/PostCard';
-import { TextButton } from '@/components/ui/TextButton';
-import CategoryFilter from '@/components/mypage/CategoryFilter';
+"use client";
+import Header from "@/components/layout/header";
+import Footer from "@/components/layout/footer";
+import HotNewsCard from "@/components/ui/HotNewsCard";
+import DefaultCard from "@/components/ui/DefaultCard";
+import hotICon from "@/assets/images/fire.png";
+import Image from "next/image";
+import { useEffect, useState, useCallback } from "react";
+import { Swiper } from "swiper/react";
+import { SwiperSlide } from "swiper/react";
+import "swiper/css";
+import PostCard from "@/components/ui/PostCard";
+import { TextButton } from "@/components/ui/TextButton";
+import CategoryFilter from "@/components/mypage/CategoryFilter";
 import {
   getSupabaseInterestNews,
   getSupabaseRandomNews,
-} from '@/lib/api/getNewstoSupabase';
-import { Category } from '@/lib/interest';
-import { timeAgo } from '@/utils/timeAgo';
-import { fetchPost, fetchWriter } from '../api/community';
-import { Post } from '@/types/post';
-import { useRouter } from 'next/navigation';
-import Loading from './loading';
+} from "@/lib/api/getNewstoSupabase";
+import { Category } from "@/lib/interest";
+import { timeAgo } from "@/utils/timeAgo";
+import { fetchPost, fetchWriter } from "../api/community";
+import { useRouter } from "next/navigation";
+import Loading from "./loading";
+import createClient from "@/utils/supabase/client";
 
 export default function AllPickPage() {
-  const [selectedCategory, setSelectedCategory] = useState('전체');
+  const [selectedCategory, setSelectedCategory] = useState("전체");
   const [newsData, setNewsData] = useState<NewsData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isError, setIsError] = useState('');
-  const [postData, setPostData] = useState<Post[]>([]);
+  const [isError, setIsError] = useState("");
+  const [postData, setPostData] = useState<MyPost[]>([]);
   const [isPostLoading, setIsPostLoading] = useState(true);
+  const supabase = createClient();
+  const [userId, setUserId] = useState<string | null>(null);
 
   const router = useRouter();
 
   const handlePostCreate = () => {
-    router.push('/community/postCreate');
+    router.push("/community/postCreate");
   };
+
+  const fetchUser = useCallback(async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (user) setUserId(user.id);
+  }, [supabase]);
+
+  useEffect(() => {
+    fetchUser();
+  }, [fetchUser]);
 
   useEffect(() => {
     const fetchNewsData = async () => {
       try {
         setIsLoading(true);
-        setIsError('');
+        setIsError("");
 
         let newsList: NewsData[] = [];
-        if (selectedCategory === '전체') {
+        if (selectedCategory === "전체") {
           newsList = await getSupabaseRandomNews();
         } else {
           const categoryUUID =
             Category[selectedCategory as keyof typeof Category];
 
           if (categoryUUID) {
-            console.log('카테고리 UUID:', categoryUUID);
+            console.log("카테고리 UUID:", categoryUUID);
             newsList = await getSupabaseInterestNews([categoryUUID]);
 
             // 카테고리에 뉴스가 없으면 랜덤한 뉴스를 가져오기
             if (!newsList || newsList.length < 10) {
-              console.log('뉴스가 없습니다. 랜덤 뉴스를 가져옵니다.');
+              console.log("뉴스가 없습니다. 랜덤 뉴스를 가져옵니다.");
               newsList = await getSupabaseRandomNews();
             }
           } else {
@@ -78,8 +91,8 @@ export default function AllPickPage() {
         setNewsData(transformedNews);
         console.log(`뉴스 로딩 완료`);
       } catch (error) {
-        console.error('뉴스 데이터 가져오기 실패', error);
-        setIsError('뉴스를 가져오는데 실패했습니다.');
+        console.error("뉴스 데이터 가져오기 실패", error);
+        setIsError("뉴스를 가져오는데 실패했습니다.");
       } finally {
         setIsLoading(false);
       }
@@ -104,7 +117,7 @@ export default function AllPickPage() {
         );
         setPostData(postWithUserInfo);
       } catch (error) {
-        console.error('게시글 데이터 가져오기 실패', error);
+        console.error("게시글 데이터 가져오기 실패", error);
         setPostData([]);
       } finally {
         setIsLoading(false);
@@ -136,7 +149,7 @@ export default function AllPickPage() {
                   alt='핫 뉴스 아이콘'
                   width={26}
                   height={26}
-                  style={{ width: '26px', height: '26px' }}
+                  style={{ width: "26px", height: "26px" }}
                 />
                 <h2 className='text-lg font-bold text-[var(--color-black)] dark:text-[var(--color-white)] mb-4'>
                   오늘의 핫 뉴스
@@ -152,13 +165,14 @@ export default function AllPickPage() {
                   {newsData.slice(0, 4).map((news) => (
                     <SwiperSlide key={news.article_id} className='!w-[300px]'>
                       <HotNewsCard
-                        newsId={news.article_id || ''}
+                        newsId={news.article_id || ""}
+                        userId={userId}
                         title={news.title}
                         category={news.category}
                         timeAgo={timeAgo(news.pubDate)}
                         likes={news.likes || 0}
                         views={news.views || 0}
-                        image={news.image_url || ''}
+                        image={news.image_url || ""}
                       />
                     </SwiperSlide>
                   ))}
@@ -175,13 +189,14 @@ export default function AllPickPage() {
                 {newsData.slice(0, 5).map((news) => (
                   <DefaultCard
                     key={news.article_id}
+                    userId={userId}
                     newsId={news.article_id!}
                     title={news.title}
                     category={news.category}
                     timeAgo={timeAgo(news.pubDate)}
                     likes={news.likes || 0}
                     views={news.views || 0}
-                    image={news.image_url || ''}
+                    image={news.image_url || ""}
                   />
                 ))}
               </div>
@@ -205,8 +220,8 @@ export default function AllPickPage() {
                     <SwiperSlide key={post?.post_id} className='!w-[278px]'>
                       <PostCard
                         postId={post.post_id}
-                        profileImage={post.User?.profile_image || ''}
-                        username={post.User?.nickname || '익명의 누누'}
+                        profileImage={post.User?.profile_image || ""}
+                        username={post.User?.nickname || "익명의 누누"}
                         category={post.category_id}
                         content={post.contents}
                         likes={post.like_count || 0}
@@ -240,12 +255,13 @@ export default function AllPickPage() {
                   <DefaultCard
                     key={news.article_id}
                     newsId={news.article_id!}
+                    userId={userId}
                     title={news.title}
                     category={news.category}
                     timeAgo={timeAgo(news.pubDate)}
                     likes={news.likes || 0}
                     views={news.views || 0}
-                    image={news.image_url || ''}
+                    image={news.image_url || ""}
                   />
                 ))}
             </div>

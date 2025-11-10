@@ -1,10 +1,12 @@
 import Home from "@/components/home/Home";
+import Splash from "@/components/home/Splash";
 import { loadNewsData } from "@/lib/actions/loadNewsData";
 import {
   getSupabaseInterestNews,
   getSupabaseRandomNews,
 } from "@/lib/api/getNewstoSupabase";
 import { createServerSupabase } from "@/utils/supabase/server";
+import { Suspense } from "react";
 
 export default async function HomePage() {
   const supabase = await createServerSupabase();
@@ -43,5 +45,9 @@ export default async function HomePage() {
     initialNews = await getSupabaseRandomNews();
   }
 
-  return <Home initialNews={initialNews} />;
+  return (
+    <Suspense fallback={<Splash />}>
+      <Home initialNews={initialNews} />
+    </Suspense>
+  );
 }

@@ -21,6 +21,8 @@ import { timeAgo } from '@/utils/timeAgo';
 import { fetchPost, fetchWriter } from '../api/community';
 import { Post } from '@/types/post';
 import { useRouter } from 'next/navigation';
+import Loading from './loading';
+
 export default function AllPickPage() {
   const [selectedCategory, setSelectedCategory] = useState('전체');
   const [newsData, setNewsData] = useState<NewsData[]>([]);
@@ -66,11 +68,11 @@ export default function AllPickPage() {
         const shuffled = newsList?.sort(() => Math.random() - 0.5);
         const transformedNews = shuffled.map((news) => ({
           ...news,
-          newsId: news.news_id,
-          timeAgo: timeAgo(news.published_at),
+          newsId: news.article_id,
+          timeAgo: timeAgo(news.pubDate),
           image: news.image_url,
-          likes: news.like_count || 0,
-          views: news.view_count || 0,
+          likes: news.likes || 0,
+          views: news.views || 0,
         }));
 
         setNewsData(transformedNews);
@@ -111,9 +113,11 @@ export default function AllPickPage() {
     fetchPostData();
   }, []);
 
+  if (isLoading) return <Loading />;
+
   return (
     <>
-      <div className='h-screen scrollbar-hide'>
+      <div className='h-screen scrollbar-hide bg-[var(--color-white)] dark:bg-[#121212]'>
         <Header logo={true} interest={[]} />
         <main className='h-screen overflow-y-scroll pt-16 pb-18'>
           <div>
@@ -134,7 +138,7 @@ export default function AllPickPage() {
                   height={26}
                   style={{ width: '26px', height: '26px' }}
                 />
-                <h2 className='text-lg font-bold text-[var(--color-black)] mb-4'>
+                <h2 className='text-lg font-bold text-[var(--color-black)] dark:text-[var(--color-white)] mb-4'>
                   오늘의 핫 뉴스
                 </h2>
               </div>
@@ -146,9 +150,9 @@ export default function AllPickPage() {
                   freeMode={true}
                 >
                   {newsData.slice(0, 4).map((news) => (
-                    <SwiperSlide key={news.news_id} className='!w-[300px]'>
+                    <SwiperSlide key={news.article_id} className='!w-[300px]'>
                       <HotNewsCard
-                        newsId={news.news_id || ''}
+                        newsId={news.article_id || ''}
                         title={news.title}
                         category={news.category}
                         timeAgo={timeAgo(news.pubDate)}
@@ -164,14 +168,14 @@ export default function AllPickPage() {
 
             {/* 세로 뉴스 */}
             <div className='px-4'>
-              <h2 className='text-lg font-bold text-[var(--color-black)] mt-8'>
+              <h2 className='text-lg font-bold text-[var(--color-black)] dark:text-[var(--color-white)] mt-8'>
                 모든 뉴스
               </h2>
               <div>
                 {newsData.slice(0, 5).map((news) => (
                   <DefaultCard
-                    key={news.news_id}
-                    newsId={news.news_id!}
+                    key={news.article_id}
+                    newsId={news.article_id!}
                     title={news.title}
                     category={news.category}
                     timeAgo={timeAgo(news.pubDate)}
@@ -183,8 +187,8 @@ export default function AllPickPage() {
               </div>
             </div>
             {/* 관심사별 추천 커뮤니티 글 */}
-            <div className='w-full h-[438px] flex flex-col bg-[#f8f8f8] mt-4 pb-11 px-4'>
-              <h2 className='text-lg font-bold text-[#191919] mt-10 mb-5'>
+            <div className='w-full h-[438px] flex flex-col bg-[#f8f8f8] mt-4 pb-11 px-4 dark:bg-[var(--color-black)]'>
+              <h2 className='text-lg font-bold text-[#191919] dark:text-[var(--color-white)] mt-10 mb-5'>
                 나의 관심사에 대해 <br />
                 사람들과 대화해 보세요!
               </h2>
@@ -216,15 +220,17 @@ export default function AllPickPage() {
               <div className='flex justify-center'>
                 <TextButton
                   onClick={handlePostCreate}
-                  className='bg-[var(--color-black)] w-31 h-10 rounded-full hover:bg-[var(--color-gray-100)]'
+                  className='bg-[var(--color-black)] dark:bg-[var(--color-white)] w-31 h-10 rounded-full hover:bg-[var(--color-gray-100)] dark:hover:bg-[var(--color-gray-20)]'
                 >
-                  <p className='text-[var(--color-white)]'>글쓰러 가기</p>
+                  <p className='text-[var(--color-white)] dark:text-[var(--color-black)]'>
+                    글쓰러 가기
+                  </p>
                 </TextButton>
               </div>
             </div>
 
             <div className='flex flex-col px-4 mt-8'>
-              <h2 className='text-lg font-bold text-[var(--color-black)] mb-4'>
+              <h2 className='text-lg font-bold text-[var(--color-black)] dark:text-[var(--color-white)] mb-4'>
                 많은 사람들이 좋아한 뉴스
               </h2>
               {newsData
@@ -232,8 +238,8 @@ export default function AllPickPage() {
                 .slice(0, 5)
                 .map((news) => (
                   <DefaultCard
-                    key={news.news_id}
-                    newsId={news.news_id!}
+                    key={news.article_id}
+                    newsId={news.article_id!}
                     title={news.title}
                     category={news.category}
                     timeAgo={timeAgo(news.pubDate)}

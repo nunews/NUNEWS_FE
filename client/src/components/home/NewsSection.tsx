@@ -11,7 +11,7 @@ import { allCategoryMap } from "@/lib/categoryUUID";
 
 interface NewsSectionProps {
   className: string;
-  data: SupabaseNewsData;
+  data: NewsData;
   likes?: number;
   views?: number;
   handleSummary: () => void;
@@ -32,7 +32,7 @@ export default function NewsSection({
   };
 
   const handleDetail = () => {
-    router.push(`/newsDetail/${data.news_id}`);
+    router.push(`/newsDetail/${data.article_id}`);
   };
 
   // 카테고리 맵핑
@@ -46,14 +46,17 @@ export default function NewsSection({
 
   return (
     <section
-      className={`relative w-full min-h-[100dvh] bg-[url('/images/handsomeLee.png')] bg-no-repeat bg-cover bg-center ${className}`}
+      className={`relative w-full min-h-[100dvh] bg-no-repeat bg-cover bg-center ${className}`}
+      style={{
+        backgroundImage: `url(${data.image_url ? data.image_url : null})`,
+      }}
     >
       <div className="absolute w-full inset-0 bg-[var(--color-black)]/70 backdrop-blur-[28px] z-0" />
       <main className="relative w-full z-10 px-5 flex flex-col">
         <div className="pt-[113px] max-h-screen">
           <div className="flex w-full min-w-80 h-90 [@media(max-height:700px)]:h-60 mx-auto justify-center overflow-hidden">
             <Image
-              src={data.image_url || "/images/handsomeLee.png"}
+              src={data.image_url || ""}
               alt="news image"
               width={320}
               height={360}

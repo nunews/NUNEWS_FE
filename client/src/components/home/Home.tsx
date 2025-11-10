@@ -10,8 +10,15 @@ import { fetchNewsData } from "@/lib/api/fetchNews";
 import { useAutoNewsFetch } from "@/hooks/useAutoNewsFetch";
 import Splash from "./Splash";
 
-export default function Home({ initialNews }: { initialNews: NewsData[] }) {
+export default function Home({
+  initialNews,
+  interests,
+}: {
+  initialNews: NewsData[];
+  interests: string[];
+}) {
   const [selectedNews, setSelectedNews] = useState<NewsData | null>(null);
+
   useAutoNewsFetch();
 
   const {
@@ -36,16 +43,17 @@ export default function Home({ initialNews }: { initialNews: NewsData[] }) {
   return (
     <>
       <div className="h-screen scrollbar-hide">
-        <Header logo={true} page="nuPick" interest={["정치", "연예"]} />
+        <Header logo={true} page="nuPick" interest={interests} />
         <main className="h-screen overflow-y-scroll snap-y snap-mandatory">
           {!isError &&
             newsData.length > 0 &&
-            newsData.map((data: NewsData) => (
+            newsData.map((data: NewsData, idx: number) => (
               <NewsSection
                 key={data.article_id}
                 className="snap-start"
                 data={data}
                 handleSummary={() => setSelectedNews(data)}
+                isFirst={idx === 0}
               />
             ))}
         </main>

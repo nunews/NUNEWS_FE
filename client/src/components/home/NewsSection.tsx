@@ -15,6 +15,7 @@ interface NewsSectionProps {
   likes?: number;
   views?: number;
   handleSummary: () => void;
+  isFirst: boolean;
 }
 
 export default function NewsSection({
@@ -23,6 +24,7 @@ export default function NewsSection({
   likes,
   views,
   handleSummary,
+  isFirst,
 }: NewsSectionProps) {
   const [isBookmarked, setIsBookmarked] = useState(false);
   const router = useRouter();
@@ -54,14 +56,14 @@ export default function NewsSection({
       <div className="absolute w-full inset-0 bg-[var(--color-black)]/70 backdrop-blur-[28px] z-0" />
       <main className="relative w-full z-10 px-5 flex flex-col">
         <div className="pt-[113px] max-h-screen">
-          <div className="flex w-full min-w-80 h-90 [@media(max-height:700px)]:h-60 mx-auto justify-center overflow-hidden">
+          <div className="relative w-full min-w-80 h-90 [@media(max-height:700px)]:h-60 mx-auto overflow-hidden rounded-2xl">
             <Image
               src={data.image_url || ""}
               alt="news image"
-              width={320}
-              height={360}
-              priority
-              className="object-cover rounded-2xl w-full h-auto min-w-[320px] aspect-[8/9]"
+              fill
+              priority={isFirst}
+              loading={isFirst ? "eager" : "lazy"}
+              className="object-cover"
             />
           </div>
 
@@ -73,7 +75,8 @@ export default function NewsSection({
                   alt={categoryKorean}
                   width={24}
                   height={24}
-                  priority
+                  priority={isFirst}
+                  loading={isFirst ? "eager" : "lazy"}
                 />
                 <p className="text-[var(--color-white)]">{categoryKorean}</p>
               </div>

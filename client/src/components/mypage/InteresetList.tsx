@@ -1,6 +1,5 @@
 import { INTERESTS_DATA } from "@/lib/interest";
 import InterestItem from "./InterestItem";
-import { useState } from "react";
 import { toast } from "sonner";
 
 interface InterestListProps {

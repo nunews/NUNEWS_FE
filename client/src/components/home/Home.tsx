@@ -8,7 +8,6 @@ import SummaryModal from "../ui/SummaryModal";
 import { useQuery } from "@tanstack/react-query";
 import { fetchNewsData } from "@/lib/api/fetchNews";
 import { useAutoNewsFetch } from "@/hooks/useAutoNewsFetch";
-import Splash from "./Splash";
 
 export default function Home({
   initialNews,
@@ -21,11 +20,7 @@ export default function Home({
 
   useAutoNewsFetch();
 
-  const {
-    data: newsData,
-    isLoading,
-    isError,
-  } = useQuery({
+  const { data: newsData, isError } = useQuery({
     queryKey: ["newsData"],
     queryFn: async () => {
       const freshNews = await fetchNewsData("");
@@ -35,10 +30,6 @@ export default function Home({
     staleTime: 1000 * 60 * 60,
     refetchInterval: 1000 * 60 * 60,
   });
-
-  if (isLoading) {
-    return <Splash />;
-  }
 
   return (
     <>

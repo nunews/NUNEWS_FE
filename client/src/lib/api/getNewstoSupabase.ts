@@ -67,6 +67,7 @@ export const getSupabaseInterestNews = async (categoryIds: string[]) => {
       .from("News")
       .select("*")
       .in("category_id", categoryIds)
+      .order("created_at", { ascending: false })
       .limit(20);
 
     if (error) {

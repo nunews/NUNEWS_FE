@@ -1,5 +1,5 @@
-import { categoryIdMap, categoryNameMap } from '../categoryUUID';
-import supabase from '../supabase';
+import { categoryIdMap, categoryNameMap } from "../categoryUUID";
+import supabase from "../supabase";
 
 export const saveNewstoSupabase = async (newsData: NewsData[]) => {
   try {
@@ -8,18 +8,18 @@ export const saveNewstoSupabase = async (newsData: NewsData[]) => {
     for (const currentNews of newsData) {
       // 유효성 검사
       if (!currentNews.article_id || !currentNews.title) {
-        console.warn('❌ 유효하지 않은 뉴스:', {
+        console.warn("❌ 유효하지 않은 뉴스:", {
           article_id: currentNews.article_id,
           title: currentNews.title,
-          reason: !currentNews.article_id ? 'article_id 없음' : 'title 없음',
+          reason: !currentNews.article_id ? "article_id 없음" : "title 없음",
         });
         continue;
       }
 
       const { data: existing } = await supabase
-        .from('News')
-        .select('*')
-        .eq('news_id', currentNews.article_id)
+        .from("News")
+        .select("*")
+        .eq("news_id", currentNews.article_id)
         .single();
 
       if (!existing) {
@@ -27,7 +27,7 @@ export const saveNewstoSupabase = async (newsData: NewsData[]) => {
         const koreanCategory =
           categoryNameMap[
             currentNews.category as keyof typeof categoryNameMap
-          ] || '그 외';
+          ] || "그 외";
 
         // uuid 찾기
         const categoryId =
@@ -41,11 +41,11 @@ export const saveNewstoSupabase = async (newsData: NewsData[]) => {
           return kstTime.toISOString().slice(0, -1);
         };
         const { data, error } = await supabase
-          .from('News')
+          .from("News")
           .upsert(
             {
               news_id: currentNews.article_id,
-              category_id: categoryId || categoryIdMap['그 외'],
+              category_id: categoryId || categoryIdMap["그 외"],
               title: currentNews.title,
               content: currentNews.description,
               source: currentNews.source_name,
@@ -55,12 +55,12 @@ export const saveNewstoSupabase = async (newsData: NewsData[]) => {
               created_at: getKSTDate(),
               image_url: currentNews.image_url,
             },
-            { onConflict: 'news_id', ignoreDuplicates: true }
+            { onConflict: "news_id", ignoreDuplicates: true }
           )
-          .select('news_id');
+          .select("news_id");
 
         if (error) {
-          console.error('뉴스 저장 실패', error);
+          console.error("뉴스 저장 실패", error);
         } else {
           savedNews.push(currentNews);
         }
@@ -69,7 +69,7 @@ export const saveNewstoSupabase = async (newsData: NewsData[]) => {
 
     return savedNews;
   } catch (error) {
-    console.error('뉴스 저장 중 오류', error);
+    console.error("뉴스 저장 중 오류", error);
     return [];
   }
 };

@@ -104,7 +104,6 @@ const ProfileEditForm = ({
     setNickname(random);
     setIsNicknameChecked(false);
     setNicknameError(null);
-    toast(`랜덤 닉네임이 생성되었습니다: ${random}`);
   };
 
   return (

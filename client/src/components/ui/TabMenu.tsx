@@ -4,7 +4,7 @@ import { useTheme } from "next-themes";
 
 const TabMenu = ({ tabs, activeTab, onTabClick }: TabMenuProps) => {
   const baseTabStyle =
-    "flex-1 py-4 text-center font-semibold transition-colors duration-300";
+    "flex-1 py-4 text-center font-semibold transition-colors duration-300 cursor-pointer";
   const { theme } = useTheme();
   const inactiveTabStyle = `text-[var(--color-gray-60)] ${
     theme === "dark" ? "text-[var(--color-gray-200)]" : ""

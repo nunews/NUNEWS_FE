@@ -78,7 +78,7 @@ export default function DefaultCard({
 
   return (
     <div
-      className='w-full h-[169px] bg-white dark:bg-white/0 rounded-lg overflow-hidden flex items-center cursor-pointer group'
+      className='w-full h-[149px] bg-white dark:bg-white/0 rounded-lg overflow-hidden flex items-center cursor-pointer group'
       onClick={handleDetail}
     >
       <div className='relative w-30 h-30 flex-shrink-0 flex overflow-hidden rounded-lg'>

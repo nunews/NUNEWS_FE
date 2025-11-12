@@ -5,10 +5,12 @@ import { useEffect, useState, useCallback } from "react";
 import createClient from "@/utils/supabase/client";
 import { MyPostItem } from "./MyPostItem";
 import { timeAgo } from "@/utils/timeAgo";
+import MyPostsContentSkel from "./MyPostsContentSkel";
 
 export const MyPostsContent = ({ onPostCountChange }: MyPostsContentProps) => {
   const [posts, setPosts] = useState<MyPost[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const supabase = createClient();
 
@@ -21,6 +23,7 @@ export const MyPostsContent = ({ onPostCountChange }: MyPostsContentProps) => {
 
   const fetchPosts = useCallback(async () => {
     if (!userId) return;
+    setLoading(true);
 
     const { data, error } = await supabase
       .from("Post")
@@ -44,6 +47,7 @@ export const MyPostsContent = ({ onPostCountChange }: MyPostsContentProps) => {
     if (error) {
       console.error("❌ Error fetching posts:", error);
       setPosts([]);
+      setLoading(false);
       return;
     }
 
@@ -55,6 +59,7 @@ export const MyPostsContent = ({ onPostCountChange }: MyPostsContentProps) => {
     }));
 
     setPosts(formattedPosts);
+    setLoading(false);
   }, [userId, supabase]);
 
   useEffect(() => {
@@ -73,7 +78,9 @@ export const MyPostsContent = ({ onPostCountChange }: MyPostsContentProps) => {
 
   return (
     <div className='flex flex-col space-y-4 px-5'>
-      {posts.length > 0 ? (
+      {loading ? (
+        Array.from({ length: 5 }).map((_, i) => <MyPostsContentSkel key={i} />)
+      ) : posts.length > 0 ? (
         posts.map((post) => (
           <MyPostItem
             key={post.post_id}

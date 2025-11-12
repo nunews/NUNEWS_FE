@@ -6,7 +6,6 @@ import Image from "next/image";
 import { TextButton } from "../ui/TextButton";
 import { useRouter } from "next/navigation";
 import createClient from "@/utils/supabase/client";
-import { useTheme } from "next-themes";
 
 interface Category {
   title: string;
@@ -18,7 +17,7 @@ const MyProfile = () => {
   const [categories, setCategories] = useState<string[]>([]);
   const route = useRouter();
   const supabase = createClient();
-  const { theme } = useTheme();
+
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -86,31 +85,30 @@ const MyProfile = () => {
   };
 
   return (
-    <div className='flex flex-col gap-4 items-center justify-center mx-auto pb-8'>
-      <div className='relative w-[80px] h-[80px] rounded-full'>
+    <div className="flex flex-col gap-4 items-center justify-center mx-auto pb-8">
+      <div className="relative w-[80px] h-[80px] rounded-full">
         <Image
           src={profileImage || defaultProfileImg}
-          alt='profileImg'
+          alt="profileImg"
           fill
-          sizes='80px'
-          className='rounded-full object-cover'
+          sizes="80px"
+          className="rounded-full object-cover"
         />
       </div>
       <div>
-        <h1
-          className={`font-semibold ${
-            theme === "dark" ? "text-[#C9F14D]" : "text-[#191919]"
-          }  text-lg text-center`}
-        >
+        <h1 className="font-semibold text-[#191919] dark:text-white text-lg text-center">
           {nickname || "독재자 강아지"}
         </h1>
-        <h2 className='font-medium text-sm text-[#8f8f8f]'>
+        <h2 className="font-medium text-sm text-[#8f8f8f]">
           {categories.length > 0
             ? categories.join(", ")
             : "관심 카테고리가 없습니다"}
         </h2>
       </div>
-      <TextButton className='bg-black text-white' onClick={handleEditClick}>
+      <TextButton
+        className="bg-black text-white hover:bg-(--color-gray-100)"
+        onClick={handleEditClick}
+      >
         내 정보 수정
       </TextButton>
     </div>

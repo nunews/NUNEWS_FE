@@ -26,7 +26,7 @@ export const TextButton: React.FC<TextButtonProps> = ({
   ...props
 }) => {
   const baseStyle =
-    "flex w-full py-2 px-4 rounded-2xl flex items-center justify-center text-sm duration-300 cursor-pointer ";
+    "flex w-full py-2 px-4 rounded-2xl flex items-center justify-center text-sm duration-300 cursor-pointer whitespace-nowrap";
   const stateStyle = {
     default:
       "bg-[var(--color-gray-10)] text-[var(--color-black)] hover:bg-[var(--color-gray-20)]  active:text-[var(--color-white)]",

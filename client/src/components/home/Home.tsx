@@ -6,46 +6,60 @@ import Header from "../layout/header";
 import NewsSection from "./NewsSection";
 import SummaryModal from "../ui/SummaryModal";
 import { useQuery } from "@tanstack/react-query";
-import { fetchNewsData } from "@/lib/api/fetchNews";
 import { useAutoNewsFetch } from "@/hooks/useAutoNewsFetch";
-import Splash from "./Splash";
+import createClient from "@/utils/supabase/client";
+import { getSupabaseInterestNews } from "@/lib/api/getNewstoSupabase";
 
-export default function Home({ initialNews }: { initialNews: NewsData[] }) {
+export default function Home({
+  initialNews,
+  interests,
+}: {
+  initialNews: NewsData[];
+  interests: string[];
+}) {
   const [selectedNews, setSelectedNews] = useState<NewsData | null>(null);
+
   useAutoNewsFetch();
 
-  const {
-    data: newsData,
-    isLoading,
-    isError,
-  } = useQuery({
-    queryKey: ["newsData"],
+  const { data: newsData, isError } = useQuery({
+    queryKey: ["newsData", interests],
     queryFn: async () => {
-      const freshNews = await fetchNewsData("");
-      return freshNews;
+      const supabase = createClient();
+
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      const { data: userInterests } = await supabase
+        .from("User_Interests")
+        .select("category_id")
+        .eq("user_id", user?.id);
+
+      const categoryIds =
+        userInterests?.map((interest) => interest.category_id) || [];
+      return await getSupabaseInterestNews(categoryIds);
     },
+
     initialData: initialNews,
-    staleTime: 1000 * 60 * 60,
+    staleTime: 1000 * 60 * 5,
+    refetchOnMount: true,
     refetchInterval: 1000 * 60 * 60,
   });
-
-  if (isLoading) {
-    return <Splash />;
-  }
 
   return (
     <>
       <div className="h-screen scrollbar-hide">
-        <Header logo={true} page="nuPick" interest={["정치", "연예"]} />
+        <Header logo={true} page="nuPick" interest={interests} />
         <main className="h-screen overflow-y-scroll snap-y snap-mandatory">
           {!isError &&
             newsData.length > 0 &&
-            newsData.map((data: NewsData) => (
+            newsData.map((data: NewsData, idx: number) => (
               <NewsSection
                 key={data.article_id}
                 className="snap-start"
                 data={data}
                 handleSummary={() => setSelectedNews(data)}
+                isFirst={idx === 0}
               />
             ))}
         </main>

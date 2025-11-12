@@ -33,9 +33,9 @@ export const categoryNameMap = {
   world: "해외",
   society: "사회",
   top: "사회",
+  lifestyle: "사회",
   economy: "경제",
   business: "경제",
-  technology: "기술",
   other: "그 외",
   etc: "그 외",
 };

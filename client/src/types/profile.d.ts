@@ -1,4 +1,4 @@
-export interface ProfileEditFormProps {
+interface ProfileEditFormProps {
   nickname: string;
   setNickname: (value: string) => void;
   currentNickname: string;

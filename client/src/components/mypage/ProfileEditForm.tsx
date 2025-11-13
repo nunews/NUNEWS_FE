@@ -5,7 +5,6 @@ import Image from "next/image";
 import defaultProfile from "../../assets/images/default_profile.png";
 import { toast } from "sonner";
 import createClient from "@/utils/supabase/client";
-import { ProfileEditFormProps } from "@/types/profile";
 import { generateRandomNickname } from "@/utils/generateRandomNickname";
 import { Dices } from "lucide-react";
 

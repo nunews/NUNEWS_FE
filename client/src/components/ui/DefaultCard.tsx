@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import { useState, useEffect } from 'react';
-import { IoBookmark, IoBookmarkOutline, IoEyeOutline } from 'react-icons/io5';
-import { AiOutlineLike } from 'react-icons/ai';
-import createClient from '@/utils/supabase/client';
-import { useRouter } from 'next/navigation';
+import Image from "next/image";
+import { useState, useEffect } from "react";
+import { IoBookmark, IoBookmarkOutline, IoEyeOutline } from "react-icons/io5";
+import { AiOutlineLike } from "react-icons/ai";
+import createClient from "@/utils/supabase/client";
+import { useRouter } from "next/navigation";
 
 interface DefaultCardProps {
   newsId: string;
@@ -38,11 +38,11 @@ export default function DefaultCard({
 
     const checkBookmark = async () => {
       const { data } = await supabase
-        .from('User_scrap')
-        .select('*')
-        .eq('user_id', userId)
-        .eq('news_id', newsId)
-        .single();
+        .from("User_scrap")
+        .select("*")
+        .eq("user_id", userId)
+        .eq("news_id", newsId)
+        .maybeSingle();
 
       setIsBookmarked(!!data);
     };
@@ -53,12 +53,14 @@ export default function DefaultCard({
   const handleDetail = () => {
     router.push(`/newsDetail/${newsId}`);
   };
-  const handleBookmark = async () => {
-    if (!userId) return alert('로그인이 필요합니다.');
+
+  const handleBookmark = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!userId) return alert("로그인이 필요합니다.");
 
     if (!isBookmarked) {
       // 스크랩 추가
-      const { error } = await supabase.from('User_scrap').insert({
+      const { error } = await supabase.from("User_scrap").insert({
         user_id: userId,
         news_id: newsId,
       });
@@ -66,18 +68,18 @@ export default function DefaultCard({
     } else {
       // 스크랩 해제
       const { error } = await supabase
-        .from('User_scrap')
+        .from("User_scrap")
         .delete()
-        .eq('user_id', userId)
-        .eq('news_id', newsId);
+        .eq("user_id", userId)
+        .eq("news_id", newsId);
       if (!error) setIsBookmarked(false);
     }
   };
 
   return (
     <div
+      className='w-full h-[149px] bg-white dark:bg-white/0 rounded-lg overflow-hidden flex items-center cursor-pointer group'
       onClick={handleDetail}
-      className='w-full h-[169px] bg-white dark:bg-white/0 rounded-lg overflow-hidden flex items-center cursor-pointer group'
     >
       <div className='relative w-30 h-30 flex-shrink-0 flex overflow-hidden rounded-lg'>
         <Image

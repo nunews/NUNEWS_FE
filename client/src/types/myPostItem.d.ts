@@ -1,4 +1,4 @@
-export interface MyPostItemProps {
+interface MyPostItemProps {
   id: string;
   title: string;
   content: string;

@@ -1,11 +1,14 @@
-import Image from 'next/image';
-import { IoBookmark, IoBookmarkOutline, IoEyeOutline } from 'react-icons/io5';
-import { useState } from 'react';
-import { IconButton as BookmarkButton } from './IconButton';
-import { AiOutlineLike } from 'react-icons/ai';
-import { useRouter } from 'next/navigation';
+import Image from "next/image";
+import { IoBookmark, IoBookmarkOutline, IoEyeOutline } from "react-icons/io5";
+import { useState, useEffect } from "react";
+import { IconButton as BookmarkButton } from "./IconButton";
+import { AiOutlineLike } from "react-icons/ai";
+import { useRouter } from "next/navigation";
+import createClient from "@/utils/supabase/client";
+
 interface NewsCardProps {
   newsId: string;
+  userId?: string | null;
   title: string;
   category: string;
   timeAgo: string;
@@ -16,6 +19,7 @@ interface NewsCardProps {
 
 export default function NewsCard({
   newsId,
+  userId,
   title,
   category,
   timeAgo,
@@ -26,9 +30,49 @@ export default function NewsCard({
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const router = useRouter();
+  const supabase = createClient();
+
+  useEffect(() => {
+    if (!userId) return;
+
+    const checkBookmark = async () => {
+      const { data } = await supabase
+        .from("User_scrap")
+        .select("*")
+        .eq("user_id", userId)
+        .eq("news_id", newsId)
+        .maybeSingle();
+
+      setIsBookmarked(!!data);
+    };
+
+    checkBookmark();
+  }, [userId, newsId, supabase]);
 
   const handleDetail = () => {
     router.push(`/newsDetail/${newsId}`);
+  };
+
+  const handleBookmark = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!userId) return alert("로그인이 필요합니다.");
+
+    if (!isBookmarked) {
+      // 스크랩 추가
+      const { error } = await supabase.from("User_scrap").insert({
+        user_id: userId,
+        news_id: newsId,
+      });
+      if (!error) setIsBookmarked(true);
+    } else {
+      // 스크랩 해제
+      const { error } = await supabase
+        .from("User_scrap")
+        .delete()
+        .eq("user_id", userId)
+        .eq("news_id", newsId);
+      if (!error) setIsBookmarked(false);
+    }
   };
 
   return (
@@ -47,7 +91,7 @@ export default function NewsCard({
         <div className='absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-300 rounded-lg '></div>
 
         <div
-          onClick={() => setIsBookmarked(!isBookmarked)}
+          onClick={handleBookmark}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
           className='absolute top-2 right-2 z-10'
@@ -58,9 +102,8 @@ export default function NewsCard({
               size={16}
               color='var(--color-gray-50)'
               className={`absolute transition-opacity duration-300 ${
-                !isHovered && !isBookmarked ? 'opacity-100' : 'opacity-0'
+                !isHovered && !isBookmarked ? "opacity-100" : "opacity-0"
               }`}
-              onClick={() => setIsBookmarked(!isBookmarked)}
               onMouseEnter={() => setIsHovered(true)}
               onMouseLeave={() => setIsHovered(false)}
             />
@@ -68,14 +111,14 @@ export default function NewsCard({
               icon={IoBookmark}
               size={16}
               color={
-                isBookmarked ? 'var(--color-black)' : 'var(--color-gray-50)'
+                isBookmarked ? "var(--color-black)" : "var(--color-gray-50)"
               }
               className={`absolute transition-all duration-300 ${
                 isBookmarked
-                  ? 'opacity-100'
+                  ? "opacity-100"
                   : isHovered
-                  ? 'opacity-100'
-                  : 'opacity-0'
+                  ? "opacity-100"
+                  : "opacity-0"
               }`}
             />
           </div>

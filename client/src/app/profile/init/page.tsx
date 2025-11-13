@@ -18,12 +18,39 @@ export default function ProfileInitPage() {
   ];
   const [selectedGender, setSelectedGender] = useState<string | null>(null);
   const defaultButtonStyle = `
-    text-[var(--color-gray-50)] border border-[var(--color-gray-30)] bg-white
-    hover:border-[var(--color-gray-50)] hover:text-[var(--color-gray-100)] hover:bg-white
-  `;
+  bg-white
+  text-[var(--color-gray-50)]
+  border border-[var(--color-gray-30)]
+
+  hover:text-[var(--color-gray-100)]
+  hover:border-[var(--color-gray-100)]
+
+  dark:bg-[#121212]
+  dark:text-[var(--color-gray-50)]
+  dark:border-[var(--color-gray-60)]
+
+  dark:hover:bg-[var(--color-gray-100)]
+  dark:hover:text-white
+  dark:hover:border-[var(--color-gray-60)]
+`;
   const activeButtonStyle = `
-    bg-[var(--color-gray-10)] text-[var(--color-gray-100)] border border-[var(--color-gray-100)] hover:bg-[var(--color-gray-10)] hover:text-[var(--color-gray-100)]
-  `;
+  bg-[var(--color-gray-10)]
+  text-[var(--color-gray-100)]
+  border border-[var(--color-gray-100)]
+
+ 
+  hover:bg-[var(--color-gray-10)]
+  hover:text-[var(--color-gray-100)]
+  hover:border-[var(--color-gray-100)]
+
+  dark:bg-[var(--color-gray-100)]
+  dark:text-white
+  dark:border-[var(--color-gray-60)]
+
+  dark:hover:bg-[var(--color-gray-100)]
+  dark:hover:text-white
+  dark:hover:border-[var(--color-gray-60)]
+`;
 
   return (
     <>
@@ -31,7 +58,7 @@ export default function ProfileInitPage() {
       <div className=" relative h-screen flex flex-col px-6">
         <div className="mt-[62px]">
           <h1 className="text-[22px] font-bold leading-[140%] py-8">
-            보민님의 정보를
+            사용자님의 정보를
             <br />
             알려주세요
           </h1>

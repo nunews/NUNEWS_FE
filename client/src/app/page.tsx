@@ -5,11 +5,13 @@ import {
   getSupabaseInterestNews,
   getSupabaseRandomNews,
 } from "@/lib/api/getNewstoSupabase";
+import { getUserInterests } from "@/lib/api/getUserInterests";
 import { createServerSupabase } from "@/utils/supabase/server";
 import { Suspense } from "react";
 
 export default async function HomePage() {
   const supabase = await createServerSupabase();
+  const { interests, categoryIds } = await getUserInterests();
 
   const {
     data: { user },
@@ -21,18 +23,7 @@ export default async function HomePage() {
   let initialNews = [];
 
   await loadNewsData();
-  if (userError && user) {
-    const { data: interests, error: interestsError } = await supabase
-      .from("User_Interests")
-      .select("category_id")
-      .eq("user_id", user.id);
-
-    if (interestsError) {
-      console.error("관심사 조회 실패:", interestsError.message);
-    }
-
-    const categoryIds = interests?.map((i) => i.category_id) ?? [];
-
+  if (!userError && user) {
     if (categoryIds.length > 0) {
       // 로그인 & 관심사 유
       initialNews = await getSupabaseInterestNews(categoryIds);
@@ -47,7 +38,7 @@ export default async function HomePage() {
 
   return (
     <Suspense fallback={<Splash />}>
-      <Home initialNews={initialNews} />
+      <Home initialNews={initialNews} interests={interests} />
     </Suspense>
   );
 }

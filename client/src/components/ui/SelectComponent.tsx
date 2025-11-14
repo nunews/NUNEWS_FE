@@ -45,20 +45,21 @@ export default function SelectComponent({
       <Select defaultValue={defaultValue} onValueChange={onChange}>
         <SelectTrigger
           className={`w-full data-[size=default]:h-12.5 rounded-[12px] pl-4 shadow-none
-          bg-[var(--color-white)] border border-[var(--color-gray-30)] hover:border-[var(--color-gray-50)] transition-all duration-300 ease-in-out
+            
+           border border-[var(--color-gray-30)] dark:text-gray-90 dark:border-gray-100 hover:border-[var(--color-gray-50)] transition-all duration-300 ease-in-out
           active:border-[var(--color-gray-50)] active:ring-0 focus-visible:border-[var(--color-gray-50)] focus-visible:ring-0 focus-visible:outline-none focus:outline-none
             ${className}`}
         >
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
 
-        <SelectContent className="rounded-[12px] bg-[var(--color-white)] border border-[var(--color-gray-50)] shadow-none">
+        <SelectContent className="rounded-[12px] border dark:bg-[#121212] dark:border-gray-100 border-[var(--color-gray-50)] shadow-none">
           {options.map((opt) => (
             <SelectItem
               key={opt.value}
               value={opt.value}
               disabled={opt.disabled}
-              className="text-[var(--color-gray-100)] h-11 pl-3 hover:bg-[var(--color-gray-10)] transition-all duration-300 ease-in-out rounded-[12px]"
+              className="text-[var(--color-gray-100)] h-11 pl-3 hover:bg-[var(--color-gray-10)] dark:hover:bg-[var(--color-gray-100)] dark:text-white transition-all duration-300 ease-in-out rounded-[12px]"
             >
               {opt.label}
             </SelectItem>

@@ -1,52 +1,27 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import Footer from "../layout/footer";
 import Header from "../layout/header";
 import NewsSection from "./NewsSection";
 import SummaryModal from "../ui/SummaryModal";
-import { useQuery } from "@tanstack/react-query";
 import { useAutoNewsFetch } from "@/hooks/useAutoNewsFetch";
 import createClient from "@/utils/supabase/client";
-import { getSupabaseInterestNews } from "@/lib/api/getNewstoSupabase";
+import { useNewsData } from "@/hooks/useNewsData";
+import Splash from "./Splash";
+import { getUserInterestsFromClient } from "@/lib/api/getUserInterests";
 
-export default function Home({
-  initialNews,
-  interests,
-}: {
-  initialNews: NewsData[];
-  interests: string[];
-}) {
+export default function Home() {
   const [selectedNews, setSelectedNews] = useState<NewsData | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [interests, setInterests] = useState<string[]>([]);
+  const mainRef = useRef<HTMLElement>(null);
 
   useAutoNewsFetch();
   const supabase = createClient();
-  const [userId, setUserId] = useState<string | null>(null);
 
-  const { data: newsData, isError } = useQuery({
-    queryKey: ["newsData", interests],
-    queryFn: async () => {
-      const supabase = createClient();
-
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      const { data: userInterests } = await supabase
-        .from("User_Interests")
-        .select("category_id")
-        .eq("user_id", user?.id);
-
-      const categoryIds =
-        userInterests?.map((interest) => interest.category_id) || [];
-      return await getSupabaseInterestNews(categoryIds);
-    },
-
-    initialData: initialNews,
-    staleTime: 1000 * 60 * 5,
-    refetchOnMount: true,
-    refetchInterval: 1000 * 60 * 60,
-  });
+  // useNewsData 훅으로 뉴스 초기 데이터 가져오기
+  const { data: newsData, isError, isFetched } = useNewsData();
 
   const fetchUser = useCallback(async () => {
     const {
@@ -56,20 +31,49 @@ export default function Home({
   }, [supabase]);
 
   useEffect(() => {
-    fetchUser();
+    async function loadUserData() {
+      await fetchUser();
+      const { interests } = await getUserInterestsFromClient();
+      setInterests(interests);
+    }
+    loadUserData();
   }, [fetchUser]);
+
+  // 스크롤 시 모달이 닫히도록
+  useEffect(() => {
+    const mainSection = mainRef.current;
+    if (!mainSection) return;
+
+    const handleScroll = () => {
+      if (selectedNews) {
+        setSelectedNews(null);
+      }
+    };
+
+    mainSection.addEventListener("scroll", handleScroll);
+
+    return () => {
+      mainSection.removeEventListener("scroll", handleScroll);
+    };
+  }, [selectedNews]);
+
+  if (!isFetched) return <Splash />;
 
   return (
     <>
-      <div className='h-screen scrollbar-hide'>
-        <Header logo={true} page='nuPick' interest={interests} />
-        <main className='h-screen overflow-y-scroll snap-y snap-mandatory'>
+      <div className="h-screen scrollbar-hide">
+        <Header logo={true} page="nuPick" interest={interests} />
+        <main
+          ref={mainRef}
+          className="h-screen overflow-y-scroll snap-y snap-mandatory"
+        >
           {!isError &&
+            newsData &&
             newsData.length > 0 &&
             newsData.map((data: NewsData, idx: number) => (
               <NewsSection
                 key={data.article_id}
-                className='snap-start'
+                className="snap-start"
                 data={data}
                 handleSummary={() => setSelectedNews(data)}
                 userId={userId}
@@ -82,14 +86,16 @@ export default function Home({
         {selectedNews && (
           <div
             key={selectedNews.article_id}
-            className='fixed bottom-20 left-1/2 -translate-x-1/2 w-full px-2.5 z-50 max-w-[1024px]'
+            className="fixed bottom-20 left-1/2 -translate-x-1/2 w-full px-2.5 z-50 max-w-[1024px] pointer-events-none"
           >
-            <SummaryModal
-              isOpen={!!selectedNews}
-              onClose={() => setSelectedNews(null)}
-              newsContent={selectedNews.content || ""}
-              newsId={selectedNews.article_id || ""}
-            />
+            <div className="pointer-events-auto">
+              <SummaryModal
+                isOpen={!!selectedNews}
+                onClose={() => setSelectedNews(null)}
+                newsContent={selectedNews.content || ""}
+                newsId={selectedNews.article_id || ""}
+              />
+            </div>
           </div>
         )}
       </div>

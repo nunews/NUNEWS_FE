@@ -1,7 +1,6 @@
 import supabase from "@/lib/supabase";
 import { fetchOpenAi } from "@/lib/prompt/openai";
 
-// 메모리 캐시로 동시 요청 중복 방지
 const summaryCache = new Map<string, Promise<string>>();
 
 /**
@@ -15,7 +14,6 @@ export const createSummary = async (
   newsId: string,
   newsContent: string
 ): Promise<string> => {
-  // 입력값 검증
   if (!newsId || !newsContent) {
     throw new Error("newsId와 newsContent가 필요합니다.");
   }
@@ -31,6 +29,7 @@ export const createSummary = async (
 
   try {
     const result = await summaryPromise;
+
     return result;
   } finally {
     // 5초 후 캐시에서 제거
@@ -114,7 +113,7 @@ const saveSummaryToSupabase = async (
 };
 
 /**
- * 기존 요약 조회
+ 기존 요약 조회
  */
 export const getExistingSummaryFromModal = async (
   newsId: string

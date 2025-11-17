@@ -11,10 +11,16 @@ import { VscListSelection } from "react-icons/vsc";
 import { IconButton } from "../ui/IconButton";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { fetchLike, fetchPost, fetchUser } from "@/app/api/community";
+import {
+  fetchInterests,
+  fetchLike,
+  fetchPost,
+  fetchUser,
+} from "@/app/api/community";
 import TabMenu from "../ui/TabMenu";
 import { getCurrentUser } from "@/app/api/auth";
 import { Category, CategoryInv } from "@/lib/interest";
+import { useSortStore } from "@/stores/communitySortStore";
 
 export default function CommunityList() {
   const categories = [
@@ -38,7 +44,8 @@ export default function CommunityList() {
   ];
   const [selected, setSelected] = useState("all");
   const [add, setAdd] = useState(false);
-  const [sort, setSort] = useState("최신순");
+  // const [sort, setSort] = useState("최신순");
+  const { sortOption, setSortOption } = useSortStore();
   const buttonRef = useRef<HTMLButtonElement>(null);
   const router = useRouter();
   const goToCreate = () => {
@@ -48,6 +55,8 @@ export default function CommunityList() {
   const goToMypage = () => {
     router.push("/mypage");
   };
+
+  //사용자 정보
   const { data: authData } = useQuery({
     queryKey: ["currentUser"],
     queryFn: getCurrentUser,
@@ -55,37 +64,51 @@ export default function CommunityList() {
   const email = authData?.email;
   const userId = authData?.id ?? null;
 
+  //게시글 정보
   const { data: postData } = useQuery<Post[]>({
-    queryKey: ["communityList", sort, selected],
+    queryKey: ["communityList", sortOption, selected],
     queryFn: () => fetchPost(),
     staleTime: 1000 * 60 * 3,
   });
 
+  //사용자 프로필 정보 불러오기
   const { data: userDatas } = useQuery<User>({
     queryKey: ["fetchUser"],
     queryFn: () => fetchUser(email!),
     enabled: !!email,
   });
 
+  //사용자 관심사 불러오기
+  const { data: interestData } = useQuery<{ category_id: string }[]>({
+    queryKey: ["fetchInterests", userId],
+    queryFn: async (): Promise<{ category_id: string }[]> => {
+      if (!userId) throw new Error("유저 id 없음");
+      return (await fetchInterests(userId)) ?? [];
+    },
+    enabled: !!userId,
+  });
+
   const filteredPosts = () => {
     if (!postData) return [];
 
-    const filtered = postData.filter((post) => {
+    let filtered = postData.filter((post) => {
       if (selected === "all") return true;
 
       const selectedKo = categories.find((item) => item.id === selected)?.label;
       return selectedKo?.includes(CategoryInv[post.category_id]);
     });
 
-    // if(sort==="최신순"){
-    //   filtered=filtered.sort((a,b)=>new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-    // } else if(sort==="인기순"){
-    //   filterd=filtered.sort((a,b)=>b.)
-    // }
+    if (sortOption === "최신순") {
+      filtered = filtered.sort(
+        (a, b) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+    } else {
+      filtered = filtered.sort((a, b) => b.like_count - a.like_count);
+    }
     return filtered;
   };
 
-  //console.log("사용자정보", userDatas);
   return (
     <>
       <div className="min-h-screen w-full pt-[62px] pb-[72px]">
@@ -107,7 +130,9 @@ export default function CommunityList() {
               {userDatas?.name}
             </p>
             <p className="text-[var(--color-gray-70)] text-[13px]">
-              스포츠, 정치, 문화
+              {interestData && interestData.length > 0
+                ? interestData.map((i) => CategoryInv[i.category_id]).join(", ")
+                : "관심사가 없습니다"}
             </p>
           </div>
         </button>
@@ -133,6 +158,8 @@ export default function CommunityList() {
               title={post.title}
               content={post.contents}
               userId={userId!}
+              likes={post.like_count}
+              views={post.view_count}
             />
           ))}
         </div>

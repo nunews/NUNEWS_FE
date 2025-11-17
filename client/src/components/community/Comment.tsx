@@ -8,31 +8,65 @@ import Dropdown from "../ui/Dropdown";
 import { PiPencilLine } from "react-icons/pi";
 import { RiDeleteBinLine } from "react-icons/ri";
 import { useState } from "react";
+import { Check } from "lucide-react";
+import { getCurrentUser } from "@/app/api/auth";
 export default function Comment({
-  commentId,
   userId,
   comment,
   created_at,
+  onDelete,
+  onUpdate,
 }: {
-  commentId: string;
   userId: string;
   comment: string;
   created_at: string;
+  onDelete: () => void;
+  onUpdate: (newContent: string) => void;
 }) {
-  //댓글 작성자 불러오기
+  //사용자 정보 불러오기
+  const { data: authData } = useQuery({
+    queryKey: ["currentUser"],
+    queryFn: async () => {
+      const user = await getCurrentUser();
+      if (!user) throw new Error("사용자 정보가 없습니다");
+      return user;
+    },
+  });
+  const authId = authData?.id;
+  //댓글 작성자 정보 불러오기
   const { data: commentWriterData } = useQuery({
     queryKey: ["writerDetail", userId],
     queryFn: () => fetchWriter(userId as string),
     enabled: !!userId,
   });
+
   const [open, setOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedComment, setEditedComment] = useState(comment);
+
   const toggleOpen = () => {
     setOpen((prev) => !prev);
   };
+
+  const deleteHandler = () => {
+    if (confirm("댓글을 삭제하시겠습니까?")) {
+      onDelete();
+    }
+    setOpen(false);
+  };
+  const editHandler = () => {
+    setIsEditing(true);
+    setTimeout(() => setOpen(false), 0);
+  };
+  const updateHandler = () => {
+    onUpdate(editedComment);
+    setIsEditing(false);
+  };
+
   return (
     <>
       <div className="mt-6 w-full h-auto flex justify-between">
-        <div className="flex items-start">
+        <div className="flex items-start w-full">
           <Image
             src={commentWriterData?.profile_image ?? profileImg2}
             alt="profileImg"
@@ -40,7 +74,7 @@ export default function Comment({
             height={36}
             className="shrink-0 rounded-full"
           />
-          <div className="flex flex-col ml-3">
+          <div className="flex flex-col ml-3 w-full ">
             <div className="flex items-center gap-2">
               <span className="text-[var(--color-gray-100)] text-base font-semibold">
                 {commentWriterData?.nickname}
@@ -50,9 +84,25 @@ export default function Comment({
               </span>
             </div>
 
-            <p className="mt-1 text-[var(--color-gray-100)] text-base">
-              {comment}
-            </p>
+            {!isEditing ? (
+              <p className="mt-1 text-[var(--color-gray-100)] text-base">
+                {editedComment}
+              </p>
+            ) : (
+              <div className="px-2 mt-1 flex items-center border border-[var(--color-gray-20)] rounded-[10px] w-full">
+                <textarea
+                  value={editedComment}
+                  onChange={(e) => setEditedComment(e.target.value)}
+                  className="flex-1 block resize-none items-center justify-center text-base outline-none"
+                />
+                <button
+                  onClick={updateHandler}
+                  className="text-[var(--color-primary-50)] text-[14px] font-semibold flex items-center justify-center shrink-0"
+                >
+                  <Check className="h-5 w-5" />
+                </button>
+              </div>
+            )}
           </div>
         </div>
         <IconButton
@@ -64,24 +114,26 @@ export default function Comment({
         />
       </div>
       <div className="absolute top-9 right-0">
-        <Dropdown
-          isOpen={open}
-          onClose={toggleOpen}
-          title="내 댓글"
-          items={[
-            {
-              icon: <PiPencilLine />,
-              label: "수정하기",
-              onClick: toggleOpen,
-            },
-            {
-              icon: <RiDeleteBinLine />,
-              label: "삭제하기",
-              onClick: toggleOpen,
-              danger: true,
-            },
-          ]}
-        />
+        {authId === userId && (
+          <Dropdown
+            isOpen={open}
+            onClose={toggleOpen}
+            title="내 댓글"
+            items={[
+              {
+                icon: <PiPencilLine />,
+                label: "수정하기",
+                onClick: editHandler,
+              },
+              {
+                icon: <RiDeleteBinLine />,
+                label: "삭제하기",
+                onClick: deleteHandler,
+                danger: true,
+              },
+            ]}
+          />
+        )}
       </div>
     </>
   );

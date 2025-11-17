@@ -1,50 +1,32 @@
 "use client";
 import Image from "next/image";
 import profileImg from "../../assets/images/profile1.png";
-import postImg from "../../assets/images/postImg.png";
-import { AiFillLike, AiOutlineLike, AiOutlineMore } from "react-icons/ai";
+import postImg from "../../../public/images/dance.jpg";
+import { AiFillLike, AiOutlineLike } from "react-icons/ai";
 import { IoEyeOutline } from "react-icons/io5";
 import Input from "../ui/Input";
-import { PiPaperPlaneTiltLight, PiPencilLine } from "react-icons/pi";
+import { PiPaperPlaneTiltLight } from "react-icons/pi";
 import { useState } from "react";
-import Dropdown from "../ui/Dropdown";
-import { RiDeleteBinLine } from "react-icons/ri";
-import { IconButton } from "../ui/IconButton";
-import { useParams, useRouter } from "next/navigation";
-import { useMutation, useQuery } from "@tanstack/react-query";
+
+import { useParams } from "next/navigation";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  deleteComment,
   fetchComment,
   fetchPostById,
   fetchWriter,
   postComment,
+  postLikeTmp,
+  updateComment,
 } from "@/app/api/community";
 import { CategoryInv } from "@/lib/interest";
 import { getCurrentUser } from "@/app/api/auth";
 import Comment from "./Comment";
 
 export default function CommunityPostDetail() {
-  // const comments = [
-  //   {
-  //     profileImg: profileImg2,
-  //     nickName: "공허의 코끼리",
-  //     time: "방금전",
-  //     comment: "님아 동족은 좀... 그렇지 않냐코 ㅠ 너무하다코 ㅠ",
-  //   },
-  //   {
-  //     profileImg: profileImg,
-  //     nickName: "역병의 산토끼",
-  //     time: "방금전",
-  //     comment: "님아 동족은 좀... 그렇지 않냐코 ㅠ 너무하다코 ㅠ",
-  //   },
-  //   {
-  //     profileImg: profileImg2,
-  //     nickName: "공허의 코끼리",
-  //     time: "방금전",
-  //     comment: "님아 동족은 좀... 그렇지 않냐코 ㅠ 너무하다코 ㅠ",
-  //   },
-  // ]
-  const [comment, setComment] = useState("");
-  const router = useRouter();
+  const [comment, setComment] = useState(""); //추가한 댓글
+  const [like, setLike] = useState(false); //사용자 좋아요 여부
+
   const params = useParams();
   const postId = params.postId;
 
@@ -60,7 +42,7 @@ export default function CommunityPostDetail() {
     },
     enabled: !!postId,
   });
-
+  const [likeCount, setLikeCount] = useState(postDetailData?.like_count ?? 0);
   const writerId = postDetailData?.user_id;
   // console.log("writerId", writerId);
 
@@ -73,7 +55,7 @@ export default function CommunityPostDetail() {
       return user;
     },
   });
-
+  const userId = authData?.id;
   //게시글 작성자 정보 불러오기
   const { data: writerData } = useQuery({
     queryKey: ["writerDetail", writerId],
@@ -83,35 +65,193 @@ export default function CommunityPostDetail() {
 
   //댓글 불러오기
   const { data: commentData } = useQuery({
-    queryKey: ["comment", postDetailData?.post_id],
+    queryKey: ["comments", postDetailData?.post_id],
     queryFn: () => fetchComment(postDetailData!.post_id),
     enabled: !!postDetailData?.post_id,
   });
 
+  const queryClient = useQueryClient();
   //댓글 추가하기
   const { mutate: addComment } = useMutation({
-    mutationFn: () =>
-      postComment(comment, authData!.id, postDetailData!.post_id),
-    onSuccess: () => {
-      alert("댓글 업로드 성공!");
+    mutationFn: (newComment: string) =>
+      postComment(newComment, authData!.id, postDetailData!.post_id),
+    onMutate: async (newComment) => {
+      console.log("낙관적 업데이트 시작");
+      await queryClient.cancelQueries({
+        queryKey: ["comments", postDetailData!.post_id],
+      });
+
+      //현재 댓글 목록 가져오기
+      const prevComments = queryClient.getQueryData([
+        "comments",
+        postDetailData!.post_id,
+      ]);
+      // console.log("prevComments", prevComments);
+
+      //새 댓글 추가
+      queryClient.setQueryData(
+        ["comments", postDetailData!.post_id],
+        (old: Comment[]) => [
+          ...(old || []),
+          {
+            comment_id: Math.random(),
+            user_id: userId,
+            post_id: postId,
+            content: newComment,
+            created_at: new Date().toISOString(),
+            optimistic: true,
+          },
+        ]
+      );
+      return { prevComments };
     },
-    onError: (error) => {
-      console.error(error);
+    onError: (error, _, context) => {
+      if (context?.prevComments) {
+        queryClient.setQueryData(
+          ["comments", postDetailData!.post_id],
+          context.prevComments
+        );
+      }
+      // console.error(error);
       alert("댓글 업로드 실패!");
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["comments", postDetailData!.post_id],
+      });
     },
   });
 
-  //댓글 작성자 불러오기
-  // const { data: commentWriterData } = useQuery({
-  //     queryKey: ["writerDetail", writerId],
-  //     queryFn: () => fetchWriter(writerId as string),
-  //     enabled: !!writerId,
-  //   });
-  //const [open, setOpen] = useState(Array(commentData?.length).fill(false));
-  const [like, setLike] = useState(false);
-  // const toggleOpen = (i: number) => {
-  //   setOpen((prev) => prev.map((v, idx) => (idx === i ? !open[i] : v)));
-  // };
+  //댓글 수정
+  const { mutate: editComment } = useMutation({
+    mutationFn: ({
+      commentId,
+      newComment,
+    }: {
+      commentId: string;
+      newComment: string;
+    }) => updateComment(commentId, newComment),
+    //낙관적 댓글 삭제
+    onMutate: async ({ commentId, newComment }) => {
+      console.log("낙관적 수정 실행", commentId);
+
+      //해당 쿼리 일시 중지
+      await queryClient.cancelQueries({
+        queryKey: ["comments", postDetailData!.post_id],
+      });
+
+      //현재 댓글 목록
+      const prevComments = queryClient.getQueryData([
+        "comments",
+        postDetailData!.post_id,
+      ]);
+      console.log("prevComments", prevComments);
+
+      queryClient.setQueryData(
+        ["comments", postDetailData!.post_id],
+        (old: Comment[]) =>
+          old?.map((comment: Comment) =>
+            comment.comment_id === commentId
+              ? { ...comment, content: newComment, optimistic: true }
+              : comment
+          )
+      );
+      return { prevComments };
+    },
+    onError: (error, _, context) => {
+      console.error("댓글 수정 실패", error);
+      if (context?.prevComments) {
+        queryClient.setQueryData(
+          ["comments", postDetailData!.post_id],
+          context.prevComments
+        );
+      }
+      alert("댓글 수정 실패");
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["comments", postDetailData!.post_id],
+      });
+    },
+  });
+
+  //댓글 삭제
+  const { mutate: removeComment } = useMutation({
+    mutationFn: (commentId: string) => deleteComment(commentId),
+    //낙관적 댓글 삭제
+    onMutate: async (commentId) => {
+      console.log("낙관적 삭제 실행", commentId);
+
+      //해당 쿼리 일시 중지
+      await queryClient.cancelQueries({
+        queryKey: ["comments", postDetailData!.post_id],
+      });
+
+      //현재 댓글 목록
+      const prevComments = queryClient.getQueryData([
+        "comments",
+        postDetailData!.post_id,
+      ]);
+      console.log("prevComments", prevComments);
+
+      queryClient.setQueryData(
+        ["comments", postDetailData!.post_id],
+        (old: Comment[]) =>
+          old?.filter(
+            (c: Comment) => String(c.comment_id) !== String(commentId)
+          )
+      );
+      return { prevComments };
+    },
+    onError: (error, _, context) => {
+      if (context?.prevComments) {
+        queryClient.setQueryData(
+          ["comments", postDetailData!.post_id],
+          context.prevComments
+        );
+      }
+      alert("댓글 삭제 실패");
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["comments", postDetailData!.post_id],
+      });
+    },
+  });
+
+  //좋아요 임시 업데이트
+  const { mutate: mutateTemp } = useMutation({
+    mutationFn: (liked: boolean) => {
+      if (!userId) {
+        throw new Error("로그인이 필요합니다");
+      }
+      return postLikeTmp(postId as string, likeCount);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["likes", postId] });
+    },
+    onError: (err) => {
+      console.error("좋아요 업로드 실패:", err);
+      setLike((prev) => !prev);
+      setLikeCount((prev) => prev + (like ? 1 : -1));
+    },
+  });
+
+  const likeHandler = () => {
+    if (!userId) {
+      alert("로그인이 필요합니다.");
+      return;
+    }
+    setLike((prev) => !prev);
+    setLikeCount((prev) => prev + (like ? -1 : 1));
+    // mutate(!like);
+    mutateTemp(!like);
+  };
+  const commentHandler = () => {
+    addComment(comment);
+    setComment("");
+  };
+
   if (isLoading || !postDetailData) {
     return <div>로딩중..</div>;
   }
@@ -146,20 +286,20 @@ export default function CommunityPostDetail() {
         <div className="mt-6 flex items-center text-[#b7b7b7]">
           {!like && (
             <AiOutlineLike
-              onClick={() => setLike(true)}
+              onClick={likeHandler}
               className="w-5 h-5 cursor-pointer hover:text-[var(--color-black)] duration-300"
             />
           )}
           {like && (
             <AiFillLike
-              onClick={() => setLike(false)}
+              onClick={likeHandler}
               className="w-5 h-5 cursor-pointer text-[var(--color-black)]"
             />
           )}
-          <p className="ml-[3px] text-base">32</p>
+          <p className="ml-[3px] text-base">{likeCount}</p>
 
           <IoEyeOutline className="ml-[11px] w-5 h-5" />
-          <p className="ml-[3px] text-base">124</p>
+          <p className="ml-[3px] text-base">{postDetailData.view_count ?? 0}</p>
         </div>
 
         {/* 댓글 입력*/}
@@ -167,7 +307,7 @@ export default function CommunityPostDetail() {
           <Input
             rightSlot={
               <PiPaperPlaneTiltLight
-                onClick={() => addComment()}
+                onClick={commentHandler}
                 className="w-4 h-4 text-[var(--color-gray-100)] cursor-pointer"
               />
             }
@@ -179,68 +319,28 @@ export default function CommunityPostDetail() {
         </div>
 
         {/* 댓글 */}
-        {commentData?.map((comment, i) => (
-          <div key={i} className="relative">
-            <Comment
-              commentId={comment.comment_id}
-              userId={comment.user_id}
-              comment={comment.content}
-              created_at={comment.created_at}
-            />
-            {/* <div className="mt-6 w-full h-auto flex justify-between">
-              <div className="flex items-start">
-                <Image
-                  src={comment.profileImg}
-                  alt="profileImg"
-                  width={36}
-                  height={36}
-                  className="shrink-0 rounded-full"
-                />
-                <div className="flex flex-col ml-3">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[var(--color-gray-100)] text-base font-semibold">
-                      {comment.nickName}
-                    </span>
-                    <span className="text-[var(--color-gray-60)] text-[13px]">
-                      {comment.time}
-                    </span>
-                  </div>
-
-                  <p className="mt-1 text-[var(--color-gray-100)] text-base">
-                    {comment.comment}
-                  </p>
-                </div>
-              </div>
-              <IconButton
-                icon={AiOutlineMore}
-                size={24}
-                color="#2f2f2f"
-                onClick={() => toggleOpen(i)}
-                className="w-8 h-8 hover:bg-[var(--color-gray-10)]"
+        {[...(commentData ?? [])]
+          .sort(
+            (a, b) =>
+              new Date(b.created_at).getTime() -
+              new Date(a.created_at).getTime()
+          )
+          .map((comment, i) => (
+            <div key={comment.comment_id ?? i} className="relative">
+              <Comment
+                userId={comment.user_id}
+                comment={comment.content}
+                created_at={comment.created_at}
+                onDelete={() => removeComment(comment.comment_id)}
+                onUpdate={(newContent) =>
+                  editComment({
+                    commentId: comment.comment_id,
+                    newComment: newContent,
+                  })
+                }
               />
             </div>
-            <div className="absolute top-9 right-0">
-              <Dropdown
-                isOpen={open[i]}
-                onClose={() => toggleOpen(i)}
-                title="내 댓글"
-                items={[
-                  {
-                    icon: <PiPencilLine />,
-                    label: "수정하기",
-                    onClick: () => toggleOpen(i),
-                  },
-                  {
-                    icon: <RiDeleteBinLine />,
-                    label: "삭제하기",
-                    onClick: () => toggleOpen(i),
-                    danger: true,
-                  },
-                ]}
-              />
-            </div> */}
-          </div>
-        ))}
+          ))}
       </div>
     </>
   );

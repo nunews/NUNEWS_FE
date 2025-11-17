@@ -33,12 +33,13 @@ export const fetchWriter = async (userId: string) => {
     .from("User")
     .select("nickname, profile_image")
     .eq("user_id", userId);
-
+  // .single();
   if (error) {
     console.error("작성자 정보 불러오기 실패", error.message);
     throw new Error("작성자 정보를 불러오는데 실패했습니다.");
   }
-  return data?.[0] ?? null; //단일 사용자
+  // console.log("작성자 정보:", data);
+  return data[0] ?? null; //단일 사용자
 };
 
 //게시글 좋아요 수 불러오기
@@ -78,7 +79,25 @@ export const postLike = async (postId: string, userId: string) => {
     }
   }
 };
+//게시글 좋아요 업데이트 임시
+export const postLikeTmp = async (postId: string, likecnt: number) => {
+  if (postId) {
+    const { data, error } = await supabase
+      .from("Post")
+      .update({
+        like_count: likecnt,
+      })
+      .eq("post_id", postId);
 
+    if (error) {
+      console.error("좋아요 업로드 실패!:", error);
+      throw new Error("좋아요 저장 실패");
+    } else {
+      //console.log("좋아요업로드완료:", postId, userId);
+    }
+    return data;
+  }
+};
 //좋아요 삭제
 export const postUnlike = async (postId: string, userId: string) => {
   if (!userId || !postId) {
@@ -166,7 +185,7 @@ export const fetchComment = async (postId: string) => {
   if (error) {
     console.error("댓글 정보 불러오기 실패:", error);
   } else {
-    console.log("댓글 정보:", data);
+    // console.log("댓글 정보:", data);
     return data;
   }
 };
@@ -198,4 +217,80 @@ export const postComment = async (
     console.log("댓글업로드완료:", postId, userId, comment);
   }
   return data;
+};
+//댓글 수정
+export const updateComment = async (commentId: string, comment: string) => {
+  if (!commentId || !comment) {
+    console.warn("userId,postId 또는 comment가 없습니다");
+    return;
+  }
+  const { data, error } = await supabase
+    .from("Comments")
+    .update([
+      {
+        content: comment,
+      },
+    ])
+    .eq("comment_id", commentId);
+
+  if (error) {
+    console.error("댓글 수정 실패!:", error);
+  } else {
+    console.log("댓글수정완료:", commentId, comment);
+  }
+  return data;
+};
+
+//댓글 삭제
+export const deleteComment = async (commentId: string) => {
+  if (!commentId) {
+    console.warn("댓글 id가 없습니다");
+    return;
+  }
+  const { error: deleteError } = await supabase
+    .from("Comments")
+    .delete()
+    .eq("comment_id", commentId);
+  if (deleteError) {
+    console.error("댓글 삭제 실패", deleteError);
+  } else {
+    console.log("댓글 삭제 완료:", commentId);
+  }
+};
+
+//조회수 업데이트
+export const postView = async (postId: string, viewcnt: number) => {
+  if (postId) {
+    const { data, error } = await supabase
+      .from("Post")
+      .update({
+        view_count: viewcnt,
+      })
+      .eq("post_id", postId);
+
+    if (error) {
+      console.error("조회수 업로드 실패!:", error);
+      throw new Error("조회수 저장 실패");
+    } else {
+      console.log("조회수 업로드완료:", postId, viewcnt);
+    }
+    return data;
+  }
+};
+
+//관심사 불러오기
+export const fetchInterests = async (userId: string) => {
+  if (!userId) {
+    console.error("userid가 존재하지 않습니다");
+    return;
+  }
+  const { data, error } = await supabase
+    .from("User_Interests")
+    .select("category_id")
+    .eq("user_id", userId);
+  if (error) {
+    console.error("관심사 불러오기 실패", error);
+  }
+  // console.log("interest", data);
+  return data ?? [];
 };

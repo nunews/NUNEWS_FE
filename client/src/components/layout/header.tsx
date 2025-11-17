@@ -29,6 +29,7 @@ import { LuListFilter } from "react-icons/lu";
 import Dropdown from "../ui/Dropdown";
 import { useRef, useState } from "react";
 import { useTheme } from "next-themes";
+import { useSortStore } from "@/stores/communitySortStore";
 
 export default function Header({
   logo,
@@ -42,7 +43,7 @@ export default function Header({
   //dark?: boolean;
 }) {
   const { theme, setTheme } = useTheme();
-
+  const { sortOption, setSortOption } = useSortStore();
   const categoryMap: Record<string, StaticImageData> = {
     정치: Politics,
     스포츠: Sports,
@@ -55,12 +56,13 @@ export default function Header({
   };
   const buttonRef = useRef<HTMLButtonElement>(null);
   const router = useRouter();
-  const [filter, setFilter] = useState("최신순");
+  // const [filter, setFilter] = useState("최신순");
   const [open, setOpen] = useState(false);
 
-  const filterHandler = (filtered: string) => {
+  const filterHandler = (filtered: "최신순" | "인기순") => {
     setOpen(true);
-    setFilter(filtered);
+    // setFilter(filtered);
+    setSortOption(filtered);
     setOpen(false);
   };
 

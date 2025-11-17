@@ -1,9 +1,9 @@
-export type Category = {
+type Category = {
   title: string;
   category_id: string;
 };
 
-export type News = {
+type News = {
   news_id: string;
   title: string;
   content: string;
@@ -16,16 +16,16 @@ export type News = {
   Category?: Category;
 };
 
-export type UserScrapItem = {
+type UserScrapItem = {
   created_at: string;
   News: News;
 };
 
-export type SupabaseUserScrapResponse = {
+type SupabaseUserScrapResponse = {
   created_at: string;
   News?: News[];
 };
 
-export interface ScrappedNewsContentProps {
+interface ScrappedNewsContentProps {
   onScrapCountChange?: (count: number) => void;
 }

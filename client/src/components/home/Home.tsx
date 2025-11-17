@@ -1,103 +1,97 @@
-import { useEffect, useState } from "react";
+"use client";
+
+import { useState, useCallback, useEffect } from "react";
 import Footer from "../layout/footer";
 import Header from "../layout/header";
 import NewsSection from "./NewsSection";
-import { fetchRandomNews } from "@/lib/api/fetchNews";
-import { getSupabase } from "@/lib/api/getSupabase";
-import { saveNewstoSupabase } from "@/lib/api/saveSupabase";
+import SummaryModal from "../ui/SummaryModal";
+import { useQuery } from "@tanstack/react-query";
+import { useAutoNewsFetch } from "@/hooks/useAutoNewsFetch";
+import createClient from "@/utils/supabase/client";
+import { getSupabaseInterestNews } from "@/lib/api/getNewstoSupabase";
 
-export default function Home() {
-  const [newsData, setNewsData] = useState<NewsData[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+export default function Home({
+  initialNews,
+  interests,
+}: {
+  initialNews: NewsData[];
+  interests: string[];
+}) {
+  const [selectedNews, setSelectedNews] = useState<NewsData | null>(null);
+
+  useAutoNewsFetch();
+  const supabase = createClient();
+  const [userId, setUserId] = useState<string | null>(null);
+
+  const { data: newsData, isError } = useQuery({
+    queryKey: ["newsData", interests],
+    queryFn: async () => {
+      const supabase = createClient();
+
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      const { data: userInterests } = await supabase
+        .from("User_Interests")
+        .select("category_id")
+        .eq("user_id", user?.id);
+
+      const categoryIds =
+        userInterests?.map((interest) => interest.category_id) || [];
+      return await getSupabaseInterestNews(categoryIds);
+    },
+
+    initialData: initialNews,
+    staleTime: 1000 * 60 * 5,
+    refetchOnMount: true,
+    refetchInterval: 1000 * 60 * 60,
+  });
+
+  const fetchUser = useCallback(async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (user) setUserId(user.id);
+  }, [supabase]);
 
   useEffect(() => {
-    const loadRandomNews = async () => {
-      try {
-        setLoading(true);
-        const existingNews = await getSupabase();
-
-        // 기존 뉴스가 있는지 확인
-        if (existingNews && existingNews.length > 0) {
-          setNewsData(existingNews);
-          setError(null);
-          return;
-        }
-
-        // 없다면 fetch 진행
-        const data = await fetchRandomNews("ko");
-
-        const transformedData: NewsData[] = data.map((data: NewsData) => {
-          const originalCategory = data.category[0] || "etc";
-
-          return {
-            article_id: data.article_id,
-            category: originalCategory,
-            description: data.description || "내용이 없습니다.",
-            image_url: data.image_url,
-            language: data.language,
-            link: data.link,
-            pubDate: data.pubDate,
-            source_name: data.source_name,
-            source_url: data.source_url,
-            title: data.title,
-            content: data.content || data.description || "내용이 없습니다.",
-          };
-        });
-
-        const savedNews = await saveNewstoSupabase(transformedData);
-
-        setNewsData(savedNews || []);
-        setError(null);
-      } catch (err) {
-        console.error("뉴스 데이터 로딩 실패:", err);
-        setError("뉴스를 불러오는데 실패했습니다.");
-
-        // 에러 시 기본 더미 데이터 사용
-        setNewsData([
-          {
-            article_id: "dummy-1",
-            category: "",
-            description: "잠시만 기다려주세요.",
-            image_url: "/images/handsomeLee.png",
-            language: "ko",
-            link: "#",
-            pubDate: new Date().toISOString(),
-            source_name: "NUNEWS",
-            source_url: "#",
-            title: "뉴스를 불러오는 중입니다...",
-            likes: 0,
-            views: 0,
-          },
-        ]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadRandomNews();
-  }, []);
+    fetchUser();
+  }, [fetchUser]);
 
   return (
     <>
-      <div className="h-screen scrollbar-hide">
-        <Header
-          logo={true}
-          page="nuPick"
-          dark={false}
-          interest={["정치", "연예"]}
-        />
-        <main className="h-screen overflow-y-scroll snap-y snap-mandatory">
-          {newsData.length > 0 &&
-            newsData.map((data) => (
+      <div className='h-screen scrollbar-hide'>
+        <Header logo={true} page='nuPick' interest={interests} />
+        <main className='h-screen overflow-y-scroll snap-y snap-mandatory'>
+          {!isError &&
+            newsData.length > 0 &&
+            newsData.map((data: NewsData, idx: number) => (
               <NewsSection
                 key={data.article_id}
-                className="snap-start"
+                className='snap-start'
                 data={data}
+                handleSummary={() => setSelectedNews(data)}
+                userId={userId}
+                newsId={data.article_id}
+                isFirst={idx === 0}
               />
             ))}
         </main>
         <Footer isNuPick />
+        {selectedNews && (
+          <div
+            key={selectedNews.article_id}
+            className='fixed bottom-20 left-1/2 -translate-x-1/2 w-full px-2.5 z-50 max-w-[1024px]'
+          >
+            <SummaryModal
+              isOpen={!!selectedNews}
+              onClose={() => setSelectedNews(null)}
+              newsContent={selectedNews.content || ""}
+              newsId={selectedNews.article_id || ""}
+            />
+          </div>
+        )}
       </div>
     </>
   );

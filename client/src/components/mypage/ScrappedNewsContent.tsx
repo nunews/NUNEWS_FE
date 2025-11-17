@@ -1,24 +1,21 @@
-'use client';
+"use client";
 
-import { useEffect, useState, useCallback } from 'react';
-import createClient from '@/utils/supabase/client';
-import DefaultCard from '../ui/DefaultCard';
-import CategoryFilter from './CategoryFilter';
-import { timeAgo } from '@/utils/timeAgo';
-import { categoryIdMap } from '@/lib/categoryUUID';
-import type {
-  ScrappedNewsContentProps,
-  SupabaseUserScrapResponse,
-  UserScrapItem,
-} from '@/types/scrapNews';
+import { useEffect, useState, useCallback } from "react";
+import createClient from "@/utils/supabase/client";
+import DefaultCard from "../ui/DefaultCard";
+import CategoryFilter from "./CategoryFilter";
+import { timeAgo } from "@/utils/timeAgo";
+import { categoryIdMap } from "@/lib/categoryUUID";
+import DefaultCardSkel from "./DefaultCardSkel";
 
 export default function ScrappedNewsContent({
   onScrapCountChange,
 }: ScrappedNewsContentProps) {
   const [scrappedNews, setScrappedNews] = useState<UserScrapItem[]>([]);
-  const [activeCategory, setActiveCategory] = useState('전체');
+  const [activeCategory, setActiveCategory] = useState("전체");
   const [userId, setUserId] = useState<string | null>(null);
   const supabase = createClient();
+  const [loading, setLoading] = useState(true);
 
   // 로그인 사용자 정보 가져오기
   const fetchUser = useCallback(async () => {
@@ -30,9 +27,10 @@ export default function ScrappedNewsContent({
 
   const fetchScrappedNews = useCallback(async () => {
     if (!userId) return;
+    setLoading(true);
 
     const { data, error } = await supabase
-      .from('User_scrap')
+      .from("User_scrap")
       .select(
         `
       created_at,
@@ -42,12 +40,13 @@ export default function ScrappedNewsContent({
       )
     `
       )
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false });
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false });
 
     if (error) {
-      console.error('❌ Error fetching scrapped news:', error);
+      console.error("❌ Error fetching scrapped news:", error);
       setScrappedNews([]);
+      setLoading(false);
       return;
     }
 
@@ -58,14 +57,17 @@ export default function ScrappedNewsContent({
       })
       .filter((item): item is UserScrapItem => item !== null)
       .filter((item) => {
-        if (activeCategory === '전체') return true;
+        if (activeCategory === "전체") return true;
 
         const selectedCategoryId =
           categoryIdMap[activeCategory as keyof typeof categoryIdMap];
-        return selectedCategoryId === item.News.Category?.category_id;
+        return (
+          selectedCategoryId === (item.News.Category as Category)?.category_id
+        );
       });
 
     setScrappedNews(formattedData);
+    setLoading(false);
   }, [userId, activeCategory, supabase]);
 
   // 스크랩 수 전달
@@ -92,15 +94,17 @@ export default function ScrappedNewsContent({
         />
       </div>
 
-      <div className='space-y-4'>
-        {scrappedNews.length > 0 ? (
+      <div>
+        {loading ? (
+          Array.from({ length: 5 }).map((_, i) => <DefaultCardSkel key={i} />)
+        ) : scrappedNews.length > 0 ? (
           scrappedNews.map((item) => (
             <DefaultCard
               key={item.News.news_id}
               newsId={item.News.news_id}
               userId={userId}
               title={item.News.title}
-              category={item.News.Category?.title || ''}
+              category={item.News.Category?.title || ""}
               timeAgo={timeAgo(item.News.published_at)}
               likes={item.News.like_count}
               views={item.News.view_count}

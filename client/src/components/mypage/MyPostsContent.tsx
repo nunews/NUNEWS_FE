@@ -1,15 +1,16 @@
 // MyPostsContent.tsx
-'use client';
+"use client";
 
-import { useEffect, useState, useCallback } from 'react';
-import createClient from '@/utils/supabase/client';
-import { MyPostItem } from './MyPostItem';
-import { timeAgo } from '@/utils/timeAgo';
-import type { Post, MyPostsContentProps } from '@/types/post';
+import { useEffect, useState, useCallback } from "react";
+import createClient from "@/utils/supabase/client";
+import { MyPostItem } from "./MyPostItem";
+import { timeAgo } from "@/utils/timeAgo";
+import MyPostsContentSkel from "./MyPostsContentSkel";
 
 export const MyPostsContent = ({ onPostCountChange }: MyPostsContentProps) => {
-  const [posts, setPosts] = useState<Post[]>([]);
+  const [posts, setPosts] = useState<MyPost[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const supabase = createClient();
 
@@ -22,9 +23,10 @@ export const MyPostsContent = ({ onPostCountChange }: MyPostsContentProps) => {
 
   const fetchPosts = useCallback(async () => {
     if (!userId) return;
+    setLoading(true);
 
     const { data, error } = await supabase
-      .from('Post')
+      .from("Post")
       .select(
         `
         post_id,
@@ -34,26 +36,30 @@ export const MyPostsContent = ({ onPostCountChange }: MyPostsContentProps) => {
         contents,
         content_image,
         created_at,
-        Category:category_id (title)
+        PostCategory:category_id (title),
+        view_count,
+        like_count
       `
       )
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false });
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false });
 
     if (error) {
-      console.error('❌ Error fetching posts:', error);
+      console.error("❌ Error fetching posts:", error);
       setPosts([]);
+      setLoading(false);
       return;
     }
 
-    const formattedPosts: Post[] = (data || []).map((p) => ({
+    const formattedPosts: MyPost[] = (data || []).map((p) => ({
       ...p,
-      Category: Array.isArray(p.Category)
-        ? p.Category[0]
-        : p.Category || { title: '' },
+      PostCategory: Array.isArray(p.PostCategory)
+        ? p.PostCategory[0]
+        : p.PostCategory || { title: "" },
     }));
 
     setPosts(formattedPosts);
+    setLoading(false);
   }, [userId, supabase]);
 
   useEffect(() => {
@@ -72,18 +78,20 @@ export const MyPostsContent = ({ onPostCountChange }: MyPostsContentProps) => {
 
   return (
     <div className='flex flex-col space-y-4 px-5'>
-      {posts.length > 0 ? (
+      {loading ? (
+        Array.from({ length: 5 }).map((_, i) => <MyPostsContentSkel key={i} />)
+      ) : posts.length > 0 ? (
         posts.map((post) => (
           <MyPostItem
             key={post.post_id}
             id={post.post_id}
             title={post.title}
             content={post.contents}
-            category={post.Category?.title || ''}
+            category={post.Category?.title || ""}
             timeAgo={timeAgo(post.created_at)}
-            likes={0}
-            views={0}
-            image={post.content_image || '/images/dance.jpg'}
+            likes={post.like_count ?? 0}
+            views={post.view_count ?? 0}
+            image={post.content_image || "/images/default_nunew.svg"}
           />
         ))
       ) : (

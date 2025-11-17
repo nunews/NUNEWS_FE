@@ -1,8 +1,8 @@
-export type Category = {
+type PostCategory = {
   title: string;
 };
 
-export type Post = {
+type MyPost = {
   post_id: string;
   user_id: string;
   category_id: string;
@@ -11,8 +11,14 @@ export type Post = {
   content_image: string;
   created_at: string;
   Category?: Category | null;
+  view_count: number;
+  like_count?: number;
+  User?: {
+    nickname: string;
+    profile_image: string;
+  } | null;
 };
 
-export interface MyPostsContentProps {
+interface MyPostsContentProps {
   onPostCountChange?: (count: number) => void;
 }

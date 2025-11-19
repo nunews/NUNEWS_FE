@@ -24,6 +24,7 @@ export const fetchPostById = async (postId: string) => {
     console.error("게시글 불러오기 실패");
     throw new Error("게시글을 불러오는데 실패했습니다.");
   }
+  // console.log("게시글정보", data);
   return data;
 };
 
@@ -75,7 +76,7 @@ export const postLike = async (postId: string, userId: string) => {
       console.error("좋아요 업로드 실패!:", error);
       throw new Error("좋아요 저장 실패");
     } else {
-      //console.log("좋아요업로드완료:", postId, userId);
+      console.log("좋아요업로드완료:", postId, userId);
     }
   }
 };
@@ -93,7 +94,7 @@ export const postLikeTmp = async (postId: string, likecnt: number) => {
       console.error("좋아요 업로드 실패!:", error);
       throw new Error("좋아요 저장 실패");
     } else {
-      //console.log("좋아요업로드완료:", postId, userId);
+      console.log("좋아요업로드완료:", postId);
     }
     return data;
   }

@@ -1,8 +1,7 @@
 "use client";
 import Image from "next/image";
 import defaultImg from "../../assets/images/default_profile.png";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import CommunityPost from "./CommunityPost";
 import { Plus } from "lucide-react";
 import Dropdown from "../ui/Dropdown";
@@ -11,40 +10,29 @@ import { VscListSelection } from "react-icons/vsc";
 import { IconButton } from "../ui/IconButton";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import {
-  fetchInterests,
-  fetchLike,
-  fetchPost,
-  fetchUser,
-} from "@/app/api/community";
+import { fetchInterests, fetchPost, fetchUser } from "@/app/api/community";
 import TabMenu from "../ui/TabMenu";
 import { getCurrentUser } from "@/app/api/auth";
-import { Category, CategoryInv } from "@/lib/interest";
 import { useSortStore } from "@/stores/communitySortStore";
+import { useTheme } from "next-themes";
+import CommunityProfileSkel from "./Skeleton/CommunityProfileSkel";
+import CommunityPostSkel from "./Skeleton/CommunityPostSkel";
+import { categoryGroupMap, categoryIdInvMap } from "@/lib/categoryUUID";
 
 export default function CommunityList() {
-  const categories = [
-    { id: "all", label: "전체" },
-    {
-      id: "politics/economy",
-      label: "정치/경제",
-    },
-    {
-      id: "entertainment/sports",
-      label: "연예/스포츠",
-    },
-    {
-      id: "social/culture",
-      label: "사회/문화",
-    },
-    {
-      id: "global/etc",
-      label: "해외/기타",
-    },
-  ];
   const [selected, setSelected] = useState("all");
   const [add, setAdd] = useState(false);
-  // const [sort, setSort] = useState("최신순");
+
+  const { theme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const color = !mounted
+    ? "var(--color-black)"
+    : add
+    ? "var(--color-black)"
+    : theme === "light"
+    ? "#bff207"
+    : "var(--color-black)";
   const { sortOption, setSortOption } = useSortStore();
   const buttonRef = useRef<HTMLButtonElement>(null);
   const router = useRouter();
@@ -65,21 +53,23 @@ export default function CommunityList() {
   const userId = authData?.id ?? null;
 
   //게시글 정보
-  const { data: postData } = useQuery<Post[]>({
+  const { data: postData, isLoading: isPostLoading } = useQuery<Post[]>({
     queryKey: ["communityList", sortOption, selected],
     queryFn: () => fetchPost(),
     staleTime: 1000 * 60 * 3,
   });
 
   //사용자 프로필 정보 불러오기
-  const { data: userDatas } = useQuery<User>({
+  const { data: userDatas, isLoading: isProfileLoading } = useQuery<User>({
     queryKey: ["fetchUser"],
     queryFn: () => fetchUser(email!),
     enabled: !!email,
   });
 
   //사용자 관심사 불러오기
-  const { data: interestData } = useQuery<{ category_id: string }[]>({
+  const { data: interestData = [], isLoading: isInterestLoading } = useQuery<
+    { category_id: string }[]
+  >({
     queryKey: ["fetchInterests", userId],
     queryFn: async (): Promise<{ category_id: string }[]> => {
       if (!userId) throw new Error("유저 id 없음");
@@ -87,15 +77,17 @@ export default function CommunityList() {
     },
     enabled: !!userId,
   });
-
+  const isLoadingAll = isProfileLoading || isInterestLoading || isPostLoading;
   const filteredPosts = () => {
     if (!postData) return [];
 
     let filtered = postData.filter((post) => {
       if (selected === "all") return true;
 
-      const selectedKo = categories.find((item) => item.id === selected)?.label;
-      return selectedKo?.includes(CategoryInv[post.category_id]);
+      const selectedKo = categoryGroupMap.find(
+        (item) => item.id === selected
+      )?.label;
+      return selectedKo?.includes(categoryIdInvMap[post.category_id]);
     });
 
     if (sortOption === "최신순") {
@@ -113,34 +105,39 @@ export default function CommunityList() {
     <>
       <div className="min-h-screen w-full pt-[62px] pb-[72px]">
         {/* 사용자 프로필 */}
-        <button
-          onClick={goToMypage}
-          className="mt-4 px-5 flex items-center h-[72px]"
-        >
-          <div className="w-18 h-18 bg-[#f6f6f6] rounded-full flex items-center justify-center">
-            <Image
-              src={userDatas?.profile_image ?? defaultImg}
-              alt="defaultImg"
-              width={36}
-              height={36}
-            />
-          </div>
-          <div className="flex flex-col pl-[14px]">
-            <p className="text-[var(--color-gray-100)] font-bold text-lg">
-              {userDatas?.name}
-            </p>
-            <p className="text-[var(--color-gray-70)] text-[13px]">
-              {interestData && interestData.length > 0
-                ? interestData.map((i) => CategoryInv[i.category_id]).join(", ")
-                : "관심사가 없습니다"}
-            </p>
-          </div>
-        </button>
-
+        {isLoadingAll ? (
+          <CommunityProfileSkel />
+        ) : (
+          <button
+            onClick={goToMypage}
+            className="mt-4 px-5 flex items-center h-[72px]"
+          >
+            <div className="w-18 h-18 bg-[#f6f6f6] rounded-full flex items-center justify-center">
+              <Image
+                src={userDatas?.profile_image ?? defaultImg}
+                alt="defaultImg"
+                width={36}
+                height={36}
+              />
+            </div>
+            <div className="flex flex-col pl-[14px]">
+              <p className="text-[var(--color-gray-100)] font-bold text-lg dark:text-[var(--color-white)]">
+                {userDatas?.name}
+              </p>
+              <p className="text-[var(--color-gray-70)] text-[13px]">
+                {!isLoadingAll && interestData.length > 0
+                  ? interestData
+                      .map((i) => categoryIdInvMap[i.category_id])
+                      .join(", ")
+                  : "관심사가 없습니다"}
+              </p>
+            </div>
+          </button>
+        )}
         {/* 채널 */}
         <div className="w-full">
           <TabMenu
-            tabs={categories}
+            tabs={categoryGroupMap}
             activeTab={selected}
             onTabClick={setSelected}
           />
@@ -148,20 +145,29 @@ export default function CommunityList() {
 
         {/* 게시글 목록 */}
         <div className="flex flex-col items-center px-5">
-          {filteredPosts().map((post, i) => (
-            <CommunityPost
-              key={i}
-              postId={post.post_id}
-              postImage={post.content_image}
-              writerId={post.user_id}
-              categoryId={post.category_id}
-              title={post.title}
-              content={post.contents}
-              userId={userId!}
-              likes={post.like_count}
-              views={post.view_count}
-            />
-          ))}
+          {isLoadingAll ? (
+            <>
+              <CommunityPostSkel />
+              <CommunityPostSkel />
+            </>
+          ) : (
+            <>
+              {filteredPosts().map((post, i) => (
+                <CommunityPost
+                  key={i}
+                  postId={post.post_id}
+                  postImage={post.content_image}
+                  writerId={post.user_id}
+                  categoryId={post.category_id}
+                  title={post.title}
+                  content={post.contents}
+                  userId={userId!}
+                  likes={post.like_count}
+                  views={post.view_count}
+                />
+              ))}
+            </>
+          )}
         </div>
 
         {/* 새 글 추가 */}
@@ -174,13 +180,13 @@ export default function CommunityList() {
             setAdd((prev) => !prev);
           }}
           className={` fixed z-50 bottom-22  w-13 h-13 shadow-[2px_6px_12px_0_rgba(0,0,0,0.24)]
-    transition-transform duration-300 right-[calc((100vw-var(--container-width))/2+20px)] ${
-      add
-        ? "rotate-45 bg-[var(--color-white)] hover:bg-[var(--color-gray-10)]"
-        : "rotate-0 bg-[var(--color-black)] hover:bg-[var(--color-gray-100)]"
-    }`}
+      transition-all duration-300 right-[calc((100vw-var(--container-width))/2+20px)] ease-in-out ${
+        add
+          ? "rotate-45 bg-[var(--color-white)] hover:bg-[var(--color-gray-10)] dark:hover:bg-[var(--color-gray-20)]"
+          : "rotate-0 bg-[var(--color-black)] dark:bg-[var(--color-primary-40)] hover:bg-[var(--color-gray-100)] hover:dark:bg-[var(--color-primary-30)]"
+      }`}
           size={24}
-          color={add ? "var(--color-black)" : "#bff207"}
+          color={color}
         />
 
         {add && (
@@ -193,7 +199,7 @@ export default function CommunityList() {
               }
             }}
           >
-            <div className=" absolute z-30 bottom-[152px] right-5 duration-300">
+            <div className=" absolute z-30 bottom-[152px] right-5 ">
               <Dropdown
                 isOpen={add}
                 onClose={() => {
@@ -209,7 +215,10 @@ export default function CommunityList() {
                   {
                     icon: <VscListSelection />,
                     label: "내가 작성한 글",
-                    onClick: () => setAdd(false),
+                    onClick: () => {
+                      setAdd(false);
+                      router.push(`/mypage`);
+                    },
                   },
                 ]}
               />

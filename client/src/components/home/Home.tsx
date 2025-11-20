@@ -25,7 +25,7 @@ export default function Home() {
   // useNewsData 훅으로 뉴스 초기 데이터 가져오기
   const { data: newsData, isError, isFetched } = useNewsData();
 
-  console.log(newsData);
+  console.log("Home.tsx", newsData);
 
   const fetchUser = useCallback(async () => {
     const {

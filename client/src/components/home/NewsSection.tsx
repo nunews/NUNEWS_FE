@@ -170,13 +170,13 @@ export default function NewsSection({
                 <div className="flex flex-col gap-1.5 items-center">
                   <AiOutlineLike className="text-[var(--color-white)] text-center w-6 h-6" />
                   <p className="text-[var(--color-white)] text-[13px] font-normal text-center">
-                    {likes}
+                    {likes || 0}
                   </p>
                 </div>
                 <div className="flex flex-col gap-1 items-center">
                   <IoEyeOutline className="text-[var(--color-white)] w-6 h-6" />
                   <p className="text-[var(--color-white)] text-[13px] font-normal text-center">
-                    {views}
+                    {views || 0}
                   </p>
                 </div>
               </div>

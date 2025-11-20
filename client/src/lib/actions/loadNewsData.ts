@@ -30,7 +30,7 @@ async function isDataStale(): Promise<boolean> {
     return true;
   }
 }
-export async function loadNewsData(): Promise<NewsData[]> {
+export async function loadNewsData(): Promise<SupabaseNewsData[]> {
   try {
     const existingNews = await getSupabaseRandomNews();
     const refreshNews = await isDataStale();
@@ -64,9 +64,9 @@ export async function loadNewsData(): Promise<NewsData[]> {
       };
     });
 
-    const savedNews = await saveNewstoSupabase(transformedData);
+    await saveNewstoSupabase(transformedData);
 
-    return savedNews || transformedData;
+    return existingNews;
   } catch (error) {
     console.error("뉴스 로딩 실패:", error);
     return [];

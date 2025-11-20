@@ -12,7 +12,9 @@ import Splash from "./Splash";
 import { getUserInterestsFromClient } from "@/lib/api/getUserInterests";
 
 export default function Home() {
-  const [selectedNews, setSelectedNews] = useState<NewsData | null>(null);
+  const [selectedNews, setSelectedNews] = useState<SupabaseNewsData | null>(
+    null
+  );
   const [userId, setUserId] = useState<string | null>(null);
   const [interests, setInterests] = useState<string[]>([]);
   const mainRef = useRef<HTMLElement>(null);
@@ -22,6 +24,8 @@ export default function Home() {
 
   // useNewsData 훅으로 뉴스 초기 데이터 가져오기
   const { data: newsData, isError, isFetched } = useNewsData();
+
+  console.log(newsData);
 
   const fetchUser = useCallback(async () => {
     const {
@@ -70,14 +74,14 @@ export default function Home() {
           {!isError &&
             newsData &&
             newsData.length > 0 &&
-            newsData.map((data: NewsData, idx: number) => (
+            newsData.map((data: SupabaseNewsData, idx: number) => (
               <NewsSection
-                key={data.article_id}
+                key={data.news_id}
                 className="snap-start"
                 data={data}
                 handleSummary={() => setSelectedNews(data)}
                 userId={userId}
-                newsId={data.article_id}
+                newsId={data.news_id}
                 isFirst={idx === 0}
               />
             ))}
@@ -85,7 +89,7 @@ export default function Home() {
         <Footer isNuPick />
         {selectedNews && (
           <div
-            key={selectedNews.article_id}
+            key={selectedNews.news_id}
             className="fixed bottom-20 left-1/2 -translate-x-1/2 w-full px-2.5 z-50 max-w-[1024px] pointer-events-none"
           >
             <div className="pointer-events-auto">
@@ -93,7 +97,7 @@ export default function Home() {
                 isOpen={!!selectedNews}
                 onClose={() => setSelectedNews(null)}
                 newsContent={selectedNews.content || ""}
-                newsId={selectedNews.article_id || ""}
+                newsId={selectedNews.news_id || ""}
               />
             </div>
           </div>

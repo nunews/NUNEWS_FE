@@ -7,11 +7,11 @@ export const saveNewstoSupabase = async (newsData: NewsData[]) => {
 
     for (const currentNews of newsData) {
       // 유효성 검사
-      if (!currentNews.article_id || !currentNews.title) {
+      if (!currentNews.article_id) {
         console.warn("❌ 유효하지 않은 뉴스:", {
           article_id: currentNews.article_id,
           title: currentNews.title,
-          reason: !currentNews.article_id ? "article_id 없음" : "title 없음",
+          reason: "article_id 없음",
         });
         continue;
       }
@@ -35,10 +35,9 @@ export const saveNewstoSupabase = async (newsData: NewsData[]) => {
 
         // 한국시간으로 변환
         const getKSTDate = () => {
-          const now = new Date();
-          const utc = now.getTime() + now.getTimezoneOffset() * 60 * 1000;
-          const kstTime = new Date(utc + 9 * 60 * 60 * 1000);
-          return kstTime.toISOString().slice(0, -1);
+          return new Date()
+            .toLocaleString("sv-SE", { timeZone: "Asia/Seoul" })
+            .replace(" ", "T");
         };
         const { data, error } = await supabase
           .from("News")

@@ -1,10 +1,16 @@
 import { INTERESTS_DATA } from "@/lib/interest";
 import InterestItem from "./InterestItem";
-import { useState } from "react";
 import { toast } from "sonner";
 
-export const InterestList = () => {
-  const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
+interface InterestListProps {
+  selectedInterests: string[];
+  setSelectedInterests: React.Dispatch<React.SetStateAction<string[]>>;
+}
+
+export const InterestList = ({
+  selectedInterests,
+  setSelectedInterests,
+}: InterestListProps) => {
   const MAX_SELECTIONS = 3;
 
   const handleInterestClick = (title: string) => {
@@ -23,11 +29,11 @@ export const InterestList = () => {
     });
   };
   return (
-    <div className="w-full mx-auto">
-      <h1 className="text-[#191919]] py-5 text-[22px] font-bold dark:text-[var(--color-white)]">
+    <div className='w-full mx-auto'>
+      <h1 className='text-[#191919]] py-5 text-[22px] font-bold dark:text-[var(--color-white)]'>
         관심사 수정
       </h1>
-      <div className="grid grid-cols-3 gap-2.5 place-items-center">
+      <div className='grid grid-cols-3 gap-2.5 place-items-center'>
         {INTERESTS_DATA.map((interest) => (
           <InterestItem
             key={interest.title}

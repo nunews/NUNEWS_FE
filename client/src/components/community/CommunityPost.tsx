@@ -1,25 +1,91 @@
 "use client";
 import Image from "next/image";
-import postImg from "../../assets/images/postImg.png";
+import defaultImg from "../../assets/images/postImg.png";
 import profile1 from "../../assets/images/profile1.png";
 import { AiFillLike, AiOutlineLike } from "react-icons/ai";
 import { IoEyeOutline } from "react-icons/io5";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-export default function CommunityPost() {
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  fetchLike,
+  fetchWriter,
+  postLike,
+  postUnlike,
+} from "@/app/api/community";
+import { CategoryInv } from "@/lib/interest";
+//import { INTERESTS_DATA } from "@/lib/interest";
+//import { getCurrentUser } from "@/app/api/auth";
+export default function CommunityPost({
+  postId,
+  postImage,
+  writerId,
+  categoryId,
+  title,
+  content,
+  userId,
+}: {
+  postId: string;
+  postImage: string;
+  writerId: string;
+  categoryId: string;
+  title: string;
+  content: string;
+  userId: string;
+}) {
   const router = useRouter();
   const [like, setLike] = useState(false);
+  // console.log("postImage", postImage, postId);
+  const { data: writerData } = useQuery({
+    queryKey: ["writer"],
+    queryFn: () => fetchWriter(writerId),
+    staleTime: 1000 * 60 * 3,
+  });
+  const { data: likeData } = useQuery<number>({
+    queryKey: ["fetchLike"],
+    queryFn: () => fetchLike(postId),
+    staleTime: 1000 * 60 * 3,
+  });
+
+  const [likeCount, setLikeCount] = useState(likeData ?? 0);
+  const queryClient = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: (liked: boolean) => {
+      if (!userId) {
+        throw new Error("로그인이 필요합니다");
+      }
+      return liked ? postLike(postId, userId) : postUnlike(postId, userId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["likes", postId] });
+    },
+    onError: (err) => {
+      console.error("좋아요 업로드 실패:", err);
+      setLike((prev) => !prev);
+      setLikeCount((prev) => prev + (like ? 1 : -1));
+    },
+  });
+
+  const likeHandler = () => {
+    if (!userId) {
+      alert("로그인이 필요합니다.");
+      return;
+    }
+    setLike((prev) => !prev);
+    setLikeCount((prev) => prev + (like ? -1 : 1));
+    mutation.mutate(!like);
+  };
   return (
     <>
       <div className="group py-6 w-full h-auto border-b border-[#ebebeb] ">
         <div
           className="cursor-pointer"
-          onClick={() => router.push("/community/1")}
+          onClick={() => router.push(`/community/${postId}`)}
         >
           <div className="relative  w-full aspect-[16/9]">
             <Image
-              src={postImg}
-              alt="postImg"
+              src={postImage ?? defaultImg}
+              alt="postImage"
               fill
               className="rounded-[12px]"
             />
@@ -27,37 +93,44 @@ export default function CommunityPost() {
           </div>
           <div className="mt-4 w-full flex justify-between">
             <div className="w-auto h-9 flex items-center cursor-pointer">
-              <Image src={profile1} alt="profile1" width={36} height={36} />
+              <Image
+                src={writerData?.profile_image ?? profile1}
+                alt="profile1"
+                width={36}
+                height={36}
+              />
               <p className="ml-2 text-[var(--color-gray-100)] text-base font-semibold">
-                혁신적인 돼지
+                {writerData?.nickname}
               </p>
             </div>
-            <p className="text-[var(--color-gray-100)] text-sm">#스포츠</p>
+            <p className="text-[var(--color-gray-100)] text-sm">
+              #{CategoryInv[categoryId]}
+            </p>
           </div>
 
-          <p className="mt-4 text-[#191919] text-lg font-bold">
-            이강인 사랑해요
+          <p className="mt-4 text-[#191919] text-lg font-bold line-clamp-1">
+            {title}
           </p>
           <p className="text-[#191919] group-hover:text-black text-sm line-clamp-2">
-            아니 나는 진짜 이강인이 결승전 못뛰어서 너무 아쉽꿀꿀다음엔 꼭
-            이강인이 결승전 뛰었으면 좋겠다꿀ㅠ 어디까지나 팬 입장에서
-            바램이다꿀..
+            {content}
           </p>
         </div>
         <div className="mt-4 flex items-center">
           {!like && (
             <AiOutlineLike
-              onClick={() => setLike(true)}
+              onClick={likeHandler}
               className="w-5 h-5 cursor-pointer text-[var(--color-gray-60)] hover:text-[var(--color-black)] duration-300"
             />
           )}
           {like && (
             <AiFillLike
-              onClick={() => setLike(false)}
+              onClick={likeHandler}
               className="w-5 h-5 cursor-pointer text-[var(--color-black)]"
             />
           )}
-          <p className="ml-[3px] text-[var(--color-gray-70)] text-[13px]">32</p>
+          <p className="ml-[3px] text-[var(--color-gray-70)] text-[13px]">
+            {likeCount}
+          </p>
 
           <IoEyeOutline className="ml-[11px] w-4 h-4 text-[var(--color-gray-60)]" />
           <p className="ml-[3px] text-[var(--color-gray-70)] text-[13px]">

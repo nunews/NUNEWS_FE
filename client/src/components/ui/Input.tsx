@@ -20,7 +20,7 @@ export default function Input({ rightSlot, className, ...props }: InputProps) {
     <div className="relative block w-full">
       <input
         className={twMerge(
-          "w-full h-12.5 pl-4 border border-[var(--color-gray-30)] text-[var(--color-gray-100)] text-sm rounded-[12px] placeholder:text-[var(--color-gray-50)] hover:border-[var(--color-gray-50)] transition-all duration-300 ease-in-out focus:outline-none focus:ring-0",
+          "w-full h-12.5 pl-4 border border-[var(--color-gray-30)] dark:border-gray-100 text-[var(--color-gray-100)] text-sm rounded-[12px] placeholder:text-[var(--color-gray-50)] dark:text-white hover:border-[var(--color-gray-50)] transition-all duration-300 ease-in-out focus:outline-none focus:ring-0",
           className
         )}
         {...props}

@@ -1,8 +1,10 @@
-"use client";
-
 import Home from "@/components/home/Home";
+import { loadNewsData } from "@/lib/actions/loadNewsData";
 
-const HomePage = () => {
+export const revalidate = 3;
+
+export default async function HomePage() {
+  await loadNewsData();
+
   return <Home />;
-};
-export default HomePage;
+}

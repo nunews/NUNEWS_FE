@@ -1,4 +1,5 @@
-import { TextButton } from "../ui/TextButton";
+import { TextButton } from '../ui/TextButton';
+import { allCategoryMap } from '@/lib/categoryUUID';
 
 interface CategoryFilterProps {
   activeCategory: string;
@@ -9,24 +10,32 @@ const CategoryFilter = ({
   activeCategory,
   setActiveCategory,
 }: CategoryFilterProps) => {
-  const categories = [
-    { id: "all", label: "전체" },
-    { id: "politics", label: "정치" },
-    { id: "economy", label: "경제" },
-    { id: "society", label: "사회" },
-    { id: "culture", label: "문화" },
-    { id: "sports", label: "스포츠" },
-  ];
+  const uniqueCategories = allCategoryMap
+    .filter(
+      (category, index, self) =>
+        self.findIndex((c) => c.label === category.label) === index
+    )
+    .map((category) => ({
+      ...category,
+      id: category.label,
+    }));
 
   return (
-    <div className="flex space-x-2 overflow-x-auto pb-2 no-scrollbar">
-      {categories.map((category) => {
+    <div className='flex space-x-2 overflow-x-auto pb-2 no-scrollbar '>
+      {uniqueCategories.map((category) => {
         const isActive = activeCategory === category.id;
         return (
           <TextButton
             key={category.id}
             onClick={() => setActiveCategory(category.id)}
-            state={isActive ? "category-active" : "category-default"}
+            state={isActive ? 'category-active' : 'category-default'}
+            className={`
+    ${
+      isActive
+        ? ' dark:bg-[var(--color-white)] dark:text-[var(--color-black)]'
+        : ' dark:bg-[var(--color-gray-100)] dark:text-[var(--color-white)]'
+    }
+  `}
           >
             {category.label}
           </TextButton>

@@ -3,6 +3,8 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/ui/theme-provider";
+import { cookies } from "next/headers";
+import TanstackProvider from "./provider/TanstackProvider";
 
 export const metadata: Metadata = {
   title: "NUNEW",
@@ -15,21 +17,25 @@ const pretendard = localFont({
   variable: "--font-pretendard",
 });
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const theme = cookieStore.get("theme")?.value ?? "system";
   return (
-    <html lang="ko" suppressHydrationWarning>
+    <html lang="ko" suppressHydrationWarning data-theme={theme}>
       <body className={`${pretendard.variable} w-full`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
-          enableSystem={false} // 시스템 설정 무시
+          enableSystem={true} // 시스템 설정 허용으로 변경
           disableTransitionOnChange
         >
-          <div className="max-w-screen-lg mx-auto">{children}</div>
+          <div className="max-w-screen-lg mx-auto">
+            <TanstackProvider>{children}</TanstackProvider>
+          </div>
           <Toaster position="top-center" />
         </ThemeProvider>
       </body>

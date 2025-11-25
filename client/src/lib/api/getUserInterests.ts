@@ -1,6 +1,6 @@
 import { createServerSupabase } from "@/utils/supabase/server";
 import { getAuthUser } from "../auth/getAuthUser";
-import { CategoryInv } from "../interest";
+import { categoryIdInvMap } from "../categoryUUID";
 
 export async function getUserInterests() {
   const { user, isLoggedIn } = await getAuthUser();
@@ -28,7 +28,7 @@ export async function getUserInterests() {
   }
 
   const interests = userInterest.map(
-    (c) => CategoryInv[c.category_id] ?? "기타"
+    (c) => categoryIdInvMap[c.category_id] ?? "기타"
   );
 
   const categoryIds = userInterest.map((c) => c.category_id);

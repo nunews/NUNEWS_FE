@@ -6,6 +6,8 @@ const TabMenu = ({ tabs, activeTab, onTabClick }: TabMenuProps) => {
   const baseTabStyle =
     "flex-1 py-4 text-center font-semibold transition-colors duration-300 cursor-pointer";
   const { theme } = useTheme();
+  const [mounted, setMounted] = useState(false); //
+
   const inactiveTabStyle = `text-[var(--color-gray-60)] ${
     theme === "dark" ? "text-[var(--color-gray-200)]" : ""
   }`;
@@ -18,6 +20,11 @@ const TabMenu = ({ tabs, activeTab, onTabClick }: TabMenuProps) => {
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
 
   useEffect(() => {
+    setMounted(true);
+  }, []); //
+
+  useEffect(() => {
+    if (!mounted) return; //
     const activeTabIndex = tabs.findIndex((tab) => tab.id === activeTab);
     const activeTabNode = tabRefs.current[activeTabIndex];
 
@@ -27,7 +34,7 @@ const TabMenu = ({ tabs, activeTab, onTabClick }: TabMenuProps) => {
         width: activeTabNode.offsetWidth,
       });
     }
-  }, [activeTab, tabs]);
+  }, [activeTab, tabs, mounted]);
 
   return (
     <nav

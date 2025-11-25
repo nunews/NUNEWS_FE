@@ -34,7 +34,7 @@ export default function SelectComponent({
       {label && (
         <span
           className={twMerge(
-            "text-sm font-medium text-[var(--color-gray-80)]",
+            "text-sm font-medium text-[var(--color-gray-80)] cursor-pointer",
             labelClassName
           )}
         >
@@ -59,7 +59,7 @@ export default function SelectComponent({
               key={opt.value}
               value={opt.value}
               disabled={opt.disabled}
-              className="text-[var(--color-gray-100)] h-11 pl-3 hover:bg-[var(--color-gray-10)] dark:hover:bg-[var(--color-gray-100)] dark:text-white transition-all duration-300 ease-in-out rounded-[12px]"
+              className="text-[var(--color-gray-100)] h-11 pl-3 hover:bg-[var(--color-gray-10)] dark:hover:bg-[var(--color-gray-100)] dark:text-white transition-all duration-300 ease-in-out rounded-[12px] cursor-pointer"
             >
               {opt.label}
             </SelectItem>

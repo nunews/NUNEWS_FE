@@ -131,8 +131,7 @@ export async function toggleLike(
     .eq("news_id", newsId);
 
   if (updateError) {
-    console.error("toggleLike - News.like_count 업데이트 실패:", updateError);
-    // 여기서 굳이 throw 하지 않고, 프론트는 likedCount만 믿고 가도 됨
+    console.error("News.like_count 업데이트 실패:", updateError);
   }
 
   return { isLiked, likedCount };

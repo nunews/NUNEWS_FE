@@ -2,7 +2,7 @@
 
 import supabase from "@/utils/supabase";
 import Image from "next/image";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { SlPicture } from "react-icons/sl";
 
 export default function PostImage({
@@ -21,8 +21,9 @@ export default function PostImage({
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    const ext = file.name.split(".").pop();
 
-    const fileName = `${Date.now()}_${file.name}`;
+    const fileName = `${crypto.randomUUID()}.${ext}`;
 
     const { data, error } = await supabase.storage
       .from("post-images")
@@ -45,7 +46,7 @@ export default function PostImage({
     <>
       <button
         onClick={handleClick}
-        className="flex flex-col items-center justify-center mt-2 w-full h-[197px] rounded-[12px] border bg-[var(--color-gray-10)] border-[var(--color-gray-30)] hover:bg-[var(--color-gray-20)] hover:border-[var(--color-gray-50)] transition-all duration-300 ease-in-out cursor-pointer"
+        className="flex flex-col items-center justify-center mt-2 w-full h-[197px] rounded-[12px] border bg-[var(--color-gray-10)] dark:bg-[#121212] border-[var(--color-gray-30)] dark:border-[var(--color-gray-100)] hover:bg-[var(--color-gray-20)] dark:hover:bg-[var(--color-gray-100)] hover:border-[var(--color-gray-50)] dark:hover:border-[var(--color-gray-80)] transition-all duration-300 ease-in-out cursor-pointer"
       >
         {contentImg ? (
           <div className="relative w-full h-full flex items-center justify-center">

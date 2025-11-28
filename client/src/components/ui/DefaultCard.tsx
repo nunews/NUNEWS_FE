@@ -6,6 +6,7 @@ import { IoBookmark, IoBookmarkOutline, IoEyeOutline } from "react-icons/io5";
 import { AiOutlineLike } from "react-icons/ai";
 import createClient from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 interface DefaultCardProps {
   newsId: string;
@@ -34,7 +35,10 @@ export default function DefaultCard({
 
   // 초기 상태: 현재 사용자가 이미 스크랩했는지 확인
   useEffect(() => {
-    if (!userId) return;
+    if (!userId) {
+      setIsBookmarked(false);
+      return;
+    }
 
     const checkBookmark = async () => {
       const { data } = await supabase
@@ -42,7 +46,7 @@ export default function DefaultCard({
         .select("*")
         .eq("user_id", userId)
         .eq("news_id", newsId)
-        .single();
+        .maybeSingle();
 
       setIsBookmarked(!!data);
     };
@@ -53,10 +57,11 @@ export default function DefaultCard({
   const handleDetail = () => {
     router.push(`/newsDetail/${newsId}`);
   };
-  const handleBookmark = async () => {
-    if (!userId) return alert("로그인이 필요합니다.");
 
-    console.log("click");
+
+  const handleBookmark = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!userId) return alert("로그인이 필요합니다.");
 
     if (!isBookmarked) {
       // 스크랩 추가
@@ -65,6 +70,7 @@ export default function DefaultCard({
         news_id: newsId,
       });
       if (!error) setIsBookmarked(true);
+      toast.success("스크랩에 추가됐어요.");
     } else {
       // 스크랩 해제
       const { error } = await supabase
@@ -73,13 +79,14 @@ export default function DefaultCard({
         .eq("user_id", userId)
         .eq("news_id", newsId);
       if (!error) setIsBookmarked(false);
+      toast.success("스크랩을 취소했어요.");
     }
   };
 
   return (
     <div
+      className='w-full h-[149px] bg-white dark:bg-white/0 rounded-lg overflow-hidden flex items-center cursor-pointer group'
       onClick={handleDetail}
-      className="w-full h-[169px] bg-white dark:bg-white/0 rounded-lg overflow-hidden flex items-center cursor-pointer group"
     >
       <div className="relative w-30 h-30 flex-shrink-0 flex overflow-hidden rounded-lg">
         <Image
@@ -89,16 +96,18 @@ export default function DefaultCard({
           height={120}
           className="object-cover w-full h-full"
         />
-        <div
-          onClick={handleBookmark}
-          className="absolute top-2 right-2 z-10 w-7.5 h-7.5 bg-white rounded-full flex items-center justify-center cursor-pointer"
-        >
-          {isBookmarked ? (
-            <IoBookmark size={16} color="black" />
-          ) : (
-            <IoBookmarkOutline size={16} color="#999" />
-          )}
-        </div>
+        {userId && (
+          <div
+            onClick={handleBookmark}
+            className='absolute top-2 right-2 z-10 w-7.5 h-7.5 bg-white rounded-full flex items-center justify-center cursor-pointer'
+          >
+            {isBookmarked ? (
+              <IoBookmark size={16} color='black' />
+            ) : (
+              <IoBookmarkOutline size={16} color='#999' />
+            )}
+          </div>
+        )}
       </div>
 
       <div className="flex-1 flex flex-col justify-between py-8 min-h-44 pl-4">

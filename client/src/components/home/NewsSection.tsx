@@ -1,5 +1,6 @@
 "use client";
 
+import type React from "react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -9,9 +10,12 @@ import { IconButton as BookmarkButton } from "../ui/IconButton";
 import { AiOutlineLike } from "react-icons/ai";
 import { allCategoryMap } from "@/lib/categoryUUID";
 import { getLikesCount, getLikesStatus, toggleLike } from "@/utils/likes";
+import createClient from "@/utils/supabase/client";
 import { toast } from "sonner";
 
 interface NewsSectionProps {
+  newsId: string | undefined;
+  userId?: string | null;
   className: string;
   data: NewsData;
   likes?: number;
@@ -21,6 +25,8 @@ interface NewsSectionProps {
 }
 
 export default function NewsSection({
+  newsId,
+  userId,
   className,
   data,
   likes,
@@ -29,41 +35,87 @@ export default function NewsSection({
   isFirst,
 }: NewsSectionProps) {
   const [isBookmarked, setIsBookmarked] = useState(false);
-  const router = useRouter();
-  console.log("여긴뉴스섹션의 뉴스데이터 시작");
-  console.log(data);
-  console.log("여긴뉴스섹션의 뉴스데이터 끝");
-
   const [isLiked, setIsLiked] = useState(false);
   const [likedCnt, setLikedCnt] = useState(likes ?? 0);
 
+  const router = useRouter();
+  const supabase = createClient();
+
+  // 좋아요 초기 상태 세팅
   useEffect(() => {
+    if (!data.article_id) return;
+
     const fetchLikeInfo = async () => {
       try {
         const [status, count] = await Promise.all([
-          getLikesStatus(data.article_id),
-          getLikesCount(data.article_id),
+          getLikesStatus(data.article_id as string),
+          getLikesCount(data.article_id as string),
         ]);
 
         setIsLiked(status);
         setLikedCnt(count);
       } catch (e) {
-        console.error(e);
+        console.error("좋아요 정보 가져오기 실패:", e);
       }
     };
 
     fetchLikeInfo();
   }, [data.article_id]);
 
-  const handleBookmark = () => {
-    setIsBookmarked(!isBookmarked);
+  // 스크랩 초기 상태 세팅
+  useEffect(() => {
+    if (!userId || !newsId) return;
+
+    const checkBookmark = async () => {
+      const { data } = await supabase
+        .from("User_scrap")
+        .select("*")
+        .eq("user_id", userId)
+        .eq("news_id", newsId)
+        .maybeSingle();
+
+      setIsBookmarked(!!data);
+    };
+
+    checkBookmark();
+  }, [userId, newsId, supabase]);
+
+  const handleBookmark = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!userId || !newsId) {
+      toast.error("로그인이 필요합니다.");
+      return;
+    }
+
+    if (!isBookmarked) {
+      // 스크랩 추가
+      const { error } = await supabase.from("User_scrap").insert({
+        user_id: userId,
+        news_id: newsId,
+      });
+      if (!error) {
+        setIsBookmarked(true);
+        toast.success("스크랩에 추가됐어요.");
+      }
+    } else {
+      // 스크랩 해제
+      const { error } = await supabase
+        .from("User_scrap")
+        .delete()
+        .eq("user_id", userId)
+        .eq("news_id", newsId);
+      if (!error) {
+        setIsBookmarked(false);
+        toast.success("스크랩을 취소했어요.");
+      }
+    }
   };
 
   const handleDetail = () => {
+    if (!data.article_id) return;
     router.push(`/newsDetail/${data.article_id}`);
   };
 
-  // ✅ 좋아요 토글
   const handleLike = async () => {
     if (!data.article_id) return;
 
@@ -86,11 +138,13 @@ export default function NewsSection({
     allCategoryMap.find((item) => item.label === "그 외")?.icon;
   const categoryKorean = data.category || "그 외";
 
+  const safeViews = views ?? data.views ?? 0;
+
   return (
     <section
       className={`relative w-full min-h-[100dvh] bg-no-repeat bg-cover bg-center ${className}`}
       style={{
-        backgroundImage: `url(${data.image_url ? data.image_url : null})`,
+        backgroundImage: data.image_url ? `url(${data.image_url})` : "none",
       }}
     >
       <div className="absolute w-full inset-0 bg-[var(--color-black)]/70 backdrop-blur-[28px] z-0" />
@@ -98,7 +152,7 @@ export default function NewsSection({
         <div className="pt-[113px] max-h-screen">
           <div className="relative w-full min-w-80 h-90 [@media(max-height:700px)]:h-60 mx-auto overflow-hidden rounded-2xl">
             <Image
-              src={data.image_url || ""}
+              src={data.image_url || "/images/news-placeholder.png"}
               alt="news image"
               fill
               priority={isFirst}
@@ -110,14 +164,16 @@ export default function NewsSection({
           <div className="flex mt-7 cursor-default [@media(max-height:700px)]:mt-4 w-full justify-between">
             <div className="mr-6 flex-1">
               <div className="flex gap-0.5">
-                <Image
-                  src={categoryIcon || ""}
-                  alt={categoryKorean}
-                  width={24}
-                  height={24}
-                  priority={isFirst}
-                  loading={isFirst ? "eager" : "lazy"}
-                />
+                {categoryIcon && (
+                  <Image
+                    src={categoryIcon}
+                    alt={categoryKorean}
+                    width={24}
+                    height={24}
+                    priority={isFirst}
+                    loading={isFirst ? "eager" : "lazy"}
+                  />
+                )}
                 <p className="text-[var(--color-white)]">{categoryKorean}</p>
               </div>
 
@@ -149,26 +205,31 @@ export default function NewsSection({
               </div>
             </div>
 
-            {/* 스크랩 좋아요 조회수 영역 */}
+            {/* 스크랩 / 좋아요 / 조회수 영역 */}
             <div className="flex flex-col justify-end">
               <div className="flex flex-col [@media(max-height:700px)]:gap-4 gap-6">
-                <div className="flex flex-col gap-1.5">
-                  <BookmarkButton
-                    icon={isBookmarked ? IoBookmark : IoBookmarkOutline}
-                    className={`cursor-pointer transition-opacity duration-300 ${
-                      isBookmarked ? "opacity-100" : "opacity-80"
-                    }`}
-                    color="var(--color-white)"
-                    size={24}
-                    onClick={handleBookmark}
-                  />
-                  <p className="text-[var(--color-white)] text-xs font-normal whitespace-nowrap">
-                    스크랩
-                  </p>
-                </div>
+                {/* 스크랩: 로그인된 유저만 노출 */}
+                {userId && (
+                  <div className="flex flex-col gap-1.5 items-center">
+                    <BookmarkButton
+                      icon={isBookmarked ? IoBookmark : IoBookmarkOutline}
+                      className={`cursor-pointer transition-opacity duration-300 ${
+                        isBookmarked ? "opacity-100" : "opacity-80"
+                      }`}
+                      color="var(--color-white)"
+                      size={24}
+                      onClick={handleBookmark}
+                    />
+                    <p className="text-[var(--color-white)] text-xs font-normal whitespace-nowrap">
+                      스크랩
+                    </p>
+                  </div>
+                )}
+
+                {/* 좋아요 */}
                 <div className="flex flex-col gap-1.5 items-center">
                   <AiOutlineLike
-                    className={`w-6 h-6 cursor-pointer ${
+                    className={`w-6 h-6 cursor-pointer transition-colors duration-300 ${
                       isLiked ? "text-[var(--color-primary-40)]" : "text-white"
                     }`}
                     onClick={handleLike}
@@ -177,10 +238,12 @@ export default function NewsSection({
                     {likedCnt}
                   </p>
                 </div>
+
+                {/* 조회수 */}
                 <div className="flex flex-col gap-1 items-center">
                   <IoEyeOutline className="text-[var(--color-white)] w-6 h-6" />
                   <p className="text-[var(--color-white)] text-[13px] font-normal text-center">
-                    {views}
+                    {safeViews}
                   </p>
                 </div>
               </div>

@@ -6,12 +6,14 @@ interface Post {
   contents: string;
   content_image: string;
   created_at: string;
+  view_count: number;
+  like_count: number;
 }
 
 interface Comment {
-  comment_id: number;
-  user_id: number;
-  post_id: number;
+  comment_id: string;
+  user_id: string;
+  post_id: string;
   content: string;
   created_at: string;
 }

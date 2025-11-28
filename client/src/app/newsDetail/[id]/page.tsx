@@ -11,6 +11,7 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { getSupabaseOneNews } from "@/lib/api/getSupabaseOneNews";
 import { useTyping } from "@/hooks/useTyping";
+import { getLikesStatus, toggleLike } from "@/utils/likes";
 
 export default function NewsDetailPage() {
   const params = useParams();
@@ -20,6 +21,8 @@ export default function NewsDetailPage() {
   const [showTyping, setShowTyping] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
   const [newsData, setNewsData] = useState<NewsData | null>(null);
+
+  const [isLiked, setIsLiked] = useState(false);
 
   const { typedRef } = useTyping();
 
@@ -40,9 +43,36 @@ export default function NewsDetailPage() {
       fetchNewsData();
     }
   }, [newsId]);
+
+  useEffect(() => {
+    const fetchLikes = async () => {
+      if (!newsId) return;
+      try {
+        const [status] = await Promise.all([getLikesStatus(newsId as string)]);
+
+        setIsLiked(status);
+      } catch (e) {
+        console.error("뉴스 좋아요 정보 로딩 실패:", e);
+      }
+    };
+
+    fetchLikes();
+  }, [newsId]);
+
   const handleSummary = () => {
     setShowSummary(true);
     setShowTyping(true);
+  };
+
+  const handleLikeClick = async () => {
+    if (!newsId) return;
+
+    try {
+      const res = await toggleLike(newsId as string);
+      setIsLiked(res.isLiked);
+    } catch (e) {
+      console.error("좋아요 토글 실패:", e);
+    }
   };
 
   const handleShare = async () => {
@@ -237,9 +267,26 @@ export default function NewsDetailPage() {
         </div>
         <div className="flex items-center justify-center gap-4 pt-4">
           <div className="flex items-center gap-[3px]">
-            <TextButton color="default" className="flex items-center gap-[3px]">
-              <AiOutlineLike className="w-5 h-5 text-[var(--color-black)]" />
-              <span className="text-[var(--color-black)]">좋아요</span>
+            <TextButton
+              onClick={handleLikeClick}
+              className={`flex items-center gap-[3px] transition-colors duration-300 
+                ${
+                  isLiked
+                    ? "text-[var(--color-primary-40)] bg-[var(--color-gray-100)]"
+                    : "text-[var(--color-black)]"
+                }
+              `}
+            >
+              <AiOutlineLike
+                className={`w-5 h-5 transition-colors duration-300 
+                  ${
+                    isLiked
+                      ? "text-[var(--color-primary-50)] "
+                      : "text-[var(--color-black)]"
+                  }
+                `}
+              />
+              <span>{isLiked ? "좋아요" : "좋아요"}</span>
             </TextButton>
           </div>
           <div className="flex items-center gap-[3px]">

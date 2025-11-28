@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { TextButton } from "../ui/TextButton";
@@ -8,6 +8,8 @@ import { IoBookmarkOutline, IoBookmark, IoEyeOutline } from "react-icons/io5";
 import { IconButton as BookmarkButton } from "../ui/IconButton";
 import { AiOutlineLike } from "react-icons/ai";
 import { allCategoryMap } from "@/lib/categoryUUID";
+import { getLikesCount, getLikesStatus, toggleLike } from "@/utils/likes";
+import { toast } from "sonner";
 
 interface NewsSectionProps {
   className: string;
@@ -28,6 +30,30 @@ export default function NewsSection({
 }: NewsSectionProps) {
   const [isBookmarked, setIsBookmarked] = useState(false);
   const router = useRouter();
+  console.log("여긴뉴스섹션의 뉴스데이터 시작");
+  console.log(data);
+  console.log("여긴뉴스섹션의 뉴스데이터 끝");
+
+  const [isLiked, setIsLiked] = useState(false);
+  const [likedCnt, setLikedCnt] = useState(likes ?? 0);
+
+  useEffect(() => {
+    const fetchLikeInfo = async () => {
+      try {
+        const [status, count] = await Promise.all([
+          getLikesStatus(data.article_id),
+          getLikesCount(data.article_id),
+        ]);
+
+        setIsLiked(status);
+        setLikedCnt(count);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    fetchLikeInfo();
+  }, [data.article_id]);
 
   const handleBookmark = () => {
     setIsBookmarked(!isBookmarked);
@@ -35,6 +61,20 @@ export default function NewsSection({
 
   const handleDetail = () => {
     router.push(`/newsDetail/${data.article_id}`);
+  };
+
+  // ✅ 좋아요 토글
+  const handleLike = async () => {
+    if (!data.article_id) return;
+
+    try {
+      const res = await toggleLike(data.article_id);
+      setIsLiked(res.isLiked);
+      setLikedCnt(res.likedCount);
+    } catch (err) {
+      console.error("좋아요 토글 실패:", err);
+      toast.error("로그인이 필요합니다.");
+    }
   };
 
   // 카테고리 맵핑
@@ -127,9 +167,14 @@ export default function NewsSection({
                   </p>
                 </div>
                 <div className="flex flex-col gap-1.5 items-center">
-                  <AiOutlineLike className="text-[var(--color-white)] text-center w-6 h-6" />
+                  <AiOutlineLike
+                    className={`w-6 h-6 cursor-pointer ${
+                      isLiked ? "text-[var(--color-primary-40)]" : "text-white"
+                    }`}
+                    onClick={handleLike}
+                  />
                   <p className="text-[var(--color-white)] text-[13px] font-normal text-center">
-                    {likes}
+                    {likedCnt}
                   </p>
                 </div>
                 <div className="flex flex-col gap-1 items-center">

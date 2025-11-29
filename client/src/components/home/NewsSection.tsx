@@ -9,6 +9,7 @@ import { IconButton as BookmarkButton } from "../ui/IconButton";
 import { AiOutlineLike } from "react-icons/ai";
 import { allCategoryMap } from "@/lib/categoryUUID";
 import createClient from "@/utils/supabase/client";
+import { toast } from "sonner";
 
 interface NewsSectionProps {
   newsId: string | undefined;
@@ -63,6 +64,7 @@ export default function NewsSection({
         news_id: newsId,
       });
       if (!error) setIsBookmarked(true);
+      toast.success("스크랩에 추가됐어요.");
     } else {
       // 스크랩 해제
       const { error } = await supabase
@@ -71,6 +73,7 @@ export default function NewsSection({
         .eq("user_id", userId)
         .eq("news_id", newsId);
       if (!error) setIsBookmarked(false);
+      toast.success("스크랩을 취소했어요.");
     }
   };
 
@@ -153,24 +156,26 @@ export default function NewsSection({
             {/* 스크랩 좋아요 조회수 영역 */}
             <div className="flex flex-col justify-end">
               <div className="flex flex-col [@media(max-height:700px)]:gap-4 gap-6">
-                <div className="flex flex-col gap-1.5">
-                  <BookmarkButton
-                    icon={isBookmarked ? IoBookmark : IoBookmarkOutline}
-                    className={`cursor-pointer transition-opacity duration-300 ${
-                      isBookmarked ? "opacity-100" : "opacity-80"
-                    }`}
-                    color="var(--color-white)"
-                    size={24}
-                    onClick={handleBookmark}
-                  />
-                  <p className="text-[var(--color-white)] text-xs font-normal whitespace-nowrap">
-                    스크랩
-                  </p>
-                </div>
+                {userId && (
+                  <div className="flex flex-col gap-1.5">
+                    <BookmarkButton
+                      icon={isBookmarked ? IoBookmark : IoBookmarkOutline}
+                      className={`cursor-pointer transition-opacity duration-300 ${
+                        isBookmarked ? "opacity-100" : "opacity-80"
+                      }`}
+                      color="var(--color-white)"
+                      size={24}
+                      onClick={userId ? handleBookmark : undefined}
+                    />
+                    <p className="text-[var(--color-white)] text-xs font-normal whitespace-nowrap">
+                      스크랩
+                    </p>
+                  </div>
+                )}
                 <div className="flex flex-col gap-1.5 items-center">
                   <AiOutlineLike className="text-[var(--color-white)] text-center w-6 h-6" />
                   <p className="text-[var(--color-white)] text-[13px] font-normal text-center">
-                    {likes || 0}
+                    {likes}
                   </p>
                 </div>
                 <div className="flex flex-col gap-1 items-center">

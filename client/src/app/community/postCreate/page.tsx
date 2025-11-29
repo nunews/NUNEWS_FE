@@ -1,7 +1,8 @@
+"use client";
 import CreatePost from "@/components/community/CreatePost";
 import Header from "@/components/layout/header";
 
-export default async function Page() {
+export default function PostCreatePage() {
   return (
     <>
       <Header logo={false} />

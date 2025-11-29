@@ -5,6 +5,7 @@ import { IconButton as BookmarkButton } from "./IconButton";
 import { AiOutlineLike } from "react-icons/ai";
 import { useRouter } from "next/navigation";
 import createClient from "@/utils/supabase/client";
+import { toast } from "sonner";
 
 interface NewsCardProps {
   newsId: string;
@@ -64,6 +65,7 @@ export default function NewsCard({
         news_id: newsId,
       });
       if (!error) setIsBookmarked(true);
+      toast.success("스크랩에 추가됐어요.");
     } else {
       // 스크랩 해제
       const { error } = await supabase
@@ -72,6 +74,7 @@ export default function NewsCard({
         .eq("user_id", userId)
         .eq("news_id", newsId);
       if (!error) setIsBookmarked(false);
+      toast.success("스크랩을 취소했어요.");
     }
   };
 
@@ -96,32 +99,34 @@ export default function NewsCard({
           onMouseLeave={() => setIsHovered(false)}
           className='absolute top-2 right-2 z-10'
         >
-          <div className='relative w-7.5 h-7.5 bg-[var(--color-white)] rounded-full flex items-center justify-center cursor-pointer'>
-            <BookmarkButton
-              icon={IoBookmarkOutline}
-              size={16}
-              color='var(--color-gray-50)'
-              className={`absolute transition-opacity duration-300 ${
-                !isHovered && !isBookmarked ? "opacity-100" : "opacity-0"
-              }`}
-              onMouseEnter={() => setIsHovered(true)}
-              onMouseLeave={() => setIsHovered(false)}
-            />
-            <BookmarkButton
-              icon={IoBookmark}
-              size={16}
-              color={
-                isBookmarked ? "var(--color-black)" : "var(--color-gray-50)"
-              }
-              className={`absolute transition-all duration-300 ${
-                isBookmarked
-                  ? "opacity-100"
-                  : isHovered
-                  ? "opacity-100"
-                  : "opacity-0"
-              }`}
-            />
-          </div>
+          {userId && (
+            <div className='relative w-7.5 h-7.5 bg-[var(--color-white)] rounded-full flex items-center justify-center cursor-pointer'>
+              <BookmarkButton
+                icon={IoBookmarkOutline}
+                size={16}
+                color='var(--color-gray-50)'
+                className={`absolute transition-opacity duration-300 ${
+                  !isHovered && !isBookmarked ? "opacity-100" : "opacity-0"
+                }`}
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+              />
+              <BookmarkButton
+                icon={IoBookmark}
+                size={16}
+                color={
+                  isBookmarked ? "var(--color-black)" : "var(--color-gray-50)"
+                }
+                className={`absolute transition-all duration-300 ${
+                  isBookmarked
+                    ? "opacity-100"
+                    : isHovered
+                    ? "opacity-100"
+                    : "opacity-0"
+                }`}
+              />
+            </div>
+          )}
         </div>
       </div>
 

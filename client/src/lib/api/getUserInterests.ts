@@ -1,6 +1,6 @@
 import { createServerSupabase } from "@/utils/supabase/server";
 import { getAuthUser } from "../auth/getAuthUser";
-import { CategoryInv } from "../interest";
+import { categoryIdInvMap } from "../categoryUUID";
 import createClient from "@/utils/supabase/client";
 
 export async function getUserInterestsFromServer() {
@@ -29,7 +29,7 @@ export async function getUserInterestsFromServer() {
   }
 
   const interests = userInterest.map(
-    (c) => CategoryInv[c.category_id] ?? "기타"
+    (c) => categoryIdInvMap[c.category_id] ?? "기타"
   );
 
   const categoryIds = userInterest.map((c) => c.category_id);
@@ -63,7 +63,7 @@ export async function getUserInterestsFromClient() {
   }
 
   const interests = userInterest.map(
-    (c) => CategoryInv[c.category_id] ?? "기타"
+    (c) => categoryIdInvMap[c.category_id] ?? "기타"
   );
 
   const categoryIds = userInterest.map((c) => c.category_id);

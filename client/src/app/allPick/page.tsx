@@ -16,7 +16,7 @@ import {
   getSupabaseInterestNews,
   getSupabaseRandomNews,
 } from "@/lib/api/getNewstoSupabase";
-import { Category } from "@/lib/interest";
+import { categoryIdMap } from "@/lib/categoryUUID";
 import { timeAgo } from "@/utils/timeAgo";
 import { fetchPost, fetchWriter } from "../api/community";
 import { useRouter } from "next/navigation";
@@ -61,7 +61,7 @@ export default function AllPickPage() {
           newsList = await getSupabaseRandomNews();
         } else {
           const categoryUUID =
-            Category[selectedCategory as keyof typeof Category];
+            categoryIdMap[selectedCategory as keyof typeof categoryIdMap];
 
           if (categoryUUID) {
             console.log("카테고리 UUID:", categoryUUID);

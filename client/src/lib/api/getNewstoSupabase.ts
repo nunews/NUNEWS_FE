@@ -44,6 +44,8 @@ export const getSupabaseRandomNews = async () => {
           source_name: news.source,
           source_url: news.url,
           title: news.title,
+          views: news.view_count ?? 0,
+          likes: news.like_count ?? 0,
         };
       });
 
@@ -98,6 +100,8 @@ export const getSupabaseInterestNews = async (categoryIds: string[]) => {
           source_name: news.source,
           source_url: news.url,
           title: news.title,
+          views: news.view_count ?? 0,
+          likes: news.like_count ?? 0,
         };
       });
 

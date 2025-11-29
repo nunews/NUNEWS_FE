@@ -2,7 +2,6 @@
 
 import type React from "react";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { TextButton } from "../ui/TextButton";
 import { IoBookmarkOutline, IoBookmark, IoEyeOutline } from "react-icons/io5";
@@ -21,6 +20,7 @@ interface NewsSectionProps {
   likes?: number;
   views?: number;
   handleSummary: () => void;
+  handleDetail: () => void;
   isFirst: boolean;
 }
 
@@ -32,16 +32,17 @@ export default function NewsSection({
   likes,
   views,
   handleSummary,
+  handleDetail,
   isFirst,
 }: NewsSectionProps) {
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [likedCnt, setLikedCnt] = useState(likes ?? 0);
+  const [viewCnt, setViewCnt] = useState(views ?? data.views ?? 0);
 
-  const router = useRouter();
   const supabase = createClient();
 
-  // 좋아요 초기 상태 세팅
+  //좋아요 초기 상태 세팅
   useEffect(() => {
     if (!data.article_id) return;
 
@@ -62,7 +63,12 @@ export default function NewsSection({
     fetchLikeInfo();
   }, [data.article_id]);
 
-  // 스크랩 초기 상태 세팅
+  //조회수 props 변경 시 동기화 (views 없으면 data.views 사용)
+  useEffect(() => {
+    setViewCnt(views ?? data.views ?? 0);
+  }, [views, data.views]);
+
+  //스크랩 초기 상태 세팅
   useEffect(() => {
     if (!userId || !newsId) return;
 
@@ -80,8 +86,10 @@ export default function NewsSection({
     checkBookmark();
   }, [userId, newsId, supabase]);
 
+  // ✅ 스크랩 토글
   const handleBookmark = async (e: React.MouseEvent) => {
     e.stopPropagation();
+
     if (!userId || !newsId) {
       toast.error("로그인이 필요합니다.");
       return;
@@ -111,11 +119,7 @@ export default function NewsSection({
     }
   };
 
-  const handleDetail = () => {
-    if (!data.article_id) return;
-    router.push(`/newsDetail/${data.article_id}`);
-  };
-
+  //좋아요 토글
   const handleLike = async () => {
     if (!data.article_id) return;
 
@@ -129,7 +133,7 @@ export default function NewsSection({
     }
   };
 
-  // 카테고리 맵핑
+  //카테고리 맵핑
   const categoryInfo = allCategoryMap.find(
     (item) => item.label === data.category
   );
@@ -137,8 +141,6 @@ export default function NewsSection({
     categoryInfo?.icon ||
     allCategoryMap.find((item) => item.label === "그 외")?.icon;
   const categoryKorean = data.category || "그 외";
-
-  const safeViews = views ?? data.views ?? 0;
 
   return (
     <section
@@ -208,7 +210,7 @@ export default function NewsSection({
             {/* 스크랩 / 좋아요 / 조회수 영역 */}
             <div className="flex flex-col justify-end">
               <div className="flex flex-col [@media(max-height:700px)]:gap-4 gap-6">
-                {/* 스크랩: 로그인된 유저만 노출 */}
+                {/* 스크랩: 로그인 유저만 노출 */}
                 {userId && (
                   <div className="flex flex-col gap-1.5 items-center">
                     <BookmarkButton
@@ -243,7 +245,7 @@ export default function NewsSection({
                 <div className="flex flex-col gap-1 items-center">
                   <IoEyeOutline className="text-[var(--color-white)] w-6 h-6" />
                   <p className="text-[var(--color-white)] text-[13px] font-normal text-center">
-                    {safeViews}
+                    {viewCnt}
                   </p>
                 </div>
               </div>

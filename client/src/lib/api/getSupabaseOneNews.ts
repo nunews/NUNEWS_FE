@@ -31,8 +31,8 @@ export const getSupabaseOneNews = async (newsId: string) => {
       source_name: data.source,
       source_url: data.url,
       language: "ko",
-      likes: data.likes || 0,
-      views: data.views || 0,
+      likes: data.like_count ?? 0,
+      views: data.view_count ?? 0,
     };
   } catch (error) {
     console.error("해당 뉴스를 가져오는 중 오류가 발생했습니다.", error);

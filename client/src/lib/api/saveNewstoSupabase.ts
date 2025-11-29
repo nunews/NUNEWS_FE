@@ -1,6 +1,7 @@
 import { categoryIdMap, categoryNameMap } from "../categoryUUID";
 import supabase from "../supabase";
 
+// 뉴스 데이터를 Supabase에 저장하기
 export const saveNewstoSupabase = async (newsData: NewsData[]) => {
   try {
     const savedNews: NewsData[] = [];

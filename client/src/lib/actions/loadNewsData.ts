@@ -1,4 +1,3 @@
-// page.tsx 에서 뉴스 데이터 패치 작업
 "use server";
 
 import { saveNewstoSupabase } from "@/lib/api/saveNewstoSupabase";

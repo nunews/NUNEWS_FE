@@ -2,7 +2,7 @@ import supabase from "@/lib/supabase";
 import { categoryIdMap } from "@/lib/categoryUUID";
 
 export const getKoreanCategoryFromUUID = (categoryId: string): string => {
-  // categoryIdMap을 뒤집어서 UUID -> 한글 매핑
+  // UUID -> 한글 매핑
   const uuidToKorean: { [key: string]: string } = {};
   Object.entries(categoryIdMap).forEach(([korean, uuid]) => {
     uuidToKorean[uuid] = korean;
@@ -12,7 +12,7 @@ export const getKoreanCategoryFromUUID = (categoryId: string): string => {
   return koreanCategory;
 };
 
-// 비로그인 & 관심사 선택 없을 시 랜덤 뉴스
+// 비로그인 & 관심사 선택 없을 시 랜덤 뉴스 가져오기
 export const getSupabaseRandomNews = async () => {
   try {
     const { data, error } = await supabase

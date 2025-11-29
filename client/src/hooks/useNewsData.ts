@@ -9,6 +9,7 @@ import {
 import { getUserInterestsFromClient } from "@/lib/api/getUserInterests";
 import { useEffect, useState } from "react";
 
+// 클라이언트에서 뉴스 데이터 가져오기
 export function useNewsData() {
   const [interests, setInterests] = useState<string[]>([]);
   const [categoryIds, setCategoryIds] = useState<string[]>([]);

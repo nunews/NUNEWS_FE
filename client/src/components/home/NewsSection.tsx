@@ -1,13 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import type React from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { TextButton } from "../ui/TextButton";
 import { IoBookmarkOutline, IoBookmark, IoEyeOutline } from "react-icons/io5";
 import { IconButton as BookmarkButton } from "../ui/IconButton";
 import { AiOutlineLike } from "react-icons/ai";
 import { allCategoryMap } from "@/lib/categoryUUID";
+import { getLikesCount, getLikesStatus, toggleLike } from "@/utils/likes";
 import createClient from "@/utils/supabase/client";
 import { toast } from "sonner";
 
@@ -19,6 +20,7 @@ interface NewsSectionProps {
   likes?: number;
   views?: number;
   handleSummary: () => void;
+  handleDetail: () => void;
   isFirst: boolean;
 }
 
@@ -30,14 +32,45 @@ export default function NewsSection({
   likes,
   views,
   handleSummary,
+  handleDetail,
   isFirst,
 }: NewsSectionProps) {
   const [isBookmarked, setIsBookmarked] = useState(false);
-  const router = useRouter();
+  const [isLiked, setIsLiked] = useState(false);
+  const [likedCnt, setLikedCnt] = useState(likes ?? 0);
+  const [viewCnt, setViewCnt] = useState(views ?? data.view_count ?? 0);
+
   const supabase = createClient();
 
+  // ✅ 좋아요 초기 상태 세팅 (newsId 기준)
   useEffect(() => {
-    if (!userId) return;
+    if (!newsId) return;
+
+    const fetchLikeInfo = async () => {
+      try {
+        const [status, count] = await Promise.all([
+          getLikesStatus(newsId),
+          getLikesCount(newsId),
+        ]);
+
+        setIsLiked(status);
+        setLikedCnt(count);
+      } catch (e) {
+        console.error("좋아요 정보 가져오기 실패:", e);
+      }
+    };
+
+    fetchLikeInfo();
+  }, [newsId]);
+
+  // ✅ 조회수 props 변경 시 동기화 (views 없으면 data.view_count 사용)
+  useEffect(() => {
+    setViewCnt(views ?? data.view_count ?? 0);
+  }, [views, data.view_count]);
+
+  // ✅ 스크랩 초기 상태 세팅
+  useEffect(() => {
+    if (!userId || !newsId) return;
 
     const checkBookmark = async () => {
       const { data } = await supabase
@@ -53,35 +86,52 @@ export default function NewsSection({
     checkBookmark();
   }, [userId, newsId, supabase]);
 
+  // ✅ 스크랩 토글
   const handleBookmark = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!userId) return alert("로그인이 필요합니다.");
+
+    if (!userId || !newsId) {
+      toast.error("로그인이 필요합니다.");
+      return;
+    }
 
     if (!isBookmarked) {
-      // 스크랩 추가
       const { error } = await supabase.from("User_scrap").insert({
         user_id: userId,
         news_id: newsId,
       });
-      if (!error) setIsBookmarked(true);
-      toast.success("스크랩에 추가됐어요.");
+      if (!error) {
+        setIsBookmarked(true);
+        toast.success("스크랩에 추가됐어요.");
+      }
     } else {
-      // 스크랩 해제
       const { error } = await supabase
         .from("User_scrap")
         .delete()
         .eq("user_id", userId)
         .eq("news_id", newsId);
-      if (!error) setIsBookmarked(false);
-      toast.success("스크랩을 취소했어요.");
+      if (!error) {
+        setIsBookmarked(false);
+        toast.success("스크랩을 취소했어요.");
+      }
     }
   };
 
-  const handleDetail = () => {
-    router.push(`/newsDetail/${data.news_id}`);
+  // ✅ 좋아요 토글
+  const handleLike = async () => {
+    if (!newsId) return;
+
+    try {
+      const res = await toggleLike(newsId);
+      setIsLiked(res.isLiked);
+      setLikedCnt(res.likedCount);
+    } catch (err) {
+      console.error("좋아요 토글 실패:", err);
+      toast.error("로그인이 필요합니다.");
+    }
   };
 
-  // 카테고리 맵핑
+  // ✅ 카테고리 맵핑 (dev 스타일 유지)
   const categoryInfo = allCategoryMap.find(
     (item) => item.label === data.category_id
   );
@@ -94,7 +144,7 @@ export default function NewsSection({
     <section
       className={`relative w-full min-h-[100dvh] bg-no-repeat bg-cover bg-center ${className}`}
       style={{
-        backgroundImage: `url(${data.image_url ? data.image_url : null})`,
+        backgroundImage: data.image_url ? `url(${data.image_url})` : "none",
       }}
     >
       <div className="absolute w-full inset-0 bg-[var(--color-black)]/70 backdrop-blur-[28px] z-0" />
@@ -102,7 +152,7 @@ export default function NewsSection({
         <div className="pt-[113px] max-h-screen">
           <div className="relative w-full min-w-80 h-90 [@media(max-height:700px)]:h-60 mx-auto overflow-hidden rounded-2xl">
             <Image
-              src={data.image_url || ""}
+              src={data.image_url || "/images/news-placeholder.png"}
               alt="news image"
               fill
               priority={isFirst}
@@ -153,7 +203,7 @@ export default function NewsSection({
               </div>
             </div>
 
-            {/* 스크랩 좋아요 조회수 영역 */}
+            {/* 스크랩 / 좋아요 / 조회수 영역 (스타일은 dev 기준) */}
             <div className="flex flex-col justify-end">
               <div className="flex flex-col [@media(max-height:700px)]:gap-4 gap-6">
                 {userId && (
@@ -165,7 +215,7 @@ export default function NewsSection({
                       }`}
                       color="var(--color-white)"
                       size={24}
-                      onClick={userId ? handleBookmark : undefined}
+                      onClick={handleBookmark}
                     />
                     <p className="text-[var(--color-white)] text-xs font-normal whitespace-nowrap">
                       스크랩
@@ -173,15 +223,20 @@ export default function NewsSection({
                   </div>
                 )}
                 <div className="flex flex-col gap-1.5 items-center">
-                  <AiOutlineLike className="text-[var(--color-white)] text-center w-6 h-6" />
+                  <AiOutlineLike
+                    className={`w-6 h-6 cursor-pointer transition-colors duration-300 ${
+                      isLiked ? "text-[var(--color-primary-40)]" : "text-white"
+                    }`}
+                    onClick={handleLike}
+                  />
                   <p className="text-[var(--color-white)] text-[13px] font-normal text-center">
-                    {likes}
+                    {likedCnt}
                   </p>
                 </div>
                 <div className="flex flex-col gap-1 items-center">
                   <IoEyeOutline className="text-[var(--color-white)] w-6 h-6" />
                   <p className="text-[var(--color-white)] text-[13px] font-normal text-center">
-                    {views || 0}
+                    {viewCnt}
                   </p>
                 </div>
               </div>

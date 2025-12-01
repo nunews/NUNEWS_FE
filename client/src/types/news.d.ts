@@ -1,6 +1,6 @@
 // 뉴스API의 데이터 타입
 interface NewsData {
-  article_id?: string;
+  article_id: string;
   category: string;
   content?: string;
   description: string;

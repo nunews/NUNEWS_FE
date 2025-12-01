@@ -23,6 +23,27 @@ import { useRouter } from "next/navigation";
 import Loading from "./loading";
 import createClient from "@/utils/supabase/client";
 
+type SupabaseNewsData = {
+  news_id: string;
+  category_id: string;
+  title: string;
+  content: string;
+  source: string;
+  published_at: string;
+  url: string;
+  view_count: number;
+  like_count: number;
+  created_at: string;
+  image_url: string;
+};
+
+type MyPost = Post & {
+  User?: {
+    profile_image?: string | null;
+    nickname?: string | null;
+  };
+};
+
 export default function AllPickPage() {
   const [selectedCategory, setSelectedCategory] = useState("전체");
   const [newsData, setNewsData] = useState<SupabaseNewsData[]>([]);
@@ -30,6 +51,7 @@ export default function AllPickPage() {
   const [isError, setIsError] = useState("");
   const [postData, setPostData] = useState<MyPost[]>([]);
   const [isPostLoading, setIsPostLoading] = useState(true);
+
   const supabase = createClient();
   const [userId, setUserId] = useState<string | null>(null);
 
@@ -79,6 +101,7 @@ export default function AllPickPage() {
 
         // 뉴스를 최신순으로 가져오기 때문에 랜덤으로 섞음
         const shuffled = newsList?.sort(() => Math.random() - 0.5);
+
         const transformedNews = shuffled.map((news) => ({
           ...news,
           newsId: news.news_id,
@@ -120,7 +143,7 @@ export default function AllPickPage() {
         console.error("게시글 데이터 가져오기 실패", error);
         setPostData([]);
       } finally {
-        setIsLoading(false);
+        setIsPostLoading(false);
       }
     };
     fetchPostData();
@@ -201,6 +224,7 @@ export default function AllPickPage() {
                 ))}
               </div>
             </div>
+
             {/* 관심사별 추천 커뮤니티 글 */}
             <div className="w-full h-[438px] flex flex-col bg-[#f8f8f8] mt-4 pb-11 px-4 dark:bg-[var(--color-black)]">
               <h2 className="text-lg font-bold text-[#191919] dark:text-[var(--color-white)] mt-10 mb-5">
@@ -224,8 +248,8 @@ export default function AllPickPage() {
                         username={post.User?.nickname || "익명의 누누"}
                         category={post.category_id}
                         content={post.contents}
-                        likes={post.like_count || 0}
-                        views={post.view_count || 0}
+                        likes={post.like_count ?? 0}
+                        views={post.view_count ?? 0}
                       />
                     </SwiperSlide>
                   ))}
@@ -244,6 +268,7 @@ export default function AllPickPage() {
               </div>
             </div>
 
+            {/* 많은 사람들이 좋아한 뉴스 */}
             <div className="flex flex-col px-4 mt-8">
               <h2 className="text-lg font-bold text-[var(--color-black)] dark:text-[var(--color-white)] mb-4">
                 많은 사람들이 좋아한 뉴스

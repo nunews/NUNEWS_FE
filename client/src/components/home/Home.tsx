@@ -10,6 +10,7 @@ import createClient from "@/utils/supabase/client";
 import { useNewsData } from "@/hooks/useNewsData";
 import Splash from "./Splash";
 import { getUserInterestsFromClient } from "@/lib/api/getUserInterests";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const [selectedNews, setSelectedNews] = useState<SupabaseNewsData | null>(
@@ -21,27 +22,27 @@ export default function Home() {
 
   useAutoNewsFetch();
   const supabase = createClient();
+  const router = useRouter();
 
-  // useNewsData 훅으로 뉴스 초기 데이터 가져오기
-  const { data: newsData, isError, isFetched } = useNewsData();
+  // useNewsData 훅으로 뉴스 데이터 가져오기
+  const { data: newsData = [], isError, isFetched } = useNewsData();
 
+  // 로그인 유저 정보 + 관심사 가져오기 (스크랩 / 헤더용)
   const fetchUser = useCallback(async () => {
     const {
       data: { user },
     } = await supabase.auth.getUser();
     if (user) setUserId(user.id);
+
+    const { interests } = await getUserInterestsFromClient();
+    setInterests(interests);
   }, [supabase]);
 
   useEffect(() => {
-    async function loadUserData() {
-      await fetchUser();
-      const { interests } = await getUserInterestsFromClient();
-      setInterests(interests);
-    }
-    loadUserData();
+    fetchUser();
   }, [fetchUser]);
 
-  // 스크롤 시 모달이 닫히도록
+  // 스크롤 시 요약 모달 닫기
   useEffect(() => {
     const mainSection = mainRef.current;
     if (!mainSection) return;
@@ -53,11 +54,43 @@ export default function Home() {
     };
 
     mainSection.addEventListener("scroll", handleScroll);
-
     return () => {
       mainSection.removeEventListener("scroll", handleScroll);
     };
   }, [selectedNews]);
+
+  // 요약보기 버튼 핸들러
+  const handleSummaryClick = (news: SupabaseNewsData) => {
+    setSelectedNews(news);
+  };
+
+  // 원문 보기 버튼 클릭 시: 조회수 +1 후 디테일 페이지로 이동
+  const handleViewOriginalClick = async (news: SupabaseNewsData) => {
+    try {
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
+
+      if (error) {
+        console.error("로그인 유저 확인 오류", error);
+      }
+
+      if (user) {
+        const { error: viewError } = await supabase.rpc("increment_news_view", {
+          p_news_id: news.news_id,
+        });
+
+        if (viewError) {
+          console.error("조회수 증가 실패", viewError);
+        }
+      }
+    } catch (e) {
+      console.error("조회수 증가 처리 중 오류", e);
+    }
+
+    router.push(`/newsDetail/${news.news_id}`);
+  };
 
   if (!isFetched) return <Splash />;
 
@@ -77,7 +110,10 @@ export default function Home() {
                 key={data.news_id}
                 className="snap-start"
                 data={data}
-                handleSummary={() => setSelectedNews(data)}
+                likes={data.like_count || 0}
+                views={data.view_count || 0}
+                handleSummary={() => handleSummaryClick(data)}
+                handleDetail={() => handleViewOriginalClick(data)}
                 userId={userId}
                 newsId={data.news_id}
                 isFirst={idx === 0}

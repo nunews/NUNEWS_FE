@@ -19,9 +19,10 @@ export const getSupabaseOneNews = async (newsId: string) => {
     }
 
     const koreanCategory = getKoreanCategoryFromUUID(newsData.category_id);
+
     return {
       news_id: newsData.news_id,
-      category_id: koreanCategory,
+      category_id: koreanCategory, // 한글 카테고리명으로 변환된 값
       title: newsData.title,
       content: newsData.content,
       source: newsData.source,
@@ -29,8 +30,8 @@ export const getSupabaseOneNews = async (newsId: string) => {
         ? new Date(newsData.published_at).toISOString()
         : new Date().toISOString(),
       url: newsData.url,
-      view_count: newsData.view_count,
-      like_count: newsData.like_count,
+      view_count: newsData.view_count ?? 0,
+      like_count: newsData.like_count ?? 0,
       created_at: newsData.created_at,
       image_url: newsData.image_url,
     };

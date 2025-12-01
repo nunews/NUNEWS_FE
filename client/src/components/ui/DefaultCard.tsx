@@ -58,6 +58,7 @@ export default function DefaultCard({
     router.push(`/newsDetail/${newsId}`);
   };
 
+
   const handleBookmark = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!userId) return alert("로그인이 필요합니다.");
@@ -87,13 +88,13 @@ export default function DefaultCard({
       className='w-full h-[149px] bg-white dark:bg-white/0 rounded-lg overflow-hidden flex items-center cursor-pointer group'
       onClick={handleDetail}
     >
-      <div className='relative w-30 h-30 flex-shrink-0 flex overflow-hidden rounded-lg'>
+      <div className="relative w-30 h-30 flex-shrink-0 flex overflow-hidden rounded-lg">
         <Image
           src={image}
-          alt='뉴스 이미지'
+          alt="뉴스 이미지"
           width={120}
           height={120}
-          className='object-cover w-full h-full'
+          className="object-cover w-full h-full"
         />
         {userId && (
           <div
@@ -109,25 +110,25 @@ export default function DefaultCard({
         )}
       </div>
 
-      <div className='flex-1 flex flex-col justify-between py-8 min-h-44 pl-4'>
+      <div className="flex-1 flex flex-col justify-between py-8 min-h-44 pl-4">
         <div>
-          <h3 className='text-[15px] font-semibold text-[var(--color-gray-100)] group-hover:text-[var(--color-black)] dark:text-[var(--color-gray-20)] dark:group-hover:text-[var(--color-white)] line-clamp-2 mb-1.5 duration-300 transition-colors'>
+          <h3 className="text-[15px] font-semibold text-[var(--color-gray-100)] group-hover:text-[var(--color-black)] dark:text-[var(--color-gray-20)] dark:group-hover:text-[var(--color-white)] line-clamp-2 mb-1.5 duration-300 transition-colors">
             {title}
           </h3>
-          <div className='text-[13px] text-[var(--color-gray-70)]'>
+          <div className="text-[13px] text-[var(--color-gray-70)]">
             {category} · {timeAgo}
           </div>
         </div>
-        <div className='flex gap-3 mt-[15px] justify-start'>
-          <div className='flex items-center gap-1'>
-            <AiOutlineLike className='w-4 h-4 text-[var(--color-gray-70)]' />
-            <span className='text-[13px] text-[var(--color-gray-70)]'>
+        <div className="flex gap-3 mt-[15px] justify-start">
+          <div className="flex items-center gap-1">
+            <AiOutlineLike className="w-4 h-4 text-[var(--color-gray-70)]" />
+            <span className="text-[13px] text-[var(--color-gray-70)]">
               {likes}
             </span>
           </div>
-          <div className='flex items-center gap-1'>
-            <IoEyeOutline className='w-4 h-4 text-[var(--color-gray-70)]' />
-            <span className='text-[13px] text-[var(--color-gray-70)]'>
+          <div className="flex items-center gap-1">
+            <IoEyeOutline className="w-4 h-4 text-[var(--color-gray-70)]" />
+            <span className="text-[13px] text-[var(--color-gray-70)]">
               {views}
             </span>
           </div>

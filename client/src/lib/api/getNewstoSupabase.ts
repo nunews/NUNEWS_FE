@@ -32,7 +32,7 @@ export const getSupabaseRandomNews = async () => {
         const koreanCategory = getKoreanCategoryFromUUID(news.category_id);
         return {
           news_id: news.news_id,
-          category_id: koreanCategory,
+          category_id: koreanCategory, // 한글 카테고리명
           title: news.title,
           content: news.content,
           source: news.source,
@@ -40,8 +40,8 @@ export const getSupabaseRandomNews = async () => {
             ? new Date(news.published_at).toISOString()
             : new Date().toISOString(),
           url: news.url,
-          view_count: news.view_count,
-          like_count: news.like_count,
+          view_count: news.view_count ?? 0,
+          like_count: news.like_count ?? 0,
           created_at: news.created_at,
           image_url: news.image_url,
         };
@@ -62,7 +62,6 @@ export const getSupabaseInterestNews = async (categoryIds: string[]) => {
       return [];
     }
 
-    // 관심사에 맞는 뉴스 가져오기
     const { data: newsData, error } = await supabase
       .from("News")
       .select("*")
@@ -86,7 +85,7 @@ export const getSupabaseInterestNews = async (categoryIds: string[]) => {
         const koreanCategory = getKoreanCategoryFromUUID(news.category_id);
         return {
           news_id: news.news_id,
-          category_id: koreanCategory,
+          category_id: koreanCategory, // 한글 카테고리명
           title: news.title,
           content: news.content,
           source: news.source,
@@ -94,8 +93,8 @@ export const getSupabaseInterestNews = async (categoryIds: string[]) => {
             ? new Date(news.published_at).toISOString()
             : new Date().toISOString(),
           url: news.url,
-          view_count: news.view_count,
-          like_count: news.like_count,
+          view_count: news.view_count ?? 0,
+          like_count: news.like_count ?? 0,
           created_at: news.created_at,
           image_url: news.image_url,
         };

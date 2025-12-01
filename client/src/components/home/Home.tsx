@@ -1,76 +1,71 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import Footer from "../layout/footer";
 import Header from "../layout/header";
 import NewsSection from "./NewsSection";
 import SummaryModal from "../ui/SummaryModal";
-import { useQuery } from "@tanstack/react-query";
 import { useAutoNewsFetch } from "@/hooks/useAutoNewsFetch";
 import createClient from "@/utils/supabase/client";
-import { getSupabaseInterestNews } from "@/lib/api/getNewstoSupabase";
+import { useNewsData } from "@/hooks/useNewsData";
+import Splash from "./Splash";
+import { getUserInterestsFromClient } from "@/lib/api/getUserInterests";
 import { useRouter } from "next/navigation";
 
-export default function Home({
-  initialNews,
-  interests,
-}: {
-  initialNews: NewsData[];
-  interests: string[];
-}) {
-  const [selectedNews, setSelectedNews] = useState<NewsData | null>(null);
+export default function Home() {
+  const [selectedNews, setSelectedNews] = useState<SupabaseNewsData | null>(
+    null
+  );
   const [userId, setUserId] = useState<string | null>(null);
+  const [interests, setInterests] = useState<string[]>([]);
+  const mainRef = useRef<HTMLElement>(null);
 
-  const router = useRouter();
   useAutoNewsFetch();
-
   const supabase = createClient();
+  const router = useRouter();
 
-  const { data: newsData = [], isError } = useQuery({
-    queryKey: ["newsData", interests],
-    queryFn: async () => {
-      const supabase = createClient();
+  // useNewsData 훅으로 뉴스 데이터 가져오기
+  const { data: newsData = [], isError, isFetched } = useNewsData();
 
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      const { data: userInterests } = await supabase
-        .from("User_Interests")
-        .select("category_id")
-        .eq("user_id", user?.id);
-
-      const categoryIds =
-        userInterests?.map((interest) => interest.category_id) || [];
-      return await getSupabaseInterestNews(categoryIds);
-    },
-
-    initialData: initialNews,
-    staleTime: 1000 * 60 * 5,
-    refetchOnMount: true,
-    refetchInterval: 1000 * 60 * 60,
-  });
-
-  //로그인 유저 정보 가져오기 (스크랩용)
+  // 로그인 유저 정보 + 관심사 가져오기 (스크랩 / 헤더용)
   const fetchUser = useCallback(async () => {
     const {
       data: { user },
     } = await supabase.auth.getUser();
     if (user) setUserId(user.id);
+
+    const { interests } = await getUserInterestsFromClient();
+    setInterests(interests);
   }, [supabase]);
 
   useEffect(() => {
     fetchUser();
   }, [fetchUser]);
 
-  //요약보기 버튼 핸들러
-  // TODO: 비로그인 시 토스트 출력 및 요약 생성 X
-  const handleSummaryClick = (news: NewsData) => {
+  // 스크롤 시 요약 모달 닫기
+  useEffect(() => {
+    const mainSection = mainRef.current;
+    if (!mainSection) return;
+
+    const handleScroll = () => {
+      if (selectedNews) {
+        setSelectedNews(null);
+      }
+    };
+
+    mainSection.addEventListener("scroll", handleScroll);
+    return () => {
+      mainSection.removeEventListener("scroll", handleScroll);
+    };
+  }, [selectedNews]);
+
+  // 요약보기 버튼 핸들러
+  const handleSummaryClick = (news: SupabaseNewsData) => {
     setSelectedNews(news);
   };
 
-  //원문 보기 버튼 클릭 시: 조회수 +1 후 디테일 페이지로 이동
-  const handleViewOriginalClick = async (news: NewsData) => {
+  // 원문 보기 버튼 클릭 시: 조회수 +1 후 디테일 페이지로 이동
+  const handleViewOriginalClick = async (news: SupabaseNewsData) => {
     try {
       const {
         data: { user },
@@ -83,7 +78,7 @@ export default function Home({
 
       if (user) {
         const { error: viewError } = await supabase.rpc("increment_news_view", {
-          p_news_id: news.article_id,
+          p_news_id: news.news_id,
         });
 
         if (viewError) {
@@ -94,27 +89,33 @@ export default function Home({
       console.error("조회수 증가 처리 중 오류", e);
     }
 
-    router.push(`/newsDetail/${news.article_id}`);
+    router.push(`/newsDetail/${news.news_id}`);
   };
+
+  if (!isFetched) return <Splash />;
 
   return (
     <>
       <div className="h-screen scrollbar-hide">
         <Header logo={true} page="nuPick" interest={interests} />
-        <main className="h-screen overflow-y-scroll snap-y snap-mandatory">
+        <main
+          ref={mainRef}
+          className="h-screen overflow-y-scroll snap-y snap-mandatory"
+        >
           {!isError &&
+            newsData &&
             newsData.length > 0 &&
-            newsData.map((data: NewsData, idx: number) => (
+            newsData.map((data: SupabaseNewsData, idx: number) => (
               <NewsSection
-                key={data.article_id}
+                key={data.news_id}
                 className="snap-start"
                 data={data}
-                likes={data.likes ?? 0}
-                views={data.views ?? 0}
+                likes={data.like_count || 0}
+                views={data.view_count || 0}
                 handleSummary={() => handleSummaryClick(data)}
                 handleDetail={() => handleViewOriginalClick(data)}
                 userId={userId}
-                newsId={data.article_id}
+                newsId={data.news_id}
                 isFirst={idx === 0}
               />
             ))}
@@ -122,15 +123,17 @@ export default function Home({
         <Footer isNuPick />
         {selectedNews && (
           <div
-            key={selectedNews.article_id}
-            className="fixed bottom-20 left-1/2 -translate-x-1/2 w-full px-2.5 z-50 max-w-[1024px]"
+            key={selectedNews.news_id}
+            className="fixed bottom-20 left-1/2 -translate-x-1/2 w-full px-2.5 z-50 max-w-[1024px] pointer-events-none"
           >
-            <SummaryModal
-              isOpen={!!selectedNews}
-              onClose={() => setSelectedNews(null)}
-              newsContent={selectedNews.content || ""}
-              newsId={selectedNews.article_id || ""}
-            />
+            <div className="pointer-events-auto">
+              <SummaryModal
+                isOpen={!!selectedNews}
+                onClose={() => setSelectedNews(null)}
+                newsContent={selectedNews.content || ""}
+                newsId={selectedNews.news_id || ""}
+              />
+            </div>
           </div>
         )}
       </div>

@@ -20,7 +20,7 @@ export default function NewsDetailPage() {
   const [error, setError] = useState<string>("");
   const [showTyping, setShowTyping] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
-  const [newsData, setNewsData] = useState<NewsData | null>(null);
+  const [newsData, setNewsData] = useState<SupabaseNewsData | null>(null);
 
   const [isLiked, setIsLiked] = useState(false);
 
@@ -186,19 +186,19 @@ export default function NewsDetailPage() {
 
       <div className="px-5 pt-18">
         <div className="text-sm text-[var(--color-gray-70)] mb-2">
-          {newsData?.category}
+          {newsData?.category_id}
         </div>
         <h1 className="text-[22px] font-bold leading-[140%] mb-3">
           {newsData?.title}
         </h1>
         <div className="flex items-center gap-2 text-sm text-[var(--color-gray-70)] mb-7">
-          <span>{newsData?.pubDate}</span>
+          <span>{newsData?.published_at}</span>
           <span>•</span>
-          <span>{newsData?.source_name}</span>
+          <span>{newsData?.source}</span>
           <div className="flex items-center justify-end flex-1 gap-[3px]">
             <AiOutlineEye className="w-5 h-5 text-[var(--color-gray-70)]" />
             <span className="text-sm text-[var(--color-gray-70)]">
-              {newsData?.views}
+              {newsData?.view_count}
             </span>
           </div>
         </div>

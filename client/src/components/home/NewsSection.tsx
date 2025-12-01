@@ -16,7 +16,7 @@ interface NewsSectionProps {
   newsId: string | undefined;
   userId?: string | null;
   className: string;
-  data: NewsData;
+  data: SupabaseNewsData;
   likes?: number;
   views?: number;
   handleSummary: () => void;
@@ -38,19 +38,19 @@ export default function NewsSection({
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [likedCnt, setLikedCnt] = useState(likes ?? 0);
-  const [viewCnt, setViewCnt] = useState(views ?? data.views ?? 0);
+  const [viewCnt, setViewCnt] = useState(views ?? data.view_count ?? 0);
 
   const supabase = createClient();
 
-  //좋아요 초기 상태 세팅
+  // ✅ 좋아요 초기 상태 세팅 (newsId 기준)
   useEffect(() => {
-    if (!data.article_id) return;
+    if (!newsId) return;
 
     const fetchLikeInfo = async () => {
       try {
         const [status, count] = await Promise.all([
-          getLikesStatus(data.article_id as string),
-          getLikesCount(data.article_id as string),
+          getLikesStatus(newsId),
+          getLikesCount(newsId),
         ]);
 
         setIsLiked(status);
@@ -61,14 +61,14 @@ export default function NewsSection({
     };
 
     fetchLikeInfo();
-  }, [data.article_id]);
+  }, [newsId]);
 
-  //조회수 props 변경 시 동기화 (views 없으면 data.views 사용)
+  // ✅ 조회수 props 변경 시 동기화 (views 없으면 data.view_count 사용)
   useEffect(() => {
-    setViewCnt(views ?? data.views ?? 0);
-  }, [views, data.views]);
+    setViewCnt(views ?? data.view_count ?? 0);
+  }, [views, data.view_count]);
 
-  //스크랩 초기 상태 세팅
+  // ✅ 스크랩 초기 상태 세팅
   useEffect(() => {
     if (!userId || !newsId) return;
 
@@ -96,7 +96,6 @@ export default function NewsSection({
     }
 
     if (!isBookmarked) {
-      // 스크랩 추가
       const { error } = await supabase.from("User_scrap").insert({
         user_id: userId,
         news_id: newsId,
@@ -106,7 +105,6 @@ export default function NewsSection({
         toast.success("스크랩에 추가됐어요.");
       }
     } else {
-      // 스크랩 해제
       const { error } = await supabase
         .from("User_scrap")
         .delete()
@@ -119,12 +117,12 @@ export default function NewsSection({
     }
   };
 
-  //좋아요 토글
+  // ✅ 좋아요 토글
   const handleLike = async () => {
-    if (!data.article_id) return;
+    if (!newsId) return;
 
     try {
-      const res = await toggleLike(data.article_id);
+      const res = await toggleLike(newsId);
       setIsLiked(res.isLiked);
       setLikedCnt(res.likedCount);
     } catch (err) {
@@ -133,14 +131,14 @@ export default function NewsSection({
     }
   };
 
-  //카테고리 맵핑
+  // ✅ 카테고리 맵핑 (dev 스타일 유지)
   const categoryInfo = allCategoryMap.find(
-    (item) => item.label === data.category
+    (item) => item.label === data.category_id
   );
   const categoryIcon =
     categoryInfo?.icon ||
     allCategoryMap.find((item) => item.label === "그 외")?.icon;
-  const categoryKorean = data.category || "그 외";
+  const categoryKorean = data.category_id || "그 외";
 
   return (
     <section
@@ -166,16 +164,14 @@ export default function NewsSection({
           <div className="flex mt-7 cursor-default [@media(max-height:700px)]:mt-4 w-full justify-between">
             <div className="mr-6 flex-1">
               <div className="flex gap-0.5">
-                {categoryIcon && (
-                  <Image
-                    src={categoryIcon}
-                    alt={categoryKorean}
-                    width={24}
-                    height={24}
-                    priority={isFirst}
-                    loading={isFirst ? "eager" : "lazy"}
-                  />
-                )}
+                <Image
+                  src={categoryIcon || ""}
+                  alt={categoryKorean}
+                  width={24}
+                  height={24}
+                  priority={isFirst}
+                  loading={isFirst ? "eager" : "lazy"}
+                />
                 <p className="text-[var(--color-white)]">{categoryKorean}</p>
               </div>
 
@@ -207,12 +203,11 @@ export default function NewsSection({
               </div>
             </div>
 
-            {/* 스크랩 / 좋아요 / 조회수 영역 */}
+            {/* 스크랩 / 좋아요 / 조회수 영역 (스타일은 dev 기준) */}
             <div className="flex flex-col justify-end">
               <div className="flex flex-col [@media(max-height:700px)]:gap-4 gap-6">
-                {/* 스크랩: 로그인 유저만 노출 */}
                 {userId && (
-                  <div className="flex flex-col gap-1.5 items-center">
+                  <div className="flex flex-col gap-1.5">
                     <BookmarkButton
                       icon={isBookmarked ? IoBookmark : IoBookmarkOutline}
                       className={`cursor-pointer transition-opacity duration-300 ${
@@ -227,8 +222,6 @@ export default function NewsSection({
                     </p>
                   </div>
                 )}
-
-                {/* 좋아요 */}
                 <div className="flex flex-col gap-1.5 items-center">
                   <AiOutlineLike
                     className={`w-6 h-6 cursor-pointer transition-colors duration-300 ${
@@ -240,8 +233,6 @@ export default function NewsSection({
                     {likedCnt}
                   </p>
                 </div>
-
-                {/* 조회수 */}
                 <div className="flex flex-col gap-1 items-center">
                   <IoEyeOutline className="text-[var(--color-white)] w-6 h-6" />
                   <p className="text-[var(--color-white)] text-[13px] font-normal text-center">

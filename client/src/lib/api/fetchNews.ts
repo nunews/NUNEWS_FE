@@ -1,7 +1,7 @@
 import { API_CONFIG } from "@/lib/config";
 import axios from "axios";
 
-// 뉴스 불러오기
+// 뉴스 데이터 불러오기
 export const fetchNewsData = async (language = "ko") => {
   try {
     const response = await axios.get("https://newsdata.io/api/1/latest", {

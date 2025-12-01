@@ -100,7 +100,7 @@ export default function SummaryModal({
         </div>
 
         {/* 요약 내용 */}
-        <div className="pb-2">
+        <div className="pb-2 overflow-y-scroll scrollbar-hide">
           {loading && (
             <div className="flex items-center justify-center py-8">
               <div className="flex flex-col items-center space-y-3">

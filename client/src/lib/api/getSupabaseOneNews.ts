@@ -3,7 +3,7 @@ import { getKoreanCategoryFromUUID } from "./getNewstoSupabase";
 
 export const getSupabaseOneNews = async (newsId: string) => {
   try {
-    const { data, error } = await supabase
+    const { data: newsData, error } = await supabase
       .from("News")
       .select("*")
       .eq("news_id", newsId)
@@ -14,25 +14,25 @@ export const getSupabaseOneNews = async (newsId: string) => {
       return null;
     }
 
-    if (!data) {
+    if (!newsData) {
       return null;
     }
 
-    const koreanCategory = getKoreanCategoryFromUUID(data.category_id);
+    const koreanCategory = getKoreanCategoryFromUUID(newsData.category_id);
     return {
-      article_id: data.news_id,
-      category: koreanCategory,
-      title: data.title,
-      description: data.content,
-      content: data.content,
-      image_url: data.image_url || "/images/handsomeLee.png",
-      link: data.url,
-      pubDate: data.published_at,
-      source_name: data.source,
-      source_url: data.url,
-      language: "ko",
-      likes: data.likes || 0,
-      views: data.views || 0,
+      news_id: newsData.news_id,
+      category_id: koreanCategory,
+      title: newsData.title,
+      content: newsData.content,
+      source: newsData.source,
+      published_at: newsData.published_at
+        ? new Date(newsData.published_at).toISOString()
+        : new Date().toISOString(),
+      url: newsData.url,
+      view_count: newsData.view_count,
+      like_count: newsData.like_count,
+      created_at: newsData.created_at,
+      image_url: newsData.image_url,
     };
   } catch (error) {
     console.error("해당 뉴스를 가져오는 중 오류가 발생했습니다.", error);

@@ -2,7 +2,7 @@ import supabase from "@/lib/supabase";
 import { categoryIdMap } from "@/lib/categoryUUID";
 
 export const getKoreanCategoryFromUUID = (categoryId: string): string => {
-  // categoryIdMap을 뒤집어서 UUID -> 한글 매핑
+  // UUID -> 한글 매핑
   const uuidToKorean: { [key: string]: string } = {};
   Object.entries(categoryIdMap).forEach(([korean, uuid]) => {
     uuidToKorean[uuid] = korean;
@@ -12,7 +12,7 @@ export const getKoreanCategoryFromUUID = (categoryId: string): string => {
   return koreanCategory;
 };
 
-// 비로그인 & 관심사 선택 없을 시 랜덤 뉴스
+// 비로그인 & 관심사 선택 없을 시 랜덤 뉴스 가져오기
 export const getSupabaseRandomNews = async () => {
   try {
     const { data, error } = await supabase
@@ -26,24 +26,24 @@ export const getSupabaseRandomNews = async () => {
       return [];
     }
 
-    const transformedData: NewsData[] = data
+    const transformedData: SupabaseNewsData[] = data
       .filter((news) => news.content !== null && news.image_url !== null)
       .map((news) => {
         const koreanCategory = getKoreanCategoryFromUUID(news.category_id);
         return {
-          article_id: news.news_id,
-          category: koreanCategory,
+          news_id: news.news_id,
+          category_id: koreanCategory,
+          title: news.title,
           content: news.content,
-          description: news.description,
-          image_url: news.image_url,
-          language: news.language,
-          link: news.link,
-          pubDate: news.published_at
+          source: news.source,
+          published_at: news.published_at
             ? new Date(news.published_at).toISOString()
             : new Date().toISOString(),
-          source_name: news.source,
-          source_url: news.url,
-          title: news.title,
+          url: news.url,
+          view_count: news.view_count,
+          like_count: news.like_count,
+          created_at: news.created_at,
+          image_url: news.image_url,
         };
       });
 
@@ -80,24 +80,24 @@ export const getSupabaseInterestNews = async (categoryIds: string[]) => {
       return [];
     }
 
-    const transformedData: NewsData[] = newsData
+    const transformedData: SupabaseNewsData[] = newsData
       .filter((news) => news.content !== null && news.image_url !== null)
       .map((news) => {
         const koreanCategory = getKoreanCategoryFromUUID(news.category_id);
         return {
-          article_id: news.news_id,
-          category: koreanCategory,
+          news_id: news.news_id,
+          category_id: koreanCategory,
+          title: news.title,
           content: news.content,
-          description: news.description,
-          image_url: news.image_url,
-          language: news.language,
-          link: news.link,
-          pubDate: news.published_at
+          source: news.source,
+          published_at: news.published_at
             ? new Date(news.published_at).toISOString()
             : new Date().toISOString(),
-          source_name: news.source,
-          source_url: news.url,
-          title: news.title,
+          url: news.url,
+          view_count: news.view_count,
+          like_count: news.like_count,
+          created_at: news.created_at,
+          image_url: news.image_url,
         };
       });
 

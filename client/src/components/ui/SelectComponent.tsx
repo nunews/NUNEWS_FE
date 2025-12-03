@@ -53,7 +53,7 @@ export default function SelectComponent({
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
 
-        <SelectContent className="rounded-[12px] border dark:bg-[#121212] dark:border-gray-100 border-[var(--color-gray-50)] shadow-none">
+        <SelectContent className="rounded-[12px] border dark:bg-[#121212] bg-white dark:border-gray-100 border-[var(--color-gray-50)] shadow-none">
           {options.map((opt) => (
             <SelectItem
               key={opt.value}

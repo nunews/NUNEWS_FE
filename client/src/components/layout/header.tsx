@@ -127,7 +127,10 @@ export default function Header({
 
             {/* 관심사 수정 or 모드전환 */}
             {page === "nuPick" ? (
-              <button className="flex items-center justify-center w-22 h-8 rounded-[50px] bg-[var(--color-white)]/10 hover:bg-[var(--color-white)]/15 backdrop-blur-lg text-[var(--color-white)] text-sm transition-all duration-300 ease-in-out cursor-pointer">
+              <button
+                onClick={() => router.push("profile/setting")}
+                className="flex items-center justify-center w-22 h-8 rounded-[50px] bg-[var(--color-white)]/10 hover:bg-[var(--color-white)]/15 backdrop-blur-lg text-[var(--color-white)] text-sm transition-all duration-300 ease-in-out cursor-pointer"
+              >
                 {!!interest ? "관심사 수정" : "관심사 추가"}
               </button>
             ) : (

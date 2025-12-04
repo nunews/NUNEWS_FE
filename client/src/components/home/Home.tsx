@@ -31,7 +31,7 @@ export default function Home() {
   const fetchUser = useCallback(async () => {
     const { data, error } = await supabase.auth.getUser();
     if (error) {
-      console.error("유정 정보 get 에러", error);
+      console.error("유저 정보 get 에러", error);
       return;
     }
 

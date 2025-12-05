@@ -142,12 +142,14 @@ export default function ProfileInitPage() {
         router.replace("/auth/login");
         return;
       }
+
+      const ageValue = selectedAge === "none" ? null : selectedAge;
       const { error: upsertError } = await supabase
         .from("User")
         .update({
           nickname,
           gender: selectedGender,
-          age_range: null,
+          age_range: ageValue,
         })
         .eq("user_id", user.id);
 
@@ -262,7 +264,8 @@ export default function ProfileInitPage() {
                 nickname &&
                 !nicknameError &&
                 isNicknameChecked &&
-                selectedGender
+                selectedGender &&
+                selectedAge !== null
                   ? "default"
                   : "disabled"
               }

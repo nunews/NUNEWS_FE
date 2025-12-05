@@ -27,16 +27,42 @@ export default function Home() {
   // useNewsData 훅으로 뉴스 데이터 가져오기
   const { data: newsData = [], isError, isFetched } = useNewsData();
 
-  // 로그인 유저 정보 + 관심사 가져오기 (스크랩 / 헤더용)
+  // 로그인 유저 정보, 관심사 가져오기
   const fetchUser = useCallback(async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (user) setUserId(user.id);
+    const { data, error } = await supabase.auth.getUser();
+    if (error) {
+      console.error("유저 정보 get 에러", error);
+      return;
+    }
+
+    const user = data?.user;
+
+    if (!user) {
+      setUserId(null);
+      setInterests([]);
+      return;
+    }
+
+    const { data: profile, error: profileError } = await supabase
+      .from("User")
+      .select("nickname")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (profileError) {
+      console.error("프로필 조회 오류", profileError);
+    }
+
+    if (!profile || profile.nickname == null) {
+      router.push("/profile/init");
+      return;
+    }
+
+    setUserId(user.id);
 
     const { interests } = await getUserInterestsFromClient();
     setInterests(interests);
-  }, [supabase]);
+  }, [supabase, router]);
 
   useEffect(() => {
     fetchUser();

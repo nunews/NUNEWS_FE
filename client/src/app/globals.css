@@ -28,9 +28,6 @@ body {
   --color-dark-bg: #1e1e1e;
   --shadow-common: 0px 2px 6px 12px rgba(0, 0, 0, 0.24);
   --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
   --primary: oklch(0.205 0 0);

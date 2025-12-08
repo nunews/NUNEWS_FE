@@ -301,7 +301,9 @@ export default function NewsDetailPage() {
           </div>
         </div>
         <div className="py-3 mt-9">
-          <AudienceAnalyticsChart />
+          {newsData?.news_id && (
+            <AudienceAnalyticsChart newsId={newsData.news_id!} />
+          )}
         </div>
         <div className="border-b border-[var(--color-gray-20)] mt-9" />
         {/* 다른 유저의 생각 */}

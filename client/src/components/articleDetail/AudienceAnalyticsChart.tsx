@@ -16,7 +16,6 @@ interface AudienceAnalyticsChartProps {
 
 const AudienceAnalyticsChart = ({ newsId }: AudienceAnalyticsChartProps) => {
   const { data, isLoading, isError } = useNewsAudienceStats(newsId);
-  console.log("[AudienceChart] query state:", { data, isLoading, isError });
 
   if (isLoading) {
     //로딩 카드

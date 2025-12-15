@@ -13,8 +13,6 @@ interface AudienceStatsResult {
 }
 
 export function useNewsAudienceStats(newsId: string | null) {
-  console.log("[useNewsAudienceStats] called with newsId:", newsId);
-
   return useQuery<AudienceStatsResult>({
     queryKey: ["newsAudience", newsId],
     queryFn: async () => {
@@ -26,10 +24,10 @@ export function useNewsAudienceStats(newsId: string | null) {
       }
 
       const result = await getNewsAudienceStats(newsId);
-      console.log(
-        "[useNewsAudienceStats] getNewsAudienceStats result:",
-        result
-      );
+      // console.log(
+      //   "[useNewsAudienceStats] getNewsAudienceStats result:",
+      //   result
+      // );
       return result;
     },
     enabled: !!newsId,

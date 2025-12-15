@@ -3,8 +3,6 @@ import Image from "next/image";
 import { AiOutlineEye, AiOutlineLike, AiOutlineShareAlt } from "react-icons/ai";
 import { TextButton } from "@/components/ui/TextButton";
 import Header from "@/components/layout/header";
-import RecommendNews from "@/components/ui/RecommendNews";
-import RecommendPost from "@/components/ui/RecommendPost";
 import AudienceAnalyticsChart from "@/components/articleDetail/AudienceAnalyticsChart";
 import { toast } from "sonner";
 import { useParams } from "next/navigation";
@@ -12,6 +10,8 @@ import { useEffect, useState } from "react";
 import { getSupabaseOneNews } from "@/lib/api/getSupabaseOneNews";
 import { useTyping } from "@/hooks/useTyping";
 import { getLikesStatus, toggleLike } from "@/utils/likes";
+import RelatedNewsSection from "@/components/articleDetail/RelatedNewsSection";
+import RelatedPostsSection from "@/components/articleDetail/RelatedPostSection";
 
 export default function NewsDetailPage() {
   const params = useParams();
@@ -121,64 +121,8 @@ export default function NewsDetailPage() {
       console.error("복사 중 에러 발생", err);
     }
   };
-  // 다른 유저의 생각 데이터
-  const posts = [
-    {
-      postId: 1,
-      title: "손흥민 이번에 사우디 가나요?",
-      content: "나는 좀 회의적임........",
-      likes: 32,
-      views: 124,
-    },
-    {
-      postId: 2,
-      title: "이강인 이번에 몇 골 넣었는지 아시는분 빨리 댓글좀",
-      content: "나는 좀 회의적임........",
-      likes: 32,
-      views: 124,
-    },
-    {
-      postId: 3,
-      title: "골프는 이렇게 치면 안되는데",
-      content: "나는 좀 긍정적임........",
-      likes: 32,
-      views: 124,
-    },
-    {
-      postId: 4,
-      title: "수영은 역시 마이클 조던",
-      content: "나는 좀 보수적임........",
-      likes: 32,
-      views: 124,
-    },
-  ];
-  // 관심가질만한 다른 뉴스 데이터
-  const relatedNews = [
-    {
-      title: "유강민 선수 최고기록 돌파...시속 620km로 압도적 우승",
-      category: "정치",
-      timeAgo: "2시간전",
-      likes: 32,
-      views: 124,
-      image: "/images/handsomeLee.png",
-    },
-    {
-      title: "NH농협은행, 예금금리 최고 0.3%p 내려...시장금리 반영",
-      category: "경제",
-      timeAgo: "3시간전",
-      likes: 45,
-      views: 89,
-      image: "/images/handsomeLee.png",
-    },
-    {
-      title: "꿀이 주르륵...핫케이크 정말 맛있는 맛집 발견!",
-      category: "문화",
-      timeAgo: "4시간전",
-      likes: 67,
-      views: 156,
-      image: "/images/handsomeLee.png",
-    },
-  ];
+
+  //console.log(newsData);
 
   return (
     <div className="min-h-screen">
@@ -204,14 +148,13 @@ export default function NewsDetailPage() {
         </div>
         <div className="w-full h-64 mb-7.5 rounded-lg overflow-hidden">
           <Image
-            src={newsData?.image_url || "/images/handsomeLee.png"}
+            src={newsData?.image_url || "/images/default_nunew.svg"}
             alt="뉴스 이미지"
             width={400}
             height={256}
             className="w-full h-full object-cover"
           />
         </div>
-
         <div className="mb-6 flex items-center gap-3">
           <TextButton
             onClick={handleSummary}
@@ -223,7 +166,6 @@ export default function NewsDetailPage() {
           </TextButton>
           <p className="text-sm">기사를 세 줄로 요약해 드려요!</p>
         </div>
-
         {/* 요약 섹션 */}
         {showSummary && (
           <div className="w-full mb-6 animate-in slide-in-from-top-4 duration-300">
@@ -300,6 +242,7 @@ export default function NewsDetailPage() {
             </TextButton>
           </div>
         </div>
+        {/* 조회수/좋아요 차트  */}
         <div className="py-3 mt-9">
           {newsData?.news_id && (
             <AudienceAnalyticsChart newsId={newsData.news_id!} />
@@ -307,44 +250,13 @@ export default function NewsDetailPage() {
         </div>
         <div className="border-b border-[var(--color-gray-20)] mt-9" />
         {/* 다른 유저의 생각 */}
-        <div className="mb-8 mt-10">
-          <h2 className="text-[22px] font-bold mb-6">
-            <span className="text-[var(--color-black)]">
-              &apos;스포츠&apos;
-            </span>
-            <span className="text-[var(--color-gray-80)]">
-              에 대한 다른 유저의 생각
-            </span>
-          </h2>
-          <div className="space-y-[10px]">
-            {posts.map((content) => (
-              <RecommendPost
-                key={content.postId}
-                postId={content.postId}
-                title={content.title}
-                content={content.content}
-                likes={content.likes}
-                views={content.views}
-              />
-            ))}
-          </div>
-        </div>
+        <RelatedPostsSection categoryLabel={newsData?.category_id ?? null} />
         <div className="border-b border-[var(--color-gray-20)] mt-9" />
-
-        {/* 관심 가질만한 다른 뉴스 */}
-        <div className="mb-[75px] mt-10">
-          <h2 className="text-lg font-bold mb-6">관심 가질만한 다른 뉴스</h2>
-          <div className="space-y-4">
-            {relatedNews.map((news, index) => (
-              <RecommendNews
-                key={index}
-                title={news.title}
-                category={news.category}
-                image={news.image}
-              />
-            ))}
-          </div>
-        </div>
+        {/* 관심 가질만한 다른 뉴스 섹션 */}
+        <RelatedNewsSection
+          categoryLabel={newsData?.category_id ?? null}
+          currentNewsId={newsData?.news_id ?? null} // 현재 기사 제외용 id
+        />
       </div>
     </div>
   );

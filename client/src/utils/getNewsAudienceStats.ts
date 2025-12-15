@@ -68,7 +68,7 @@ export async function getNewsAudienceStats(newsId: string) {
       }
     });
 
-    console.log("[AudienceStats] counted:", { genderCount, ageCount });
+    //console.log("[AudienceStats] counted:", { genderCount, ageCount });
 
     return {
       gender: genderCount,

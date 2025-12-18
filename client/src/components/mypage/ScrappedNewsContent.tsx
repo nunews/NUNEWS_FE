@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import createClient from "@/utils/supabase/client";
 import DefaultCard from "../ui/DefaultCard";
 import CategoryFilter from "./CategoryFilter";
@@ -55,20 +55,23 @@ export default function ScrappedNewsContent({
         const news = Array.isArray(item.News) ? item.News[0] : item.News;
         return news ? { created_at: item.created_at, News: news } : null;
       })
-      .filter((item): item is UserScrapItem => item !== null)
-      .filter((item) => {
-        if (activeCategory === "전체") return true;
-
-        const selectedCategoryId =
-          categoryIdMap[activeCategory as keyof typeof categoryIdMap];
-        return (
-          selectedCategoryId === (item.News.Category as Category)?.category_id
-        );
-      });
+      .filter((item): item is UserScrapItem => item !== null);
 
     setScrappedNews(formattedData);
     setLoading(false);
-  }, [userId, activeCategory, supabase]);
+  }, [userId, supabase]);
+
+  // 카테고리 전환 시
+  const filteredScrappedNews = useMemo(() => {
+    if (activeCategory === "전체") return scrappedNews;
+
+    const selectedCategoryId =
+      categoryIdMap[activeCategory as keyof typeof categoryIdMap];
+
+    return scrappedNews.filter(
+      (item) => item.News.Category?.category_id === selectedCategoryId
+    );
+  }, [scrappedNews, activeCategory]);
 
   // 스크랩 수 전달
   useEffect(() => {
@@ -97,8 +100,8 @@ export default function ScrappedNewsContent({
       <div>
         {loading ? (
           Array.from({ length: 5 }).map((_, i) => <DefaultCardSkel key={i} />)
-        ) : scrappedNews.length > 0 ? (
-          scrappedNews.map((item) => (
+        ) : filteredScrappedNews.length > 0 ? (
+          filteredScrappedNews.map((item) => (
             <DefaultCard
               key={item.News.news_id}
               newsId={item.News.news_id}

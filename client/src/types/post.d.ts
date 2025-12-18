@@ -1,5 +1,6 @@
-type PostCategory = {
+type Category = {
   title: string;
+  category_id: string;
 };
 
 type MyPost = {

@@ -36,7 +36,7 @@ export const MyPostsContent = ({ onPostCountChange }: MyPostsContentProps) => {
         contents,
         content_image,
         created_at,
-        PostCategory:category_id (title),
+        Category:category_id (title, category_id),
         view_count,
         like_count
       `
@@ -53,9 +53,7 @@ export const MyPostsContent = ({ onPostCountChange }: MyPostsContentProps) => {
 
     const formattedPosts: MyPost[] = (data || []).map((p) => ({
       ...p,
-      PostCategory: Array.isArray(p.PostCategory)
-        ? p.PostCategory[0]
-        : p.PostCategory || { title: "" },
+      Category: Array.isArray(p.Category) ? p.Category[0] : p.Category ?? null,
     }));
 
     setPosts(formattedPosts);

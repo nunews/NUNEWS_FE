@@ -1,6 +1,6 @@
-// 뉴스 데이터 타입 정의
+// 뉴스API의 데이터 타입
 interface NewsData {
-  article_id?: string;
+  article_id: string;
   category: string;
   content?: string;
   description: string;
@@ -15,6 +15,7 @@ interface NewsData {
   views?: number;
 }
 
+// Supabase에서 불러오는 데이터 타입
 interface SupabaseNewsData {
   news_id: string;
   category_id: string;

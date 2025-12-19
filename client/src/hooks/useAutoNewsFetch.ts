@@ -8,7 +8,7 @@ export const useAutoNewsFetch = () => {
     // 즉시 한 번 실행
     loadNewsData();
 
-    // 1시간마다 실행
+    // 1시간마다 패치 실행
     const interval = setInterval(async () => {
       console.log("1시간 경과 - 자동 뉴스 패칭 실행");
       try {

@@ -1,6 +1,6 @@
 import { OPENAI_CONFIG } from "../config";
 
-const OPENAI_PROMPTS = {
+const PROMPTS = {
   NEWS_SUMMARY: `
 Summarize the following news article in Korean, as if you're casually explaining it to a friend, within **three sentences**.
 
@@ -18,6 +18,7 @@ Summarize the following news article in Korean, as if you're casually explaining
 - Adding any information not included in the article
 - Including personal opinions or assumptions
 `,
+  SYSTEM_ROLE: `You are a friendly news summarizer who explains news articles in a casual, easy-to-understand way. Your goal is to help people quickly understand news by summarizing it in three friendly sentences.`,
 };
 
 // OpenAI API 호출
@@ -40,8 +41,12 @@ export const fetchOpenAi = async (description: string) => {
         model: OPENAI_CONFIG.MODEL,
         messages: [
           {
+            role: "system",
+            content: PROMPTS.SYSTEM_ROLE,
+          },
+          {
             role: "user",
-            content: `${OPENAI_PROMPTS.NEWS_SUMMARY}
+            content: `${PROMPTS.NEWS_SUMMARY}
 
             뉴스 내용:
             "${description}"`,

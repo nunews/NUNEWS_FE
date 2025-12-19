@@ -23,7 +23,7 @@ const InterestItem = ({
 }: InterestItemProps) => {
   return (
     <div
-      className={`w-25 h-31.5 cursor-pointer transition-all duration-300  ${
+      className={`w-full h-31.5 cursor-pointer transition-all duration-300  ${
         isActive ? activeStyle : baseStyle
       }`}
       onClick={onClick}

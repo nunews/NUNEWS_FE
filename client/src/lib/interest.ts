@@ -16,6 +16,6 @@ export const INTERESTS_DATA = [
   { imageSrc: societyImage, title: "사회", subtitle: "society" },
   { imageSrc: economyImage, title: "경제", subtitle: ["economy", "business"] },
   { imageSrc: etcImage, title: "기타", subtitle: "etc" },
-] as const;
+];
 
 export type Interest = (typeof INTERESTS_DATA)[number];

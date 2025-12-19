@@ -9,17 +9,19 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchUser, postCreate } from "@/app/api/community";
 import PostImage from "./PostImage";
 import { getCurrentUser } from "@/app/api/auth";
-import { Category } from "@/lib/interest";
+import { categoryIdMap, categoryOptions } from "@/lib/categoryUUID";
 import { useTheme } from "next-themes";
 
 export default function CreatePost() {
-  const [select, setSelect] = useState("정치/경제");
+  type CategoryKey = keyof typeof categoryIdMap;
+  const [select, setSelect] = useState<CategoryKey>("정치");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [contentImg, setContentImg] = useState<string | null>(null);
   const router = useRouter();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const isCategoryKey = (v: string): v is CategoryKey => v in categoryIdMap;
   useEffect(() => setMounted(true), []);
   const queryClient = useQueryClient();
   //로그인 사용자 불러오기
@@ -34,7 +36,7 @@ export default function CreatePost() {
       console.log("카테고리:", select);
       return postCreate(
         authData.id,
-        Category[select],
+        categoryIdMap[select],
         title,
         content,
         contentImg
@@ -56,23 +58,17 @@ export default function CreatePost() {
         <>
           <div className="pt-[62px] min-h-screen w-full pb-[90px] px-5">
             <SelectComponent
-              options={[
-                { label: "정치", value: "정치" },
-                { label: "경제", value: "경제" },
-                { label: "연예", value: "연예" },
-                { label: "스포츠", value: "스포츠" },
-                { label: "사회", value: "사회" },
-                { label: "문화", value: "문화" },
-                { label: "해외", value: "해외" },
-                { label: "기타", value: "기타" },
-              ]}
+              options={categoryOptions}
               placeholder="카테고리를 선택해 주세요"
-              onChange={(value) => setSelect(value)}
+              onChange={(value) => {
+                if (isCategoryKey(value)) setSelect(value);
+              }}
               label="카테고리 선택"
+              className="cursor-pointer"
             />
             <p className="mt-5 text-[var(--color-gray-80)] text-[13px]">제목</p>
             <Input
-              className="mt-2 w-full h-[50px] rounded-[12px] text-[var(--color-gray-50)] dark:hover:border-[var(--color-gray-80)] transition-all duration-300 ease-in-out text-sm"
+              className="mt-2 w-full h-[50px] rounded-[12px] text-[var(--color-gray-100)] dark:hover:border-[var(--color-gray-80)] focus:border-[var(--color-gray-50)] dark:focus:border-[var(--color-gray-80)] transition-all duration-300 ease-in-out text-sm"
               placeholder="제목을 입력해 주세요"
               value={title}
               onChange={(e) => {
@@ -95,7 +91,7 @@ export default function CreatePost() {
               내용 작성
             </p>
             <Textarea
-              className="mt-2 w-full min-h-[137px] rounded-[12px] text-[var(--color-gray-50)] dark:border-[var(--color-gray-100)] dark:hover:border-[var(--color-gray-80)] dark:active:border-[var(--color-gray-80)] transition-all duration-300 ease-in-out text-sm"
+              className="mt-2 w-full min-h-[137px] rounded-[12px] focus:outline-none text-[var(--color-gray-100)] hover:border-[var(--color-gray-50)] dark:border-[var(--color-gray-100)] dark:hover:border-[var(--color-gray-80)] focus:border-[var(--color-gray-50)] dark:focus:border-[var(--color-gray-80)] transition-all duration-300 ease-in-out text-sm"
               value={content}
               onChange={(e) => {
                 const value = e.target.value;

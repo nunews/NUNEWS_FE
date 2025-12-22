@@ -5,10 +5,11 @@ import profile1 from "../../assets/images/profile1.png";
 import { AiFillLike, AiOutlineLike } from "react-icons/ai";
 import { IoEyeOutline } from "react-icons/io5";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   fetchWriter,
+  isLikedByUser,
   postLike,
   postLikeTmp,
   postUnlike,
@@ -37,7 +38,6 @@ export default function CommunityPost({
   views: number;
 }) {
   const router = useRouter();
-  const [like, setLike] = useState(false); //사용자 좋아요 여부
   const [likeCount, setLikeCount] = useState(likes ?? 0);
   const [viewCount, setViewCount] = useState(views ?? 0);
 
@@ -51,10 +51,25 @@ export default function CommunityPost({
     staleTime: 1000 * 60 * 3,
   });
 
+  //사용자 좋아요 여부
+  const { data: isLiked } = useQuery({
+    queryKey: ["isLiked", userId, postId],
+    queryFn: () => {
+      return isLikedByUser(postId, userId);
+    },
+  });
+  const [like, setLike] = useState(isLiked ?? false); //사용자 좋아요 여부
+
+  useEffect(() => {
+    (async () => {
+      const liked = await isLikedByUser(postId, userId);
+      setLike(liked);
+    })();
+  }, [postId, userId]);
   const queryClient = useQueryClient();
 
   //좋아요 업데이트
-  const { mutate } = useMutation({
+  const { mutate: likeUpdate } = useMutation({
     mutationFn: (liked: boolean) => {
       if (!userId) {
         throw new Error("로그인이 필요합니다");
@@ -62,7 +77,7 @@ export default function CommunityPost({
       return liked ? postLike(postId, userId) : postUnlike(postId, userId);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["likes", postId] });
+      queryClient.invalidateQueries({ queryKey: ["likes", postId, userId] });
     },
     onError: (err) => {
       console.error("좋아요 업로드 실패:", err);
@@ -78,9 +93,10 @@ export default function CommunityPost({
         throw new Error("로그인이 필요합니다");
       }
       return postLikeTmp(postId, likeCount);
+      // return postLike(postId, userId);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["likes", postId] });
+      queryClient.invalidateQueries({ queryKey: ["likesTmp", postId] });
     },
     onError: (err) => {
       console.error("좋아요 업로드 실패:", err);
@@ -112,8 +128,8 @@ export default function CommunityPost({
     }
     setLike((prev) => !prev);
     setLikeCount((prev) => prev + (like ? -1 : 1));
-    // mutate(!like);
     mutateTemp(!like);
+    likeUpdate(!like);
   };
   const viewHandler = () => {
     console.log("postId:", postId);

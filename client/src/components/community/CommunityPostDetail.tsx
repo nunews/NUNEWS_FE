@@ -21,7 +21,7 @@ export default function CommunityPostDetail() {
           console.error("게시글 정보가 없습니다");
           return;
         }
-        console.log(post.like_count);
+        // console.log(post.like_count);
         return post;
       },
       enabled: !!postId,

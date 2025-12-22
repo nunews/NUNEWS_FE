@@ -120,18 +120,19 @@ export const postUnlike = async (postId: string, userId: string) => {
 };
 
 //좋아요 여부
-export const isLikedByUser = async (postId: number, userId: number) => {
+export const isLikedByUser = async (postId: string, userId: string) => {
   const { data, error } = await supabase
     .from("Like")
     .select("like_id")
     .eq("post_id", postId)
     .eq("user_id", userId)
-    .maybeSingle(); //한개 또는 null
+    .limit(1);
+  //.maybeSingle(); //한개 또는 null
   if (error) {
     console.error("좋아요 상태 확인 실패:", error);
     return false;
   }
-  return !!data;
+  return (data?.length ?? 0) > 0;
 };
 //post-detail
 

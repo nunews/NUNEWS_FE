@@ -1,6 +1,11 @@
 "use client";
 import { getCurrentUser } from "@/app/api/auth";
-import { postLike, postLikeTmp, postUnlike } from "@/app/api/community";
+import {
+  isLikedByUser,
+  postLike,
+  postLikeTmp,
+  postUnlike,
+} from "@/app/api/community";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { AiFillLike, AiOutlineLike } from "react-icons/ai";
@@ -15,8 +20,8 @@ export default function CommunityPostDetailStat({
   postId: string;
   view_count: number;
 }) {
-  const [like, setLike] = useState(false); //사용자 좋아요 여부
   const [likeCount, setLikeCount] = useState(like_count);
+
   //사용자 정보 불러오기
   const { data: authData } = useQuery({
     queryKey: ["currentUser"],
@@ -26,10 +31,34 @@ export default function CommunityPostDetailStat({
       return user;
     },
   });
+
   const userId = authData?.id;
+
+  //사용자 좋아요 여부
+  const { data: isLiked = false } = useQuery({
+    queryKey: ["isLiked", userId, postId],
+    queryFn: async () => {
+      if (!userId) return false;
+      const test = isLikedByUser(postId, userId);
+      console.log("좋아요 여부", test);
+      return test;
+    },
+  });
+  const [like, setLike] = useState(isLiked ?? false); //사용자 좋아요 여부
+
+  useEffect(() => {
+    (async () => {
+      if (userId) {
+        const liked = await isLikedByUser(postId, userId);
+        console.log("liked여부", liked);
+        setLike(liked);
+      }
+    })();
+  }, [postId, userId]);
+
   const queryClient = useQueryClient();
   //좋아요 업데이트
-  const { mutate } = useMutation({
+  const { mutate: likeUpdate } = useMutation({
     mutationFn: (liked: boolean) => {
       if (!postId || !userId) {
         return Promise.resolve(null);
@@ -37,7 +66,7 @@ export default function CommunityPostDetailStat({
       return liked ? postLike(postId, userId) : postUnlike(postId, userId);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["likes", postId] });
+      queryClient.invalidateQueries({ queryKey: ["likes", postId, userId] });
     },
     onError: (err) => {
       console.error("좋아요 업로드 실패:", err);
@@ -63,11 +92,6 @@ export default function CommunityPostDetailStat({
       setLikeCount((prev) => prev + (like ? 1 : -1));
     },
   });
-  //   useEffect(() => {
-  //     if (like_count !== undefined) {
-  //       setLikeCount(like_count);
-  //     }
-  //   }, [like_count]);
   const likeHandler = () => {
     if (!userId) {
       alert("로그인이 필요합니다.");
@@ -75,8 +99,8 @@ export default function CommunityPostDetailStat({
     }
     setLike((prev) => !prev);
     setLikeCount((prev) => prev + (like ? -1 : 1));
-    // mutate(!like);
     mutateTemp(!like);
+    likeUpdate(!like);
   };
   return (
     <>

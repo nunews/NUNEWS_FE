@@ -102,7 +102,7 @@ export default function CommunityPostDetailComments({
     }) => updateComment(commentId, newComment),
     //낙관적 댓글 삭제
     onMutate: async ({ commentId, newComment }) => {
-      console.log("낙관적 수정 실행", commentId);
+      // console.log("낙관적 수정 실행", commentId);
 
       //해당 쿼리 일시 중지
       await queryClient.cancelQueries({

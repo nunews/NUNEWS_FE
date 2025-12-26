@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import createClient from "@/utils/supabase/client";
 import RecommendNews from "@/components/ui/RecommendNews";
 import { categoryIdMap } from "@/lib/categoryUUID";
+import { useRouter } from "next/navigation";
 
 interface RelatedNewsSectionProps {
   categoryLabel: string | null; //한글 카테고리 명
@@ -24,6 +25,7 @@ const RelatedNewsSection = ({
   currentNewsId,
 }: RelatedNewsSectionProps) => {
   const supabase = createClient();
+  const route = useRouter();
 
   const categoryUUID = useMemo(() => {
     if (!categoryLabel) return null;
@@ -101,12 +103,19 @@ const RelatedNewsSection = ({
       <h2 className="text-[22px] font-bold mb-6">관심 가질만한 다른 뉴스</h2>
       <div className="space-y-4">
         {randomNews.map((news) => (
-          <RecommendNews
+          <button
             key={news.news_id}
-            title={news.title}
-            category={categoryLabel || ""}
-            image={news.image_url || "/images/default_nunew.svg"}
-          />
+            type="button"
+            onClick={() => route.push(`/newsDetail/${news.news_id}`)}
+            className="block w-full text-left"
+          >
+            <RecommendNews
+              key={news.news_id}
+              title={news.title}
+              category={categoryLabel || ""}
+              image={news.image_url || "/images/default_nunew.svg"}
+            />
+          </button>
         ))}
       </div>
     </div>

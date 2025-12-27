@@ -4,13 +4,17 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import Footer from "../layout/footer";
 import Header from "../layout/header";
 import NewsSection from "./NewsSection";
-import SummaryModal from "../ui/SummaryModal";
+
 import { useAutoNewsFetch } from "@/hooks/useAutoNewsFetch";
 import createClient from "@/utils/supabase/client";
 import { useNewsData } from "@/hooks/useNewsData";
-import Splash from "./Splash";
 import { getUserInterestsFromClient } from "@/lib/api/getUserInterests";
 import { useRouter } from "next/navigation";
+import Splash from "./Splash";
+import dynamic from "next/dynamic";
+const SummaryModal = dynamic(() => import("../ui/SummaryModal"), {
+  ssr: false,
+});
 
 export default function Home() {
   const [selectedNews, setSelectedNews] = useState<SupabaseNewsData | null>(
@@ -19,13 +23,12 @@ export default function Home() {
   const [userId, setUserId] = useState<string | null>(null);
   const [interests, setInterests] = useState<string[]>([]);
   const mainRef = useRef<HTMLElement>(null);
-
-  useAutoNewsFetch();
   const supabase = createClient();
   const router = useRouter();
+  useAutoNewsFetch();
 
   // useNewsData 훅으로 뉴스 데이터 가져오기
-  const { data: newsData = [], isError, isFetched } = useNewsData();
+  const { data: newsData = [], isError } = useNewsData();
 
   // 로그인 유저 정보, 관심사 가져오기
   const fetchUser = useCallback(async () => {
@@ -118,7 +121,7 @@ export default function Home() {
     router.push(`/newsDetail/${news.news_id}`);
   };
 
-  if (!isFetched) return <Splash />;
+  if (!newsData) return <Splash />;
 
   return (
     <>

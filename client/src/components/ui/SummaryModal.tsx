@@ -5,6 +5,7 @@ import { IoClose } from "react-icons/io5";
 import { IconButton } from "./IconButton";
 import { useTyping } from "@/hooks/useTyping";
 import { createSummary } from "@/lib/api/summarySupabase";
+import { createPortal } from "react-dom";
 
 export default function SummaryModal({
   isOpen,
@@ -12,10 +13,11 @@ export default function SummaryModal({
   newsContent,
   newsId,
 }: SummaryModalProps) {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState<string>("");
   const [showTyping, setShowTyping] = useState(false);
   const { typedRef, runTyped } = useTyping();
+  const [mounted, setMounted] = useState(false);
 
   // 중복 실행 방지
   const isGeneratingRef = useRef(false);
@@ -34,16 +36,15 @@ export default function SummaryModal({
     isGeneratingRef.current = true;
     lastNewsIdRef.current = newsId;
 
-    console.log("요약 생성 시작:", newsId);
-    setLoading(true);
-    setError("");
+    setIsLoading(true);
+    setIsError("");
     setShowTyping(false);
 
     try {
       const summaryResult = await createSummary(newsId, newsContent);
 
       // 먼저 로딩 종료
-      setLoading(false);
+      setIsLoading(false);
 
       // 이후 타이핑 시작
       setTimeout(() => {
@@ -62,8 +63,8 @@ export default function SummaryModal({
         err instanceof Error
           ? err.message
           : "요약 생성 중 오류가 발생했습니다.";
-      setError(errorMessage);
-      setLoading(false);
+      setIsError(errorMessage);
+      setIsLoading(false);
       setShowTyping(false);
     } finally {
       isGeneratingRef.current = false;
@@ -75,8 +76,8 @@ export default function SummaryModal({
       generateSummary();
     }
     if (!isOpen) {
-      setLoading(false);
-      setError("");
+      setIsLoading(false);
+      setIsError("");
       setShowTyping(false);
       // 모달 닫힐 때 ref 초기화
       isGeneratingRef.current = false;
@@ -84,7 +85,8 @@ export default function SummaryModal({
     }
   }, [isOpen, newsId, newsContent]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  return (
+  if (!mounted) return null;
+  return createPortal(
     <div className="z-50 w-full max-w-sm mx-auto px-2.5">
       <div className="bg-[var(--color-black)]/90 backdrop-blur-md rounded-2xl min-h-[250px] py-6 px-5">
         <div className="flex items-center justify-between mb-4">
@@ -101,7 +103,7 @@ export default function SummaryModal({
 
         {/* 요약 내용 */}
         <div className="pb-2 overflow-y-scroll scrollbar-hide">
-          {loading && (
+          {isLoading && (
             <div className="flex items-center justify-center py-8">
               <div className="flex flex-col items-center space-y-3">
                 <div className="animate-spin rounded-full h-6 w-6 border-2 border-[#F0FFBC] border-t-transparent"></div>
@@ -111,19 +113,20 @@ export default function SummaryModal({
             </div>
           )}
 
-          {error && (
+          {isError && (
             <div className="text-center py-6">
-              <p className="text-red-400 text-sm mb-4">{error}</p>
+              <p className="text-red-400 text-sm mb-4">요약에 실패했습니다.</p>
             </div>
           )}
 
-          {showTyping && !loading && !error && (
+          {showTyping && !isLoading && !isError && (
             <div className="text-white text-base leading-relaxed whitespace-pre-line">
               <div ref={typedRef}></div>
             </div>
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

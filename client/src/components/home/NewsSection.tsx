@@ -42,33 +42,37 @@ export default function NewsSection({
 
   const supabase = createClient();
 
-  // ✅ 좋아요 초기 상태 세팅 (newsId 기준)
   useEffect(() => {
     if (!newsId) return;
 
     const fetchLikeInfo = async () => {
       try {
-        const [status, count] = await Promise.all([
-          getLikesStatus(newsId),
-          getLikesCount(newsId),
-        ]);
-
-        setIsLiked(status);
-        setLikedCnt(count);
+        if (userId) {
+          const [status, count] = await Promise.all([
+            getLikesStatus(newsId),
+            getLikesCount(newsId),
+          ]);
+          setIsLiked(status);
+          setLikedCnt(count);
+        } else {
+          const count = await getLikesCount(newsId);
+          setLikedCnt(count);
+          setIsLiked(false);
+        }
       } catch (e) {
         console.error("좋아요 정보 가져오기 실패:", e);
+        setLikedCnt(likes ?? 0);
+        setIsLiked(false);
       }
     };
 
     fetchLikeInfo();
-  }, [newsId]);
+  }, [newsId, userId, likes]);
 
-  // ✅ 조회수 props 변경 시 동기화 (views 없으면 data.view_count 사용)
   useEffect(() => {
     setViewCnt(views ?? data.view_count ?? 0);
   }, [views, data.view_count]);
 
-  // ✅ 스크랩 초기 상태 세팅
   useEffect(() => {
     if (!userId || !newsId) return;
 
@@ -86,7 +90,6 @@ export default function NewsSection({
     checkBookmark();
   }, [userId, newsId, supabase]);
 
-  // ✅ 스크랩 토글
   const handleBookmark = async (e: React.MouseEvent) => {
     e.stopPropagation();
 
@@ -117,8 +120,12 @@ export default function NewsSection({
     }
   };
 
-  // ✅ 좋아요 토글
   const handleLike = async () => {
+    if (!userId) {
+      toast.error("로그인이 필요합니다.");
+      return;
+    }
+
     if (!newsId) return;
 
     try {
@@ -127,11 +134,10 @@ export default function NewsSection({
       setLikedCnt(res.likedCount);
     } catch (err) {
       console.error("좋아요 토글 실패:", err);
-      toast.error("로그인이 필요합니다.");
+      toast.error("좋아요 처리 중 오류가 발생했습니다.");
     }
   };
 
-  // ✅ 카테고리 맵핑 (dev 스타일 유지)
   const categoryInfo = allCategoryMap.find(
     (item) => item.label === data.category_id
   );
@@ -203,7 +209,7 @@ export default function NewsSection({
               </div>
             </div>
 
-            {/* 스크랩 / 좋아요 / 조회수 영역 (스타일은 dev 기준) */}
+            {/* 스크랩 / 좋아요 / 조회수 영역*/}
             <div className="flex flex-col justify-end">
               <div className="flex flex-col [@media(max-height:700px)]:gap-4 gap-6">
                 {userId && (

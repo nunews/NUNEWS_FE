@@ -1,27 +1,38 @@
 "use client";
 import { getCurrentUser } from "@/app/api/auth";
 import {
+  fetchLike,
   isLikedByUser,
   postLike,
-  postLikeTmp,
   postUnlike,
 } from "@/app/api/community";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { AiFillLike, AiOutlineLike } from "react-icons/ai";
 import { IoEyeOutline } from "react-icons/io5";
+import { toast } from "sonner";
 
 export default function CommunityPostDetailStat({
-  like_count,
   postId,
   view_count,
 }: {
-  like_count: number;
   postId: string;
   view_count: number;
 }) {
-  const [likeCount, setLikeCount] = useState(like_count);
+  const [likeCount, setLikeCount] = useState(0);
 
+  const { data: likeData } = useQuery<number>({
+    queryKey: ["likeData", postId],
+    queryFn: () => {
+      return fetchLike(postId);
+    },
+  });
+
+  useEffect(() => {
+    if (likeData !== undefined) {
+      setLikeCount(likeData);
+    }
+  }, [likeData]);
   //사용자 정보 불러오기
   const { data: authData } = useQuery({
     queryKey: ["currentUser"],
@@ -39,9 +50,7 @@ export default function CommunityPostDetailStat({
     queryKey: ["isLiked", userId, postId],
     queryFn: async () => {
       if (!userId) return false;
-      const test = isLikedByUser(postId, userId);
-      console.log("좋아요 여부", test);
-      return test;
+      return isLikedByUser(postId, userId);
     },
   });
   const [like, setLike] = useState(isLiked ?? false); //사용자 좋아요 여부
@@ -50,7 +59,6 @@ export default function CommunityPostDetailStat({
     (async () => {
       if (userId) {
         const liked = await isLikedByUser(postId, userId);
-        console.log("liked여부", liked);
         setLike(liked);
       }
     })();
@@ -74,32 +82,13 @@ export default function CommunityPostDetailStat({
       setLikeCount((prev) => prev + (like ? 1 : -1));
     },
   });
-
-  //좋아요 임시 업데이트
-  const { mutate: mutateTemp } = useMutation({
-    mutationFn: (liked: boolean) => {
-      if (!userId || !postId) {
-        return Promise.resolve(null);
-      }
-      return postLikeTmp(postId, likeCount);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["likes", postId] });
-    },
-    onError: (err) => {
-      console.error("좋아요 업로드 실패:", err);
-      setLike((prev) => !prev);
-      setLikeCount((prev) => prev + (like ? 1 : -1));
-    },
-  });
   const likeHandler = () => {
     if (!userId) {
-      alert("로그인이 필요합니다.");
+      toast.error("로그인이 필요합니다.");
       return;
     }
     setLike((prev) => !prev);
     setLikeCount((prev) => prev + (like ? -1 : 1));
-    mutateTemp(!like);
     likeUpdate(!like);
   };
   return (

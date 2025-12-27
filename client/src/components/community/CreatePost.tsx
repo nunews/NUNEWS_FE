@@ -6,11 +6,14 @@ import Textarea from "../ui/Textarea";
 import { TextButton } from "../ui/TextButton";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { fetchUser, postCreate } from "@/app/api/community";
+import { postCreate } from "@/app/api/community";
 import PostImage from "./PostImage";
 import { getCurrentUser } from "@/app/api/auth";
-import { categoryIdMap, categoryOptions } from "@/lib/categoryUUID";
+import { categoryIdMap } from "@/lib/categoryUUID";
+
 import { useTheme } from "next-themes";
+import { categoryOptions } from "@/lib/constants/categoryOption";
+import { toast } from "sonner";
 
 export default function CreatePost() {
   type CategoryKey = keyof typeof categoryIdMap;
@@ -33,7 +36,6 @@ export default function CreatePost() {
   const { mutate, isPending } = useMutation({
     mutationFn: () => {
       if (!authData?.id) throw new Error("로그인 정보가 없습니다.");
-      console.log("카테고리:", select);
       return postCreate(
         authData.id,
         categoryIdMap[select],
@@ -43,12 +45,12 @@ export default function CreatePost() {
       );
     },
     onSuccess: () => {
-      alert("업로드 성공!");
+      toast.success("업로드 성공!");
       queryClient.invalidateQueries({ queryKey: ["communityList"] });
       router.push("/community");
     },
     onError: (error) => {
-      alert("업로드 실패:" + error.message);
+      console.error("업로드 실패:" + error.message);
     },
   });
 

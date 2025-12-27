@@ -162,7 +162,6 @@ export default function CommunityList() {
                   title={post.title}
                   content={post.contents}
                   userId={userId!}
-                  likes={post.like_count}
                   views={post.view_count}
                 />
               ))}

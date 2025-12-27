@@ -1,5 +1,5 @@
 "use client";
-import { PiPaperPlaneTiltLight } from "react-icons/pi";
+import { PiPaperPlaneTiltBold } from "react-icons/pi";
 import Input from "../ui/Input";
 import Comment from "./Comment";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -51,7 +51,6 @@ export default function CommunityPostDetailComments({
       return postComment(newComment, authData!.id, postId);
     },
     onMutate: async (newComment) => {
-      console.log("낙관적 업데이트 시작");
       await queryClient.cancelQueries({
         queryKey: ["comments", postId],
       });
@@ -61,7 +60,6 @@ export default function CommunityPostDetailComments({
         "comments",
         postId,
       ]);
-      // console.log("prevComments", prevComments);
 
       //새 댓글 추가
       queryClient.setQueryData(["comments", postId], (old: Comment[]) => [
@@ -81,8 +79,7 @@ export default function CommunityPostDetailComments({
       if (context?.prevComments) {
         queryClient.setQueryData(["comments", postId], context.prevComments);
       }
-      // console.error(error);
-      alert("댓글 업로드 실패!");
+      console.error("댓글 업로드 실패!");
     },
     onSettled: () => {
       queryClient.invalidateQueries({
@@ -102,8 +99,6 @@ export default function CommunityPostDetailComments({
     }) => updateComment(commentId, newComment),
     //낙관적 댓글 삭제
     onMutate: async ({ commentId, newComment }) => {
-      // console.log("낙관적 수정 실행", commentId);
-
       //해당 쿼리 일시 중지
       await queryClient.cancelQueries({
         queryKey: ["comments", postId],
@@ -111,7 +106,6 @@ export default function CommunityPostDetailComments({
 
       //현재 댓글 목록
       const prevComments = queryClient.getQueryData(["comments", postId]);
-      console.log("prevComments", prevComments);
 
       queryClient.setQueryData(["comments", postId], (old: Comment[]) =>
         old?.map((comment: Comment) =>
@@ -127,7 +121,6 @@ export default function CommunityPostDetailComments({
       if (context?.prevComments) {
         queryClient.setQueryData(["comments", postId], context.prevComments);
       }
-      alert("댓글 수정 실패");
     },
     onSettled: () => {
       queryClient.invalidateQueries({
@@ -141,8 +134,6 @@ export default function CommunityPostDetailComments({
     mutationFn: (commentId: string) => deleteComment(commentId),
     //낙관적 댓글 삭제
     onMutate: async (commentId) => {
-      console.log("낙관적 삭제 실행", commentId);
-
       //해당 쿼리 일시 중지
       await queryClient.cancelQueries({
         queryKey: ["comments", postId],
@@ -150,7 +141,6 @@ export default function CommunityPostDetailComments({
 
       //현재 댓글 목록
       const prevComments = queryClient.getQueryData(["comments", postId]);
-      console.log("prevComments", prevComments);
 
       queryClient.setQueryData(["comments", postId], (old: Comment[]) =>
         old?.filter((c: Comment) => String(c.comment_id) !== String(commentId))
@@ -161,7 +151,7 @@ export default function CommunityPostDetailComments({
       if (context?.prevComments) {
         queryClient.setQueryData(["comments", postId], context.prevComments);
       }
-      alert("댓글 삭제 실패");
+      console.error("댓글 삭제 실패");
     },
     onSettled: () => {
       queryClient.invalidateQueries({
@@ -179,13 +169,13 @@ export default function CommunityPostDetailComments({
       <div className="mt-6">
         <Input
           rightSlot={
-            <PiPaperPlaneTiltLight
+            <PiPaperPlaneTiltBold
               onClick={commentHandler}
-              className="w-4 h-4 text-[var(--color-gray-100)] dark:text-[var(--color-white)] cursor-pointer"
+              className="w-5 h-5 text-[var(--color-gray-80)] dark:text-[var(--color-white)] cursor-pointer"
             />
           }
           placeholder="댓글을 입력해주세요"
-          className="rounded-[50px] w-[320px] h-[50px] text-[var(--color-black)] dark:text-[var(--color-white)] text-base"
+          className="rounded-[50px] w-full h-[50px] text-[var(--color-black)] dark:text-[var(--color-white)] text-base"
           value={comment}
           onChange={(e) => setComment(e.target.value)}
         />

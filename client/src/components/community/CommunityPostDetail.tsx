@@ -11,7 +11,6 @@ import CommunityPostDetailComments from "./CommunityPostDetailComments";
 
 export default function CommunityPostDetail() {
   const { postId } = useParams<{ postId?: string }>();
-  // console.log("postDetail로 넘어오긴함, postId", postId);
   const { data: postDetailData, isLoading: isPostDetailLoading } =
     useQuery<Post>({
       queryKey: ["postDetail1", postId],
@@ -21,13 +20,11 @@ export default function CommunityPostDetail() {
           console.error("게시글 정보가 없습니다");
           return;
         }
-        // console.log(post.like_count);
         return post;
       },
       enabled: !!postId,
       staleTime: 0,
     });
-  // console.log("postDetailData", postDetailData);
   const writerId = postDetailData?.user_id ?? null;
   return (
     <>
@@ -45,7 +42,6 @@ export default function CommunityPostDetail() {
 
             {/*  좋아요, 조회수 */}
             <CommunityPostDetailStat
-              like_count={postDetailData!.like_count}
               postId={postId!}
               view_count={postDetailData!.view_count}
             />

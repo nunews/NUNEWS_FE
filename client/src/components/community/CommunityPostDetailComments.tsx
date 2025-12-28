@@ -11,6 +11,7 @@ import {
 } from "@/app/api/community";
 import { useState } from "react";
 import { getCurrentUser } from "@/app/api/auth";
+import { toast } from "sonner";
 
 export default function CommunityPostDetailComments({
   postId,
@@ -23,7 +24,10 @@ export default function CommunityPostDetailComments({
     queryKey: ["currentUser"],
     queryFn: async () => {
       const user = await getCurrentUser();
-      if (!user) throw new Error("사용자 정보가 없습니다");
+      if (!user) {
+        toast.error("사용자 정보가 없습니다");
+        return null;
+      }
       return user;
     },
   });
@@ -160,6 +164,10 @@ export default function CommunityPostDetailComments({
     },
   });
   const commentHandler = () => {
+    if (!userId) {
+      console.error("로그인이 필요합니다.");
+      return;
+    }
     addComment(comment);
     setComment("");
   };

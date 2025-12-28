@@ -82,9 +82,6 @@ export default function CommunityPost({
   //좋아요 업데이트
   const { mutate: likeUpdate } = useMutation({
     mutationFn: (liked: boolean) => {
-      if (!userId) {
-        throw new Error("로그인이 필요합니다");
-      }
       return liked ? postLike(postId, userId) : postUnlike(postId, userId);
     },
     onSuccess: () => {

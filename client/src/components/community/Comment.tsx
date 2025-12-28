@@ -36,7 +36,10 @@ export default function Comment({
     queryKey: ["currentUser"],
     queryFn: async () => {
       const user = await getCurrentUser();
-      if (!user) throw new Error("사용자 정보가 없습니다");
+      if (!user) {
+        toast.error("로그인이 필요합니다.");
+        return null;
+      }
       return user;
     },
   });

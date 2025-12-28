@@ -34,9 +34,12 @@ export default function CreatePost() {
   });
 
   const { mutate, isPending } = useMutation({
-    mutationFn: () => {
-      if (!authData?.id) throw new Error("로그인 정보가 없습니다.");
-      return postCreate(
+    mutationFn: async () => {
+      if (!authData?.id) {
+        toast.error("로그인이 필요합니다");
+        return null;
+      }
+      return await postCreate(
         authData.id,
         categoryIdMap[select],
         title,
@@ -44,7 +47,8 @@ export default function CreatePost() {
         contentImg
       );
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      if (!data) return;
       toast.success("업로드 성공!");
       queryClient.invalidateQueries({ queryKey: ["communityList"] });
       router.push("/community");

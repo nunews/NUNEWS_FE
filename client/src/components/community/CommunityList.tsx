@@ -18,6 +18,7 @@ import { useTheme } from "next-themes";
 import CommunityProfileSkel from "./Skeleton/CommunityProfileSkel";
 import CommunityPostSkel from "./Skeleton/CommunityPostSkel";
 import { categoryGroupMap, categoryIdInvMap } from "@/lib/categoryUUID";
+import { toast } from "sonner";
 
 export default function CommunityList() {
   const [selected, setSelected] = useState("all");
@@ -72,7 +73,10 @@ export default function CommunityList() {
   >({
     queryKey: ["fetchInterests", userId],
     queryFn: async (): Promise<{ category_id: string }[]> => {
-      if (!userId) throw new Error("유저 id 없음");
+      if (!userId) {
+        toast.error("로그인이 필요합니다.");
+        return [];
+      }
       return (await fetchInterests(userId)) ?? [];
     },
     enabled: !!userId,

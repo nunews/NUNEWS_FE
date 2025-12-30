@@ -9,7 +9,8 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { getSupabaseOneNews } from "@/lib/api/getSupabaseOneNews";
 import { useTyping } from "@/hooks/useTyping";
-import { getLikesStatus, toggleLike } from "@/utils/likes";
+import { getLikesStatus } from "@/utils/likes";
+import { useToggleLikeMutation } from "@/hooks/useNewsInteractionMutations";
 import RelatedNewsSection from "@/components/articleDetail/RelatedNewsSection";
 import RelatedPostsSection from "@/components/articleDetail/RelatedPostSection";
 
@@ -25,6 +26,7 @@ export default function NewsDetailPage() {
   const [isLiked, setIsLiked] = useState(false);
 
   const { typedRef } = useTyping();
+  const likeMutation = useToggleLikeMutation();
 
   useEffect(() => {
     const fetchNewsData = async () => {
@@ -67,10 +69,17 @@ export default function NewsDetailPage() {
   const handleLikeClick = async () => {
     if (!newsId) return;
 
+    // Optimistic Update
+    const previousIsLiked = isLiked;
+    setIsLiked(!isLiked);
+
     try {
-      const res = await toggleLike(newsId as string);
+      const res = await likeMutation.mutateAsync(newsId as string);
       setIsLiked(res.isLiked);
     } catch (e) {
+      // 실패 시 롤백
+      setIsLiked(previousIsLiked);
+      toast.error("로그인이 필요합니다.");
       console.error("좋아요 토글 실패:", e);
     }
   };
@@ -122,11 +131,9 @@ export default function NewsDetailPage() {
     }
   };
 
-  //console.log(newsData);
-
   return (
     <div className="min-h-screen">
-      <Header logo={false} interest={[]} />
+      <Header logo={false} />
 
       <div className="px-5 pt-18">
         <div className="text-sm text-[var(--color-gray-70)] mb-2">

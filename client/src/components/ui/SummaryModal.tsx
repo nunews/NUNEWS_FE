@@ -5,7 +5,6 @@ import { IoClose } from "react-icons/io5";
 import { IconButton } from "./IconButton";
 import { useTyping } from "@/hooks/useTyping";
 import { createSummary } from "@/lib/api/summarySupabase";
-import { createPortal } from "react-dom";
 
 export default function SummaryModal({
   isOpen,
@@ -17,7 +16,6 @@ export default function SummaryModal({
   const [isError, setIsError] = useState<string>("");
   const [showTyping, setShowTyping] = useState(false);
   const { typedRef, runTyped } = useTyping();
-  const [mounted, setMounted] = useState(false);
 
   // 중복 실행 방지
   const isGeneratingRef = useRef(false);
@@ -85,9 +83,8 @@ export default function SummaryModal({
     }
   }, [isOpen, newsId, newsContent]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (!mounted) return null;
-  return createPortal(
-    <div className="z-50 w-full max-w-sm mx-auto px-2.5">
+  return (
+    <div className="z-50 w-full mx-auto px-2.5">
       <div className="bg-[var(--color-black)]/90 backdrop-blur-md rounded-2xl min-h-[250px] py-6 px-5">
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-medium text-[var(--color-primary-40)]">
@@ -126,7 +123,6 @@ export default function SummaryModal({
           )}
         </div>
       </div>
-    </div>,
-    document.body
+    </div>
   );
 }

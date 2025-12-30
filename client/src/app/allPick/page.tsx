@@ -5,7 +5,7 @@ import HotNewsCard from "@/components/ui/HotNewsCard";
 import DefaultCard from "@/components/ui/DefaultCard";
 import hotICon from "@/assets/images/fire.png";
 import Image from "next/image";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Swiper } from "swiper/react";
 import { SwiperSlide } from "swiper/react";
 import "swiper/css";
@@ -21,21 +21,8 @@ import { timeAgo } from "@/utils/timeAgo";
 import { fetchPost, fetchWriter } from "../api/community";
 import { useRouter } from "next/navigation";
 import Loading from "./loading";
-import createClient from "@/utils/supabase/client";
-
-type SupabaseNewsData = {
-  news_id: string;
-  category_id: string;
-  title: string;
-  content: string;
-  source: string;
-  published_at: string;
-  url: string;
-  view_count: number;
-  like_count: number;
-  created_at: string;
-  image_url: string;
-};
+import { useAuthStore } from "@/stores/authStore";
+import { useHomeRender } from "@/hooks/useHomeRender";
 
 type MyPost = Post & {
   User?: {
@@ -52,25 +39,22 @@ export default function AllPickPage() {
   const [postData, setPostData] = useState<MyPost[]>([]);
   const [isPostLoading, setIsPostLoading] = useState(true);
 
-  const supabase = createClient();
-  const [userId, setUserId] = useState<string | null>(null);
-
   const router = useRouter();
+
+  const userId = useAuthStore((state) => state.userId);
+
+  // 뉴스 ID 목록 추출
+  const newsIds = useMemo(
+    () => newsData.map((news) => news.news_id),
+    [newsData]
+  );
+
+  // 상호작용 데이터 가져오기 (좋아요, 북마크, 좋아요 수)
+  const { data: interactions } = useHomeRender(newsIds);
 
   const handlePostCreate = () => {
     router.push("/community/postCreate");
   };
-
-  const fetchUser = useCallback(async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (user) setUserId(user.id);
-  }, [supabase]);
-
-  useEffect(() => {
-    fetchUser();
-  }, [fetchUser]);
 
   useEffect(() => {
     const fetchNewsData = async () => {
@@ -154,7 +138,7 @@ export default function AllPickPage() {
   return (
     <>
       <div className="h-screen scrollbar-hide bg-[var(--color-white)] dark:bg-[#121212]">
-        <Header logo={true} interest={[]} />
+        <Header logo={true} />
         <main className="h-screen overflow-y-scroll pt-16 pb-18">
           <div>
             <div className="px-4 whitespace-nowrap">
@@ -193,7 +177,11 @@ export default function AllPickPage() {
                         title={news.title}
                         category={news.category_id}
                         timeAgo={timeAgo(news.published_at)}
-                        likes={news.like_count || 0}
+                        likes={
+                          interactions?.likeCounts[news.news_id] ||
+                          news.like_count ||
+                          0
+                        }
                         views={news.view_count || 0}
                         image={news.image_url || ""}
                       />
@@ -217,7 +205,11 @@ export default function AllPickPage() {
                     title={news.title}
                     category={news.category_id}
                     timeAgo={timeAgo(news.published_at)}
-                    likes={news.like_count || 0}
+                    likes={
+                      interactions?.likeCounts[news.news_id] ||
+                      news.like_count ||
+                      0
+                    }
                     views={news.view_count || 0}
                     image={news.image_url || ""}
                   />
@@ -284,7 +276,11 @@ export default function AllPickPage() {
                     title={news.title}
                     category={news.category_id}
                     timeAgo={timeAgo(news.published_at)}
-                    likes={news.like_count || 0}
+                    likes={
+                      interactions?.likeCounts[news.news_id] ||
+                      news.like_count ||
+                      0
+                    }
                     views={news.view_count || 0}
                     image={news.image_url || ""}
                   />

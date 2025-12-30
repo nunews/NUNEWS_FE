@@ -1,9 +1,6 @@
 /**
- *
  *  @param logo - logo여부 (로고가 없는경우 뒤로가기 버튼과 다크모드 버튼이 나타남)
  *  @param page - "nuPick" 또는 "login" 으로 설정 가능(나머지 페이지는 page props 작성 생략)
- *  @param interest - 관심사 설정 여부(누픽 페이지에서만 적용됨)
- *  @param dark - 다크모드인지 아닌지 (로고 색상이 결정됨)
  */
 
 "use client";
@@ -30,23 +27,67 @@ import Dropdown from "../ui/Dropdown";
 import { useEffect, useRef, useState } from "react";
 import { useTheme } from "next-themes";
 import { useSortStore } from "@/stores/communitySortStore";
+import createClient from "@/utils/supabase/client";
+import { useAuthStore } from "@/stores/authStore";
+import { categoryIdInvMap } from "@/lib/categoryUUID";
 
 export default function Header({
   logo,
   page,
-  interest,
-}: //dark,
-{
+}: {
   logo: boolean;
   page?: string;
-  interest?: string[];
-  //dark?: boolean;
 }) {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const supabase = createClient();
+  const setUser = useAuthStore((state) => state.setUser);
+  const clearUser = useAuthStore((state) => state.clearUser);
+  const userId = useAuthStore((state) => state.userId);
+  const interest = useAuthStore((state) => state.interest);
+  const isInitialized = useAuthStore((state) => state.isInitialized);
+
+  // theme mounted
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // store에 유저 정보 저장
+  useEffect(() => {
+    if (isInitialized) return;
+
+    const fetchUser = async () => {
+      try {
+        const { data, error } = await supabase.auth.getUser();
+        if (error || !data.user) {
+          console.error("auth error", error);
+          clearUser();
+          return;
+        }
+
+        const { data: interests, error: interestsError } = await supabase
+          .from("User_Interests")
+          .select("category_id")
+          .eq("user_id", data.user.id);
+
+        if (interestsError) {
+          console.error("interests error", interestsError);
+          return;
+        }
+
+        setUser({
+          userId: data.user.id,
+          interest: interests?.map((i) => i.category_id) ?? [],
+        });
+      } catch (err) {
+        console.error("fetchUser error", err);
+        clearUser();
+        return;
+      }
+    };
+    fetchUser();
+  }, [setUser, clearUser, supabase, isInitialized]);
+
   const { sortOption, setSortOption } = useSortStore();
   const categoryMap: Record<string, StaticImageData> = {
     정치: Politics,
@@ -60,12 +101,10 @@ export default function Header({
   };
   const buttonRef = useRef<HTMLButtonElement>(null);
   const router = useRouter();
-  // const [filter, setFilter] = useState("최신순");
   const [open, setOpen] = useState(false);
 
   const filterHandler = (filtered: "최신순" | "인기순") => {
     setOpen(true);
-    // setFilter(filtered);
     setSortOption(filtered);
     setOpen(false);
   };
@@ -127,12 +166,27 @@ export default function Header({
 
             {/* 관심사 수정 or 모드전환 */}
             {page === "nuPick" ? (
-              <button
-                onClick={() => router.push("profile/setting")}
-                className="flex items-center justify-center w-22 h-8 rounded-[50px] bg-[var(--color-white)]/10 hover:bg-[var(--color-white)]/15 backdrop-blur-lg text-[var(--color-white)] text-sm transition-all duration-300 ease-in-out cursor-pointer"
-              >
-                {!!interest ? "관심사 수정" : "관심사 추가"}
-              </button>
+              userId ? (
+                <button
+                  onClick={() => router.push("/profile/setting")}
+                  className="flex items-center justify-center w-22 h-8 rounded-[50px]
+        bg-[var(--color-white)]/10 hover:bg-[var(--color-white)]/15
+        backdrop-blur-lg text-[var(--color-white)] text-sm
+        transition-all duration-300 ease-in-out cursor-pointer"
+                >
+                  {interest.length > 0 ? "관심사 수정" : "관심사 추가"}
+                </button>
+              ) : (
+                <button
+                  onClick={() => router.push("/auth/login")}
+                  className="flex items-center justify-center w-22 h-8 rounded-[50px]
+        bg-[var(--color-primary-40)] hover:bg-[var(--color-primary-30)]
+        text-black text-sm font-medium
+        transition-all duration-300 ease-in-out cursor-pointer"
+                >
+                  로그인
+                </button>
+              )
             ) : (
               <div className="gap-[6px] flex items-center ">
                 {page === "community" && (
@@ -196,7 +250,7 @@ export default function Header({
           </div>
           <div className="max-w-screen-lg mx-auto">
             {page === "nuPick" &&
-              (!interest || interest.length === 0 ? (
+              (interest.length === 0 ? (
                 <div className="bubble mx-5">
                   <p className="flex justify-center items-center text-sm text-[var(--color-white)]">
                     관심사를 선택하고 관심있는 뉴스만 보세요!
@@ -204,19 +258,21 @@ export default function Header({
                 </div>
               ) : (
                 <div className="flex h-9 gap-2 overflow-x-auto px-5">
-                  {interest.map((category, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-center min-w-9 h-9 bg-[var(--color-white)]/10 hover:bg-[var(--color-white)]/15 backdrop-blur-lg rounded-full transition-all duration-300 ease-in-out cursor-pointer"
-                    >
-                      <Image
-                        src={categoryMap[category]}
-                        alt="sports"
-                        width={24}
-                        height={24}
-                      />
-                    </div>
-                  ))}
+                  {interest.map((categoryId, index) => {
+                    const label = categoryIdInvMap[categoryId];
+                    const icon = categoryMap[label];
+
+                    return (
+                      <div
+                        key={index}
+                        className="flex items-center justify-center min-w-9 h-9
+          bg-[var(--color-white)]/10 hover:bg-[var(--color-white)]/15
+          backdrop-blur-lg rounded-full transition-all duration-300 ease-in-out cursor-pointer"
+                      >
+                        <Image src={icon} alt={label} width={24} height={24} />
+                      </div>
+                    );
+                  })}
                 </div>
               ))}
           </div>

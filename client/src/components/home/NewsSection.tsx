@@ -8,17 +8,21 @@ import { IoBookmarkOutline, IoBookmark, IoEyeOutline } from "react-icons/io5";
 import { IconButton as BookmarkButton } from "../ui/IconButton";
 import { AiOutlineLike } from "react-icons/ai";
 import { allCategoryMap } from "@/lib/categoryUUID";
-import { getLikesCount, getLikesStatus, toggleLike } from "@/utils/likes";
-import createClient from "@/utils/supabase/client";
 import { toast } from "sonner";
+import { useAuthStore } from "@/stores/authStore";
+import {
+  useToggleLikeMutation,
+  useToggleBookmarkMutation,
+} from "@/hooks/useNewsInteractionMutations";
 
 interface NewsSectionProps {
   newsId: string | undefined;
-  userId?: string | null;
   className: string;
   data: SupabaseNewsData;
   likes?: number;
   views?: number;
+  isLiked?: boolean;
+  isBookmarked?: boolean;
   handleSummary: () => void;
   handleDetail: () => void;
   isFirst: boolean;
@@ -26,67 +30,44 @@ interface NewsSectionProps {
 
 export default function NewsSection({
   newsId,
-  userId,
   className,
   data,
   likes,
   views,
+  isLiked: initialIsLiked = false,
+  isBookmarked: initialIsBookmarked = false,
   handleSummary,
   handleDetail,
   isFirst,
 }: NewsSectionProps) {
-  const [isBookmarked, setIsBookmarked] = useState(false);
-  const [isLiked, setIsLiked] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(initialIsBookmarked);
+  const [isLiked, setIsLiked] = useState(initialIsLiked);
   const [likedCnt, setLikedCnt] = useState(likes ?? 0);
   const [viewCnt, setViewCnt] = useState(views ?? data.view_count ?? 0);
 
-  const supabase = createClient();
+  const userId = useAuthStore((state) => state.userId);
 
-  // ✅ 좋아요 초기 상태 세팅 (newsId 기준)
+  // Mutation 훅
+  const likeMutation = useToggleLikeMutation();
+  const bookmarkMutation = useToggleBookmarkMutation();
+
   useEffect(() => {
-    if (!newsId) return;
+    setIsLiked(initialIsLiked);
+  }, [initialIsLiked]);
 
-    const fetchLikeInfo = async () => {
-      try {
-        const [status, count] = await Promise.all([
-          getLikesStatus(newsId),
-          getLikesCount(newsId),
-        ]);
+  useEffect(() => {
+    setIsBookmarked(initialIsBookmarked);
+  }, [initialIsBookmarked]);
 
-        setIsLiked(status);
-        setLikedCnt(count);
-      } catch (e) {
-        console.error("좋아요 정보 가져오기 실패:", e);
-      }
-    };
+  useEffect(() => {
+    setLikedCnt(likes ?? 0);
+  }, [likes]);
 
-    fetchLikeInfo();
-  }, [newsId]);
-
-  // ✅ 조회수 props 변경 시 동기화 (views 없으면 data.view_count 사용)
   useEffect(() => {
     setViewCnt(views ?? data.view_count ?? 0);
   }, [views, data.view_count]);
 
-  // ✅ 스크랩 초기 상태 세팅
-  useEffect(() => {
-    if (!userId || !newsId) return;
-
-    const checkBookmark = async () => {
-      const { data } = await supabase
-        .from("User_scrap")
-        .select("*")
-        .eq("user_id", userId)
-        .eq("news_id", newsId)
-        .maybeSingle();
-
-      setIsBookmarked(!!data);
-    };
-
-    checkBookmark();
-  }, [userId, newsId, supabase]);
-
-  // ✅ 스크랩 토글
+  // 북마크 토글 (Optimistic Update + Mutation)
   const handleBookmark = async (e: React.MouseEvent) => {
     e.stopPropagation();
 
@@ -95,43 +76,50 @@ export default function NewsSection({
       return;
     }
 
-    if (!isBookmarked) {
-      const { error } = await supabase.from("User_scrap").insert({
-        user_id: userId,
-        news_id: newsId,
+    // Optimistic Update
+    const newBookmarkState = !isBookmarked;
+    setIsBookmarked(newBookmarkState);
+
+    try {
+      await bookmarkMutation.mutateAsync({
+        newsId,
+        userId,
+        isBookmarked,
       });
-      if (!error) {
-        setIsBookmarked(true);
-        toast.success("스크랩에 추가됐어요.");
-      }
-    } else {
-      const { error } = await supabase
-        .from("User_scrap")
-        .delete()
-        .eq("user_id", userId)
-        .eq("news_id", newsId);
-      if (!error) {
-        setIsBookmarked(false);
-        toast.success("스크랩을 취소했어요.");
-      }
+      toast.success(
+        newBookmarkState ? "스크랩에 추가됐어요." : "스크랩을 취소했어요."
+      );
+    } catch (err) {
+      // 실패 시 롤백
+      setIsBookmarked(isBookmarked);
+      toast.error("스크랩 처리에 실패했습니다.");
+      console.error("북마크 토글 에러:", err);
     }
   };
 
-  // ✅ 좋아요 토글
+  // 좋아요 토글
   const handleLike = async () => {
     if (!newsId) return;
 
+    // Optimistic Update - 즉시 UI 반영
+    const previousIsLiked = isLiked;
+    const previousLikedCnt = likedCnt;
+    setIsLiked(!isLiked);
+    setLikedCnt((prev) => (isLiked ? prev - 1 : prev + 1));
+
     try {
-      const res = await toggleLike(newsId);
+      const res = await likeMutation.mutateAsync(newsId);
       setIsLiked(res.isLiked);
       setLikedCnt(res.likedCount);
     } catch (err) {
-      console.error("좋아요 토글 실패:", err);
+      // 실패 시 롤백
+      setIsLiked(previousIsLiked);
+      setLikedCnt(previousLikedCnt);
       toast.error("로그인이 필요합니다.");
+      console.error("좋아요 토글 에러:", err);
     }
   };
 
-  // ✅ 카테고리 맵핑 (dev 스타일 유지)
   const categoryInfo = allCategoryMap.find(
     (item) => item.label === data.category_id
   );
@@ -157,6 +145,8 @@ export default function NewsSection({
               fill
               priority={isFirst}
               loading={isFirst ? "eager" : "lazy"}
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              quality={85}
               className="object-cover"
             />
           </div>
@@ -203,7 +193,7 @@ export default function NewsSection({
               </div>
             </div>
 
-            {/* 스크랩 / 좋아요 / 조회수 영역 (스타일은 dev 기준) */}
+            {/* 스크랩 / 좋아요 / 조회수 영역 */}
             <div className="flex flex-col justify-end">
               <div className="flex flex-col [@media(max-height:700px)]:gap-4 gap-6">
                 {userId && (

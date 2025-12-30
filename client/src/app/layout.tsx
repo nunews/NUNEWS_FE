@@ -34,7 +34,10 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           <div className="max-w-screen-lg mx-auto">
-            <TanstackProvider>{children}</TanstackProvider>
+            <TanstackProvider>
+              {children}
+              <div id="modal-root"></div>
+            </TanstackProvider>
           </div>
           <Toaster position="top-center" />
         </ThemeProvider>

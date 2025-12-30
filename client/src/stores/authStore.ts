@@ -1,24 +1,26 @@
 import { create } from "zustand";
 interface UserState {
-  nickname: string | null;
+  userId: string | null;
   interest: string[];
-
-  setUser: (data: { interest: string[] | []; nickname: string }) => void;
-
+  isInitialized: boolean;
+  setUser: (data: { interest: string[] | []; userId: string }) => void;
   clearUser: () => void;
 }
 export const useAuthStore = create<UserState>((set) => ({
-  nickname: null,
+  userId: null,
   interest: [],
+  isInitialized: false,
 
-  setUser: ({ nickname, interest }) =>
+  setUser: ({ userId, interest }) =>
     set({
-      nickname,
+      userId,
       interest,
+      isInitialized: true,
     }),
   clearUser: () =>
     set({
-      nickname: null,
+      userId: null,
       interest: [],
+      isInitialized: true,
     }),
 }));

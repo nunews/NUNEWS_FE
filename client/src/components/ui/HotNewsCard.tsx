@@ -6,6 +6,7 @@ import { AiOutlineLike } from "react-icons/ai";
 import { useRouter } from "next/navigation";
 import createClient from "@/utils/supabase/client";
 import { toast } from "sonner";
+import { useToggleBookmarkMutation } from "@/hooks/useNewsInteractionMutations";
 
 interface NewsCardProps {
   newsId: string;
@@ -32,6 +33,7 @@ export default function NewsCard({
   const [isHovered, setIsHovered] = useState(false);
   const router = useRouter();
   const supabase = createClient();
+  const bookmarkMutation = useToggleBookmarkMutation();
 
   useEffect(() => {
     if (!userId) return;
@@ -56,25 +58,29 @@ export default function NewsCard({
 
   const handleBookmark = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!userId) return alert("로그인이 필요합니다.");
+    if (!userId) {
+      toast.error("로그인이 필요합니다.");
+      return;
+    }
 
-    if (!isBookmarked) {
-      // 스크랩 추가
-      const { error } = await supabase.from("User_scrap").insert({
-        user_id: userId,
-        news_id: newsId,
+    // Optimistic Update
+    const newBookmarkState = !isBookmarked;
+    setIsBookmarked(newBookmarkState);
+
+    try {
+      await bookmarkMutation.mutateAsync({
+        newsId,
+        userId,
+        isBookmarked,
       });
-      if (!error) setIsBookmarked(true);
-      toast.success("스크랩에 추가됐어요.");
-    } else {
-      // 스크랩 해제
-      const { error } = await supabase
-        .from("User_scrap")
-        .delete()
-        .eq("user_id", userId)
-        .eq("news_id", newsId);
-      if (!error) setIsBookmarked(false);
-      toast.success("스크랩을 취소했어요.");
+      toast.success(
+        newBookmarkState ? "스크랩에 추가됐어요." : "스크랩을 취소했어요."
+      );
+    } catch (err) {
+      // 실패 시 롤백
+      setIsBookmarked(isBookmarked);
+      toast.error("스크랩 처리에 실패했습니다.");
+      console.error("북마크 토글 에러:", err);
     }
   };
 

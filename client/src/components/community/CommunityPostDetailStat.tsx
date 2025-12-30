@@ -1,35 +1,75 @@
 "use client";
 import { getCurrentUser } from "@/app/api/auth";
-import { postLike, postLikeTmp, postUnlike } from "@/app/api/community";
+import {
+  fetchLike,
+  isLikedByUser,
+  postLike,
+  postUnlike,
+} from "@/app/api/community";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { AiFillLike, AiOutlineLike } from "react-icons/ai";
 import { IoEyeOutline } from "react-icons/io5";
+import { toast } from "sonner";
 
 export default function CommunityPostDetailStat({
-  like_count,
   postId,
   view_count,
 }: {
-  like_count: number;
   postId: string;
   view_count: number;
 }) {
-  const [like, setLike] = useState(false); //사용자 좋아요 여부
-  const [likeCount, setLikeCount] = useState(like_count);
+  const [likeCount, setLikeCount] = useState(0);
+
+  const { data: likeData } = useQuery<number>({
+    queryKey: ["likeData", postId],
+    queryFn: () => {
+      return fetchLike(postId);
+    },
+  });
+
+  useEffect(() => {
+    if (likeData !== undefined) {
+      setLikeCount(likeData);
+    }
+  }, [likeData]);
   //사용자 정보 불러오기
   const { data: authData } = useQuery({
     queryKey: ["currentUser"],
     queryFn: async () => {
       const user = await getCurrentUser();
-      if (!user) throw new Error("사용자 정보가 없습니다");
+      if (!user) {
+        toast.error("로그인이 필요합니다.");
+        return null;
+      }
       return user;
     },
   });
+
   const userId = authData?.id;
+
+  //사용자 좋아요 여부
+  const { data: isLiked = false } = useQuery({
+    queryKey: ["isLiked", userId, postId],
+    queryFn: async () => {
+      if (!userId) return false;
+      return isLikedByUser(postId, userId);
+    },
+  });
+  const [like, setLike] = useState(isLiked ?? false); //사용자 좋아요 여부
+
+  useEffect(() => {
+    (async () => {
+      if (userId) {
+        const liked = await isLikedByUser(postId, userId);
+        setLike(liked);
+      }
+    })();
+  }, [postId, userId]);
+
   const queryClient = useQueryClient();
   //좋아요 업데이트
-  const { mutate } = useMutation({
+  const { mutate: likeUpdate } = useMutation({
     mutationFn: (liked: boolean) => {
       if (!postId || !userId) {
         return Promise.resolve(null);
@@ -37,7 +77,7 @@ export default function CommunityPostDetailStat({
       return liked ? postLike(postId, userId) : postUnlike(postId, userId);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["likes", postId] });
+      queryClient.invalidateQueries({ queryKey: ["likes", postId, userId] });
     },
     onError: (err) => {
       console.error("좋아요 업로드 실패:", err);
@@ -45,38 +85,14 @@ export default function CommunityPostDetailStat({
       setLikeCount((prev) => prev + (like ? 1 : -1));
     },
   });
-
-  //좋아요 임시 업데이트
-  const { mutate: mutateTemp } = useMutation({
-    mutationFn: (liked: boolean) => {
-      if (!userId || !postId) {
-        return Promise.resolve(null);
-      }
-      return postLikeTmp(postId, likeCount);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["likes", postId] });
-    },
-    onError: (err) => {
-      console.error("좋아요 업로드 실패:", err);
-      setLike((prev) => !prev);
-      setLikeCount((prev) => prev + (like ? 1 : -1));
-    },
-  });
-  //   useEffect(() => {
-  //     if (like_count !== undefined) {
-  //       setLikeCount(like_count);
-  //     }
-  //   }, [like_count]);
   const likeHandler = () => {
     if (!userId) {
-      alert("로그인이 필요합니다.");
+      toast.error("로그인이 필요합니다.");
       return;
     }
     setLike((prev) => !prev);
     setLikeCount((prev) => prev + (like ? -1 : 1));
-    // mutate(!like);
-    mutateTemp(!like);
+    likeUpdate(!like);
   };
   return (
     <>

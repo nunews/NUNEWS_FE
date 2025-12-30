@@ -1,10 +1,14 @@
-import supabase from "@/utils/supabase";
+import createClient from "@/utils/supabase/client";
 
 export const getCurrentUser = async () => {
-  const { data, error } = await supabase.auth.getUser();
-  if (error || !data?.user) {
+  const supabase = createClient();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+  if (error) {
     console.error("사용자 정보 불러오기 실패:", error?.message);
     return;
   }
-  return data.user;
+  return user;
 };

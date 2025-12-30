@@ -1,7 +1,7 @@
 "use client";
 import { fetchWriter } from "@/app/api/community";
 import { useQuery } from "@tanstack/react-query";
-import profileImg2 from "../../assets/images/profile2.png";
+import profileImg2 from "../../assets/images/default_profile.png";
 import { IconButton } from "../ui/IconButton";
 import { AiOutlineMore } from "react-icons/ai";
 import Image from "next/image";
@@ -10,8 +10,9 @@ import { PiPencilLine } from "react-icons/pi";
 import { RiDeleteBinLine } from "react-icons/ri";
 import { useEffect, useState } from "react";
 import { Check } from "lucide-react";
-import { getCurrentUser } from "@/app/api/auth";
 import { useTheme } from "next-themes";
+import { getCurrentUser } from "@/app/api/auth";
+import { toast } from "sonner";
 export default function Comment({
   userId,
   comment,
@@ -35,7 +36,10 @@ export default function Comment({
     queryKey: ["currentUser"],
     queryFn: async () => {
       const user = await getCurrentUser();
-      if (!user) throw new Error("사용자 정보가 없습니다");
+      if (!user) {
+        toast.error("로그인이 필요합니다.");
+        return null;
+      }
       return user;
     },
   });
@@ -56,10 +60,14 @@ export default function Comment({
   };
 
   const deleteHandler = () => {
-    if (confirm("댓글을 삭제하시겠습니까?")) {
+    try {
       onDelete();
+      toast.success("댓글이 삭제되었습니다");
+      setOpen(false);
+    } catch (e) {
+      console.error(e);
+      console.error("삭제에 실패했습니다");
     }
-    setOpen(false);
   };
   const editHandler = () => {
     setIsEditing(true);

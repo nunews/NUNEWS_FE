@@ -1,85 +1,35 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
 import { IoClose } from "react-icons/io5";
 import { IconButton } from "./IconButton";
+import { useNewsSummary } from "@/hooks/useNewsSummary";
 import { useTyping } from "@/hooks/useTyping";
-import { createSummary } from "@/lib/api/summarySupabase";
+import { useEffect } from "react";
+interface SummaryProps {
+  isOpen: boolean;
+  onClose: () => void;
+  newsContent: string;
+  newsId: string;
+}
 
 export default function SummaryModal({
   isOpen,
   onClose,
   newsContent,
   newsId,
-}: SummaryModalProps) {
-  const [isLoading, setIsLoading] = useState(false);
-  const [isError, setIsError] = useState<string>("");
-  const [showTyping, setShowTyping] = useState(false);
+}: SummaryProps) {
   const { typedRef, runTyped } = useTyping();
 
-  // 중복 실행 방지
-  const isGeneratingRef = useRef(false);
-  const lastNewsIdRef = useRef<string | null>(null);
-
-  const generateSummary = async () => {
-    if (
-      !newsId ||
-      !newsContent ||
-      isGeneratingRef.current ||
-      lastNewsIdRef.current === newsId
-    ) {
-      return;
-    }
-
-    isGeneratingRef.current = true;
-    lastNewsIdRef.current = newsId;
-
-    setIsLoading(true);
-    setIsError("");
-    setShowTyping(false);
-
-    try {
-      const summaryResult = await createSummary(newsId, newsContent);
-
-      // 먼저 로딩 종료
-      setIsLoading(false);
-
-      // 이후 타이핑 시작
-      setTimeout(() => {
-        if (isOpen && summaryResult) {
-          setShowTyping(true);
-
-          // DOM 업데이트 후 타이핑 실행
-          setTimeout(() => {
-            runTyped(summaryResult);
-          }, 50);
-        }
-      }, 200);
-    } catch (err) {
-      console.error("요약 생성 실패:", err);
-      const errorMessage =
-        err instanceof Error
-          ? err.message
-          : "요약 생성 중 오류가 발생했습니다.";
-      setIsError(errorMessage);
-      setIsLoading(false);
-      setShowTyping(false);
-    } finally {
-      isGeneratingRef.current = false;
-    }
-  };
+  const { isLoading, isError, showTyping, generateSummary, reset } =
+    useNewsSummary({ newsId, newsContent, isOpen });
 
   useEffect(() => {
-    if (isOpen && newsContent && newsId) {
-      generateSummary();
-    }
-    if (!isOpen) {
-      setIsLoading(false);
-      setIsError("");
-      setShowTyping(false);
-      // 모달 닫힐 때 ref 초기화
-      isGeneratingRef.current = false;
-      lastNewsIdRef.current = null;
+    if (isOpen) {
+      generateSummary((text) => {
+        setTimeout(() => runTyped(text), 50);
+      });
+    } else {
+      reset();
     }
   }, [isOpen, newsId, newsContent]); // eslint-disable-line react-hooks/exhaustive-deps
 

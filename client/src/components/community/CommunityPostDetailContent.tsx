@@ -1,9 +1,9 @@
 "use client";
 import Image from "next/image";
-import profileImg from "../../assets/images/profile1.png";
-import postImg from "../../../public/images/default_nunew.svg";
+import profileImg from "../../assets/images/default_profile.png";
+import postImg from "../../assets/images/default_nunew.svg";
 import { useQuery } from "@tanstack/react-query";
-import { fetchPostById, fetchWriter } from "@/app/api/community";
+import { fetchWriter } from "@/app/api/community";
 import { categoryIdInvMap } from "@/lib/categoryUUID";
 
 export default function CommunityPostDetailContent({

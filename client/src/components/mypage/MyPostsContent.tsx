@@ -4,7 +4,7 @@
 import { useEffect, useState, useCallback } from "react";
 import createClient from "@/utils/supabase/client";
 import { MyPostItem } from "./MyPostItem";
-import { timeAgo } from "@/utils/timeAgo";
+import { timeAgo } from "@/utils/date";
 import MyPostsContentSkel from "./MyPostsContentSkel";
 
 export const MyPostsContent = ({ onPostCountChange }: MyPostsContentProps) => {
@@ -77,7 +77,7 @@ export const MyPostsContent = ({ onPostCountChange }: MyPostsContentProps) => {
   }, [posts, onPostCountChange]);
 
   return (
-    <div className='flex flex-col space-y-4 px-5'>
+    <div className="flex flex-col space-y-4 px-5">
       {loading ? (
         Array.from({ length: 5 }).map((_, i) => <MyPostsContentSkel key={i} />)
       ) : posts.length > 0 ? (
@@ -95,7 +95,7 @@ export const MyPostsContent = ({ onPostCountChange }: MyPostsContentProps) => {
           />
         ))
       ) : (
-        <p className='text-center text-gray-500 mt-4'>작성한 글이 없습니다.</p>
+        <p className="text-center text-gray-500 mt-4">작성한 글이 없습니다.</p>
       )}
     </div>
   );

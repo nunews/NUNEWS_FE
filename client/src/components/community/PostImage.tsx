@@ -1,6 +1,6 @@
 "use client";
 
-import supabase from "@/utils/supabase";
+import createClient from "@/utils/supabase/client";
 import Image from "next/image";
 import { useRef } from "react";
 import { SlPicture } from "react-icons/sl";
@@ -13,7 +13,7 @@ export default function PostImage({
   contentImg: string | null;
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-
+  const supabase = createClient();
   const handleClick = () => {
     console.log("버튼클릭");
     fileInputRef.current?.click();

@@ -99,6 +99,11 @@ export default function NewsSection({
 
   // 좋아요 토글
   const handleLike = async () => {
+    if (!userId) {
+      toast.error("로그인이 필요합니다.");
+      return;
+    }
+
     if (!newsId) return;
 
     // Optimistic Update - 즉시 UI 반영
@@ -194,6 +199,7 @@ export default function NewsSection({
             </div>
 
             {/* 스크랩 / 좋아요 / 조회수 영역 */}
+
             <div className="flex flex-col justify-end">
               <div className="flex flex-col [@media(max-height:700px)]:gap-4 gap-6">
                 {userId && (

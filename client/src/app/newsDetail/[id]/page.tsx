@@ -7,44 +7,52 @@ import AudienceAnalyticsChart from "@/components/articleDetail/AudienceAnalytics
 import { toast } from "sonner";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { getSupabaseOneNews } from "@/lib/api/getSupabaseOneNews";
 import { useTyping } from "@/hooks/useTyping";
 import { getLikesStatus } from "@/utils/likes";
 import { useToggleLikeMutation } from "@/hooks/useNewsInteractionMutations";
 import RelatedNewsSection from "@/components/articleDetail/RelatedNewsSection";
 import RelatedPostsSection from "@/components/articleDetail/RelatedPostSection";
+import { useNewsSummary } from "@/hooks/useNewsSummary";
+import { formatDate } from "@/utils/date";
+import { useNewsDetail } from "@/hooks/useNewsDetail";
+import NewsDetailSkeleton from "@/components/articleDetail/skeleton/NewsDetailSkeleton";
 
 export default function NewsDetailPage() {
   const params = useParams();
   const newsId = params.id;
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string>("");
-  const [showTyping, setShowTyping] = useState(false);
+
   const [showSummary, setShowSummary] = useState(false);
-  const [newsData, setNewsData] = useState<SupabaseNewsData | null>(null);
-
   const [isLiked, setIsLiked] = useState(false);
-
-  const { typedRef } = useTyping();
+  const { typedRef, runTyped } = useTyping();
   const likeMutation = useToggleLikeMutation();
 
+  const {
+    data: newsData,
+    isLoading,
+    isError,
+  } = useNewsDetail(newsId as string);
+
+  const {
+    isLoading: summaryLoading,
+    isError: summaryError,
+    showTyping,
+    generateSummary,
+    reset,
+  } = useNewsSummary({
+    newsId: newsId as string,
+    newsContent: newsData?.content,
+    isOpen: showSummary,
+  });
+
   useEffect(() => {
-    const fetchNewsData = async () => {
-      try {
-        setLoading(true);
-        const data = await getSupabaseOneNews(newsId as string);
-        setNewsData(data);
-      } catch (err) {
-        console.error("뉴스데이터 불러오기 실패", err);
-        setError("뉴스데이터를 불러오는데 실패했습니다.");
-      } finally {
-        setLoading(false);
-      }
-    };
-    if (newsId) {
-      fetchNewsData();
+    if (showSummary) {
+      generateSummary((text) => {
+        setTimeout(() => runTyped(text), 50);
+      });
+    } else {
+      reset();
     }
-  }, [newsId]);
+  }, [generateSummary, reset, runTyped, showSummary]);
 
   useEffect(() => {
     const fetchLikes = async () => {
@@ -63,13 +71,12 @@ export default function NewsDetailPage() {
 
   const handleSummary = () => {
     setShowSummary(true);
-    setShowTyping(true);
   };
 
   const handleLikeClick = async () => {
     if (!newsId) return;
 
-    // Optimistic Update
+    // Optimistic
     const previousIsLiked = isLiked;
     setIsLiked(!isLiked);
 
@@ -131,6 +138,10 @@ export default function NewsDetailPage() {
     }
   };
 
+  if (isLoading) {
+    return <NewsDetailSkeleton />;
+  }
+
   return (
     <div className="min-h-screen">
       <Header logo={false} />
@@ -143,7 +154,7 @@ export default function NewsDetailPage() {
           {newsData?.title}
         </h1>
         <div className="flex items-center gap-2 text-sm text-[var(--color-gray-70)] mb-7">
-          <span>{newsData?.published_at}</span>
+          <span>{formatDate(newsData?.published_at)}</span>
           <span>•</span>
           <span>{newsData?.source}</span>
           <div className="flex items-center justify-end flex-1 gap-[3px]">
@@ -178,7 +189,7 @@ export default function NewsDetailPage() {
           <div className="w-full mb-6 animate-in slide-in-from-top-4 duration-300">
             <div className="bg-[#f6f6f6] rounded-2xl py-6 px-5 border border-[var(--color-gray-30)]">
               <div>
-                {loading && (
+                {summaryLoading && (
                   <div className="flex items-center justify-center py-8">
                     <div className="flex flex-col items-center space-y-3">
                       <div className="animate-spin rounded-full h-6 w-6 border-2 border-[#181818] border-t-transparent"></div>
@@ -187,19 +198,7 @@ export default function NewsDetailPage() {
                   </div>
                 )}
 
-                {error && (
-                  <div className="text-center py-6">
-                    <p className="text-red-400 text-sm mb-4">{error}</p>
-                    <button
-                      // onClick={generateSummary}
-                      className="px-4 py-2 bg-gradient-to-r from-[#F0FFBC] to-[var(--color-primary-40)] text-black rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
-                    >
-                      다시 시도
-                    </button>
-                  </div>
-                )}
-
-                {showTyping && !loading && (
+                {showTyping && !summaryLoading && (
                   <div className="text-[var(--color-gray-100)] text-base leading-[140%] whitespace-pre-line">
                     <div ref={typedRef}></div>
                   </div>

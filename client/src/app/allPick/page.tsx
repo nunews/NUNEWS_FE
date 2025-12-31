@@ -17,7 +17,7 @@ import {
   getSupabaseRandomNews,
 } from "@/lib/api/getNewstoSupabase";
 import { categoryIdMap } from "@/lib/categoryUUID";
-import { timeAgo } from "@/utils/timeAgo";
+import { timeAgo } from "@/utils/date";
 import { fetchPost, fetchWriter } from "../api/community";
 import { useRouter } from "next/navigation";
 import Loading from "./loading";

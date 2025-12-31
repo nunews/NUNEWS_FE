@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import createClient from "@/utils/supabase/client";
 import DefaultCard from "../ui/DefaultCard";
 import CategoryFilter from "./CategoryFilter";
-import { timeAgo } from "@/utils/timeAgo";
+import { timeAgo } from "@/utils/date";
 import { categoryIdMap } from "@/lib/categoryUUID";
 import DefaultCardSkel from "./DefaultCardSkel";
 
@@ -86,8 +86,8 @@ export default function ScrappedNewsContent({
   }, [fetchScrappedNews]);
 
   return (
-    <div className='flex flex-col px-5 py-6 mb-18'>
-      <div className='mr-[-20px]'>
+    <div className="flex flex-col px-5 py-6 mb-18">
+      <div className="mr-[-20px]">
         <CategoryFilter
           activeCategory={activeCategory}
           setActiveCategory={setActiveCategory}
@@ -112,7 +112,7 @@ export default function ScrappedNewsContent({
             />
           ))
         ) : (
-          <p className='text-center text-gray-500 mt-4'>
+          <p className="text-center text-gray-500 mt-4">
             불러올 뉴스가 없습니다.
           </p>
         )}

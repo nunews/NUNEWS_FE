@@ -9,6 +9,7 @@ import createClient from "@/utils/supabase/client";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Interest } from "@/lib/interest";
+import { useAuthStore } from "@/stores/authStore";
 
 interface UserInterest {
   Category: Pick<Interest, "title" | "subtitle"> | null;
@@ -24,6 +25,7 @@ const ProfileSettingPage = () => {
   );
   const [newProfileImage, setNewProfileImage] = useState<string | null>(null);
   const router = useRouter();
+  const setUser = useAuthStore((state) => state.setUser);
 
   const supabase = createClient();
 
@@ -167,6 +169,11 @@ const ProfileSettingPage = () => {
         .insert(insertData);
 
       if (insertError) throw insertError;
+
+      setUser({
+        userId,
+        interest: categories?.map((i) => i.category_id) ?? [],
+      });
 
       toast.success("저장되었습니다!");
       setTimeout(() => {

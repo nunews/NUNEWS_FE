@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import { cookies } from "next/headers";
 import TanstackProvider from "./provider/TanstackProvider";
+import AuthBootstrap from "@/components/auth/AuthBootstrap";
 
 export const metadata: Metadata = {
   title: "NUNEW",
@@ -35,6 +36,7 @@ export default async function RootLayout({
         >
           <div className="max-w-screen-lg mx-auto">
             <TanstackProvider>
+              <AuthBootstrap />
               {children}
               <div id="modal-root"></div>
             </TanstackProvider>

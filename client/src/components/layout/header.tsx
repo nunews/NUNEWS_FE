@@ -27,7 +27,6 @@ import Dropdown from "../ui/Dropdown";
 import { useEffect, useRef, useState } from "react";
 import { useTheme } from "next-themes";
 import { useSortStore } from "@/stores/communitySortStore";
-import createClient from "@/utils/supabase/client";
 import { useAuthStore } from "@/stores/authStore";
 import { categoryIdInvMap } from "@/lib/categoryUUID";
 
@@ -40,53 +39,14 @@ export default function Header({
 }) {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  const supabase = createClient();
-  const setUser = useAuthStore((state) => state.setUser);
-  const clearUser = useAuthStore((state) => state.clearUser);
+
   const userId = useAuthStore((state) => state.userId);
   const interest = useAuthStore((state) => state.interest);
-  const isInitialized = useAuthStore((state) => state.isInitialized);
 
   // theme mounted
   useEffect(() => {
     setMounted(true);
   }, []);
-
-  // store에 유저 정보 저장
-  useEffect(() => {
-    if (isInitialized) return;
-
-    const fetchUser = async () => {
-      try {
-        const { data, error } = await supabase.auth.getUser();
-        if (error || !data.user) {
-          console.error("auth error", error);
-          clearUser();
-          return;
-        }
-
-        const { data: interests, error: interestsError } = await supabase
-          .from("User_Interests")
-          .select("category_id")
-          .eq("user_id", data.user.id);
-
-        if (interestsError) {
-          console.error("interests error", interestsError);
-          return;
-        }
-
-        setUser({
-          userId: data.user.id,
-          interest: interests?.map((i) => i.category_id) ?? [],
-        });
-      } catch (err) {
-        console.error("fetchUser error", err);
-        clearUser();
-        return;
-      }
-    };
-    fetchUser();
-  }, [setUser, clearUser, supabase, isInitialized]);
 
   const { sortOption, setSortOption } = useSortStore();
   const categoryMap: Record<string, StaticImageData> = {
@@ -147,9 +107,10 @@ export default function Header({
                     ? LogoDark
                     : LogoBlack
                 }
-                alt="logo"
+                alt="logo image"
                 width={68}
                 height={25}
+                priority
                 onClick={() => router.push("/")}
                 className="cursor-pointer"
               />

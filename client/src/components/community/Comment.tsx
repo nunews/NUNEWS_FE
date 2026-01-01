@@ -11,8 +11,8 @@ import { RiDeleteBinLine } from "react-icons/ri";
 import { useEffect, useState } from "react";
 import { Check } from "lucide-react";
 import { useTheme } from "next-themes";
-import { getCurrentUser } from "@/app/api/auth";
 import { toast } from "sonner";
+import { useAuthStore } from "@/stores/authStore";
 export default function Comment({
   userId,
   comment,
@@ -26,24 +26,13 @@ export default function Comment({
   onDelete: () => void;
   onUpdate: (newContent: string) => void;
 }) {
-  const { theme, setTheme } = useTheme();
+  const { theme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const authId = useAuthStore((state) => state.userId);
   useEffect(() => {
     setMounted(true);
   }, []);
-  //사용자 정보 불러오기
-  const { data: authData } = useQuery({
-    queryKey: ["currentUser"],
-    queryFn: async () => {
-      const user = await getCurrentUser();
-      if (!user) {
-        toast.error("로그인이 필요합니다.");
-        return null;
-      }
-      return user;
-    },
-  });
-  const authId = authData?.id;
+
   //댓글 작성자 정보 불러오기
   const { data: commentWriterData } = useQuery({
     queryKey: ["writerDetail", userId],
@@ -106,11 +95,11 @@ export default function Comment({
                     {editedComment}
                   </p>
                 ) : (
-                  <div className="px-2 mt-1 flex items-center border border-[var(--color-gray-20)] rounded-[10px] w-full">
+                  <div className="px-2 mt-1 flex items-center border border-[var(--color-gray-20)] dark:border-[var(--color-gray-60)] rounded-[10px] w-full">
                     <textarea
                       value={editedComment}
                       onChange={(e) => setEditedComment(e.target.value)}
-                      className="flex-1 block resize-none items-center justify-center text-base outline-none"
+                      className="flex-1 block resize-none items-center justify-center text-base outline-none px-1 py-1 text-[var(--color-gray-100)] dark:text-[var(--color-gray-40)]"
                     />
                     <button
                       onClick={updateHandler}

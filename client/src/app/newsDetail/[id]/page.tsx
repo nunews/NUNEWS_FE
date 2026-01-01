@@ -1,6 +1,11 @@
 "use client";
 import Image from "next/image";
-import { AiOutlineEye, AiOutlineLike, AiOutlineShareAlt } from "react-icons/ai";
+import {
+  AiOutlineEye,
+  AiOutlineLike,
+  AiOutlineShareAlt,
+  AiFillLike,
+} from "react-icons/ai";
 import { TextButton } from "@/components/ui/TextButton";
 import Header from "@/components/layout/header";
 import AudienceAnalyticsChart from "@/components/articleDetail/AudienceAnalyticsChart";
@@ -187,20 +192,28 @@ export default function NewsDetailPage() {
         {/* 요약 섹션 */}
         {showSummary && (
           <div className="w-full mb-6 animate-in slide-in-from-top-4 duration-300">
-            <div className="bg-[#f6f6f6] rounded-2xl py-6 px-5 border border-[var(--color-gray-30)]">
+            <div className="bg-[var(--color-gray-10)] dark:bg-[var(--color-black)] rounded-2xl py-6 px-5 border border-[var(--color-gray-30)] dark:border-none">
               <div>
                 {summaryLoading && (
                   <div className="flex items-center justify-center py-8">
                     <div className="flex flex-col items-center space-y-3">
-                      <div className="animate-spin rounded-full h-6 w-6 border-2 border-[#181818] border-t-transparent"></div>
-                      <p className="text-sm text-gray-400">요약중입니다...</p>
+                      <div className="animate-spin rounded-full h-6 w-6 border-2 border-[var(--color-gray-100)] border-t-transparent"></div>
+                      <p className="text-sm dark:text-[var(--color-gray-40)]">
+                        요약중입니다...
+                      </p>
                     </div>
                   </div>
                 )}
 
                 {showTyping && !summaryLoading && (
                   <div className="text-[var(--color-gray-100)] text-base leading-[140%] whitespace-pre-line">
-                    <div ref={typedRef}></div>
+                    <p className="dark:text-[var(--color-primary-50)] mb-5">
+                      세 줄 요약
+                    </p>
+                    <div
+                      ref={typedRef}
+                      className="text-[var(--color-gray-100)] dark:text-[var(--color-gray-20)]"
+                    ></div>
                   </div>
                 )}
               </div>
@@ -209,7 +222,7 @@ export default function NewsDetailPage() {
         )}
         {/* 기사 내용 */}
         <div className="mb-7.5">
-          <div className="text-base leading-[160%] whitespace-pre-line text-[var(--color-gray-100)]">
+          <div className="text-base leading-[160%] dark:text-[var(--cokor-gray-400)] whitespace-pre-line text-[var(--color-gray-100)]">
             {newsData?.content}
           </div>
         </div>
@@ -217,34 +230,26 @@ export default function NewsDetailPage() {
           <div className="flex items-center gap-[3px]">
             <TextButton
               onClick={handleLikeClick}
-              className={`flex items-center gap-[3px] transition-colors duration-300 
-                ${
-                  isLiked
-                    ? "text-[var(--color-primary-40)] bg-[var(--color-gray-100)]"
-                    : "text-[var(--color-black)]"
-                }
-              `}
+              className="flex items-center gap-[3px] transition-colors duration-300 dark:bg-[var(--color-gray-100)] dark:hover:bg-[var(--color-gray-90)] text-[var(--color-black)] dark:text-white"
             >
-              <AiOutlineLike
-                className={`w-5 h-5 transition-colors duration-300 
-                  ${
-                    isLiked
-                      ? "text-[var(--color-primary-50)] "
-                      : "text-[var(--color-black)]"
-                  }
-                `}
-              />
+              {isLiked ? (
+                <AiFillLike className="w-5 h-5 text-[var(--color-black)] dark:text-white" />
+              ) : (
+                <AiOutlineLike className="w-5 h-5 text-[var(--color-black)] dark:text-white" />
+              )}
               <span>{isLiked ? "좋아요" : "좋아요"}</span>
             </TextButton>
           </div>
           <div className="flex items-center gap-[3px]">
             <TextButton
               onClick={handleShare}
-              className="flex items-center gap-[3px]"
+              className="flex items-center gap-[3px] dark:bg-[var(--color-gray-100)] dark:hover:bg-[var(--color-gray-90)]"
               color="default"
             >
-              <AiOutlineShareAlt className="w-5 h-5 text-[var(--color-black)]" />
-              <span className="text-[var(--color-black)]">공유하기</span>
+              <AiOutlineShareAlt className="w-5 h-5 text-[var(--color-black)] dark:text-white dark:hover:text-[var(--color-gray-10)]" />
+              <span className="text-[var(--color-black)] dark:text-white  dark:hover:text-[var(--color-gray-10)]">
+                공유하기
+              </span>
             </TextButton>
           </div>
         </div>
@@ -254,10 +259,10 @@ export default function NewsDetailPage() {
             <AudienceAnalyticsChart newsId={newsData.news_id!} />
           )}
         </div>
-        <div className="border-b border-[var(--color-gray-20)] mt-9" />
+        <div className="border-b border-[var(--color-gray-20)] mt-9 dark:border-[var(--color-gray-100)]" />
         {/* 다른 유저의 생각 */}
         <RelatedPostsSection categoryLabel={newsData?.category_id ?? null} />
-        <div className="border-b border-[var(--color-gray-20)] mt-9" />
+        <div className="border-b border-[var(--color-gray-20)] mt-9 dark:border-[var(--color-gray-100)]" />
         {/* 관심 가질만한 다른 뉴스 섹션 */}
         <RelatedNewsSection
           categoryLabel={newsData?.category_id ?? null}

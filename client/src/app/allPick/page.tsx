@@ -12,17 +12,16 @@ import "swiper/css";
 import PostCard from "@/components/ui/PostCard";
 import { TextButton } from "@/components/ui/TextButton";
 import CategoryFilter from "@/components/mypage/CategoryFilter";
-import {
-  getSupabaseInterestNews,
-  getSupabaseRandomNews,
-} from "@/lib/api/getNewstoSupabase";
-import { categoryIdMap } from "@/lib/categoryUUID";
 import { timeAgo } from "@/utils/date";
 import { fetchPost, fetchWriter } from "../api/community";
 import { useRouter } from "next/navigation";
 import Loading from "./loading";
 import { useAuthStore } from "@/stores/authStore";
 import { useHomeRender } from "@/hooks/useHomeRender";
+import { useAllPickNews } from "@/hooks/useAllPickNews";
+import { useToggleBookmarkMutation } from "@/hooks/useNewsInteractionMutations";
+import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 type MyPost = Post & {
   User?: {
@@ -33,79 +32,72 @@ type MyPost = Post & {
 
 export default function AllPickPage() {
   const [selectedCategory, setSelectedCategory] = useState("전체");
-  const [newsData, setNewsData] = useState<SupabaseNewsData[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isError, setIsError] = useState("");
   const [postData, setPostData] = useState<MyPost[]>([]);
   const [isPostLoading, setIsPostLoading] = useState(true);
+  const { data, isLoading, isError } = useAllPickNews(selectedCategory);
 
   const router = useRouter();
-
   const userId = useAuthStore((state) => state.userId);
-
-  // 뉴스 ID 목록 추출
-  const newsIds = useMemo(
-    () => newsData.map((news) => news.news_id),
-    [newsData]
-  );
-
-  // 상호작용 데이터 가져오기 (좋아요, 북마크, 좋아요 수)
-  const { data: interactions } = useHomeRender(newsIds);
+  const bookmarkMutation = useToggleBookmarkMutation();
 
   const handlePostCreate = () => {
     router.push("/community/postCreate");
   };
 
-  useEffect(() => {
-    const fetchNewsData = async () => {
-      try {
-        setIsLoading(true);
-        setIsError("");
-
-        let newsList: SupabaseNewsData[] = [];
-        if (selectedCategory === "전체") {
-          newsList = await getSupabaseRandomNews();
-        } else {
-          const categoryUUID =
-            categoryIdMap[selectedCategory as keyof typeof categoryIdMap];
-
-          if (categoryUUID) {
-            console.log("카테고리 UUID:", categoryUUID);
-            newsList = await getSupabaseInterestNews([categoryUUID]);
-
-            // 카테고리에 뉴스가 없으면 랜덤한 뉴스를 가져오기
-            if (!newsList || newsList.length < 10) {
-              console.log("뉴스가 없습니다. 랜덤 뉴스를 가져옵니다.");
-              newsList = await getSupabaseRandomNews();
-            }
-          } else {
-            setIsError(`"${selectedCategory}" 카테고리를 찾을 수 없습니다.`);
-          }
-        }
-
-        // 뉴스를 최신순으로 가져오기 때문에 랜덤으로 섞음
-        const shuffled = newsList?.sort(() => Math.random() - 0.5);
-
-        const transformedNews = shuffled.map((news) => ({
+  const transformedNews = useMemo(
+    () =>
+      (data ?? [])
+        .sort(() => Math.random() - 0.5)
+        .map((news) => ({
           ...news,
           newsId: news.news_id,
           timeAgo: timeAgo(news.published_at),
           image: news.image_url,
           likes: news.like_count || 0,
           views: news.view_count || 0,
-        }));
+        })),
 
-        setNewsData(transformedNews);
-        console.log(`뉴스 로딩 완료`);
-      } catch (error) {
-        console.error("뉴스 데이터 가져오기 실패", error);
-        setIsError("뉴스를 가져오는데 실패했습니다.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchNewsData();
-  }, [selectedCategory]);
+    [data]
+  );
+
+  // 뉴스 ID 목록 추출
+  const newsIds = useMemo(
+    () => transformedNews.map((news) => news.news_id),
+    [transformedNews]
+  );
+
+  // 상호작용 데이터 가져오기 (좋아요, 북마크, 좋아요 수)
+  const { data: interactions } = useHomeRender(newsIds);
+  const queryClient = useQueryClient();
+
+  const handleBookmark = async (e: React.MouseEvent, newsId: string) => {
+    e.stopPropagation();
+
+    if (!userId) {
+      toast.error("로그인이 필요합니다.");
+      return;
+    }
+
+    const isBookmarked = interactions?.bookmarks?.has(newsId) ?? false;
+
+    try {
+      await bookmarkMutation.mutateAsync({
+        newsId,
+        userId,
+        isBookmarked,
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["homeRender"],
+      });
+
+      toast.success(
+        isBookmarked ? "스크랩을 취소했어요." : "스크랩에 추가됐어요."
+      );
+    } catch (err) {
+      toast.error("스크랩 처리에 실패했습니다.");
+      console.error("북마크 토글 에러:", err);
+    }
+  };
 
   useEffect(() => {
     const fetchPostData = async () => {
@@ -169,7 +161,7 @@ export default function AllPickPage() {
                   grabCursor={true}
                   freeMode={true}
                 >
-                  {newsData.slice(0, 4).map((news) => (
+                  {transformedNews.slice(0, 4).map((news) => (
                     <SwiperSlide key={news.news_id} className="!w-[300px]">
                       <HotNewsCard
                         newsId={news.news_id || ""}
@@ -184,7 +176,12 @@ export default function AllPickPage() {
                         }
                         views={news.view_count || 0}
                         image={news.image_url || ""}
+                        isBookmarked={
+                          interactions?.bookmarks.has(news.news_id) ?? false
+                        }
+                        handleBookmark={(e) => handleBookmark(e, news.news_id)}
                       />
+                      )
                     </SwiperSlide>
                   ))}
                 </Swiper>
@@ -197,11 +194,11 @@ export default function AllPickPage() {
                 모든 뉴스
               </h2>
               <div>
-                {newsData.slice(0, 5).map((news) => (
+                {transformedNews.slice(0, 5).map((news) => (
                   <DefaultCard
                     key={news.news_id}
-                    userId={userId}
                     newsId={news.news_id!}
+                    userId={userId}
                     title={news.title}
                     category={news.category_id}
                     timeAgo={timeAgo(news.published_at)}
@@ -212,6 +209,10 @@ export default function AllPickPage() {
                     }
                     views={news.view_count || 0}
                     image={news.image_url || ""}
+                    isBookmarked={
+                      interactions?.bookmarks.has(news.news_id) ?? false
+                    }
+                    handleBookmark={(e) => handleBookmark(e, news.news_id)}
                   />
                 ))}
               </div>
@@ -236,8 +237,8 @@ export default function AllPickPage() {
                     <SwiperSlide key={post?.post_id} className="!w-[278px]">
                       <PostCard
                         postId={post.post_id}
+                        authorNickname={post.User?.nickname || "익명의 누누"}
                         profileImage={post.User?.profile_image || ""}
-                        username={post.User?.nickname || "익명의 누누"}
                         category={post.category_id}
                         content={post.contents}
                         likes={post.like_count ?? 0}
@@ -265,7 +266,7 @@ export default function AllPickPage() {
               <h2 className="text-lg font-bold text-[var(--color-black)] dark:text-[var(--color-white)] mb-4">
                 많은 사람들이 좋아한 뉴스
               </h2>
-              {newsData
+              {transformedNews
                 .sort((a, b) => (b.view_count || 0) - (a.view_count || 0))
                 .slice(0, 5)
                 .map((news) => (
@@ -283,6 +284,10 @@ export default function AllPickPage() {
                     }
                     views={news.view_count || 0}
                     image={news.image_url || ""}
+                    isBookmarked={
+                      interactions?.bookmarks.has(news.news_id) ?? false
+                    }
+                    handleBookmark={(e) => handleBookmark(e, news.news_id)}
                   />
                 ))}
             </div>

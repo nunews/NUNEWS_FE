@@ -10,10 +10,8 @@ import { AiOutlineLike } from "react-icons/ai";
 import { allCategoryMap } from "@/lib/categoryUUID";
 import { toast } from "sonner";
 import { useAuthStore } from "@/stores/authStore";
-import {
-  useToggleLikeMutation,
-  useToggleBookmarkMutation,
-} from "@/hooks/useNewsInteractionMutations";
+import { useToggleLikeMutation } from "@/hooks/useNewsInteractionMutations";
+import { useBookmarkToggle } from "@/hooks/useBookmarkToggle";
 
 interface NewsSectionProps {
   newsId: string | undefined;
@@ -40,24 +38,18 @@ export default function NewsSection({
   handleDetail,
   isFirst,
 }: NewsSectionProps) {
-  const [isBookmarked, setIsBookmarked] = useState(initialIsBookmarked);
   const [isLiked, setIsLiked] = useState(initialIsLiked);
   const [likedCnt, setLikedCnt] = useState(likes ?? 0);
   const [viewCnt, setViewCnt] = useState(views ?? data.view_count ?? 0);
-
+  const isBookmarked = initialIsBookmarked;
   const userId = useAuthStore((state) => state.userId);
 
   // Mutation 훅
   const likeMutation = useToggleLikeMutation();
-  const bookmarkMutation = useToggleBookmarkMutation();
 
   useEffect(() => {
     setIsLiked(initialIsLiked);
   }, [initialIsLiked]);
-
-  useEffect(() => {
-    setIsBookmarked(initialIsBookmarked);
-  }, [initialIsBookmarked]);
 
   useEffect(() => {
     setLikedCnt(likes ?? 0);
@@ -67,34 +59,15 @@ export default function NewsSection({
     setViewCnt(views ?? data.view_count ?? 0);
   }, [views, data.view_count]);
 
-  // 북마크 토글 (Optimistic Update + Mutation)
-  const handleBookmark = async (e: React.MouseEvent) => {
+  // 북마크 토글
+  const { toggle } = useBookmarkToggle({
+    newsId,
+    userId,
+    isBookmarked,
+  });
+  const handleBookmark = (e: React.MouseEvent) => {
     e.stopPropagation();
-
-    if (!userId || !newsId) {
-      toast.error("로그인이 필요합니다.");
-      return;
-    }
-
-    // Optimistic Update
-    const newBookmarkState = !isBookmarked;
-    setIsBookmarked(newBookmarkState);
-
-    try {
-      await bookmarkMutation.mutateAsync({
-        newsId,
-        userId,
-        isBookmarked,
-      });
-      toast.success(
-        newBookmarkState ? "스크랩에 추가됐어요." : "스크랩을 취소했어요."
-      );
-    } catch (err) {
-      // 실패 시 롤백
-      setIsBookmarked(isBookmarked);
-      toast.error("스크랩 처리에 실패했습니다.");
-      console.error("북마크 토글 에러:", err);
-    }
+    toggle();
   };
 
   // 좋아요 토글
@@ -199,7 +172,6 @@ export default function NewsSection({
             </div>
 
             {/* 스크랩 / 좋아요 / 조회수 영역 */}
-
             <div className="flex flex-col justify-end">
               <div className="flex flex-col [@media(max-height:700px)]:gap-4 gap-6">
                 {userId && (

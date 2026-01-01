@@ -1,13 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useEffect } from "react";
 import { IoBookmark, IoBookmarkOutline, IoEyeOutline } from "react-icons/io5";
 import { AiOutlineLike } from "react-icons/ai";
-import createClient from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
-import { useToggleBookmarkMutation } from "@/hooks/useNewsInteractionMutations";
 
 interface DefaultCardProps {
   newsId: string;
@@ -18,6 +14,8 @@ interface DefaultCardProps {
   likes: number;
   views: number;
   image: string;
+  isBookmarked: boolean;
+  handleBookmark: (e: React.MouseEvent) => void;
 }
 
 export default function DefaultCard({
@@ -29,69 +27,18 @@ export default function DefaultCard({
   likes,
   views,
   image,
+  isBookmarked,
+  handleBookmark,
 }: DefaultCardProps) {
-  const [isBookmarked, setIsBookmarked] = useState(false);
   const router = useRouter();
-  const supabase = createClient();
-  const bookmarkMutation = useToggleBookmarkMutation();
-
-  // 초기 상태: 현재 사용자가 이미 스크랩했는지 확인
-  useEffect(() => {
-    if (!userId) {
-      setIsBookmarked(false);
-      return;
-    }
-
-    const checkBookmark = async () => {
-      const { data } = await supabase
-        .from("User_scrap")
-        .select("*")
-        .eq("user_id", userId)
-        .eq("news_id", newsId)
-        .maybeSingle();
-
-      setIsBookmarked(!!data);
-    };
-
-    checkBookmark();
-  }, [userId, newsId, supabase]);
 
   const handleDetail = () => {
     router.push(`/newsDetail/${newsId}`);
   };
 
-
-  const handleBookmark = async (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (!userId) {
-      toast.error("로그인이 필요합니다.");
-      return;
-    }
-
-    // Optimistic Update
-    const newBookmarkState = !isBookmarked;
-    setIsBookmarked(newBookmarkState);
-
-    try {
-      await bookmarkMutation.mutateAsync({
-        newsId,
-        userId,
-        isBookmarked,
-      });
-      toast.success(
-        newBookmarkState ? "스크랩에 추가됐어요." : "스크랩을 취소했어요."
-      );
-    } catch (err) {
-      // 실패 시 롤백
-      setIsBookmarked(isBookmarked);
-      toast.error("스크랩 처리에 실패했습니다.");
-      console.error("북마크 토글 에러:", err);
-    }
-  };
-
   return (
     <div
-      className='w-full h-[149px] bg-white dark:bg-white/0 rounded-lg overflow-hidden flex items-center cursor-pointer group'
+      className="w-full h-[149px] bg-white dark:bg-white/0 rounded-lg overflow-hidden flex items-center cursor-pointer group"
       onClick={handleDetail}
     >
       <div className="relative w-30 h-30 flex-shrink-0 flex overflow-hidden rounded-lg">
@@ -102,15 +49,27 @@ export default function DefaultCard({
           height={120}
           className="object-cover w-full h-full"
         />
+        {/* <div
+          className="absolute inset-0
+      bg-[var(--color-black)]/10
+      opacity-0
+      group-hover:opacity-100
+      transition-opacity duration-250
+      pointer-events-none
+    "
+        /> */}
         {userId && (
           <div
-            onClick={handleBookmark}
-            className='absolute top-2 right-2 z-10 w-7.5 h-7.5 bg-white rounded-full flex items-center justify-center cursor-pointer'
+            onClick={(e) => {
+              e.stopPropagation();
+              handleBookmark(e);
+            }}
+            className="absolute top-2 right-2 z-10 w-7.5 h-7.5 bg-white rounded-full flex items-center justify-center cursor-pointer"
           >
             {isBookmarked ? (
-              <IoBookmark size={16} color='black' />
+              <IoBookmark size={16} color="black" />
             ) : (
-              <IoBookmarkOutline size={16} color='#999' />
+              <IoBookmarkOutline size={16} color="#999" />
             )}
           </div>
         )}

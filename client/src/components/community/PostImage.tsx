@@ -54,7 +54,7 @@ export default function PostImage({
               src={contentImg}
               alt="업로드된 이미지"
               fill
-              className="h-full w-auto"
+              className="h-full w-auto object-contain"
             />
           </div>
         ) : (

@@ -1,25 +1,18 @@
-// MyPostsContent.tsx
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
 import createClient from "@/utils/supabase/client";
 import { MyPostItem } from "./MyPostItem";
 import { timeAgo } from "@/utils/date";
-import MyPostsContentSkel from "./MyPostsContentSkel";
+import MyPostsContentSkel from "./skeleton/MyPostsContentSkel";
+import { useAuthStore } from "@/stores/authStore";
+import { categoryIdInvMap } from "@/lib/categoryUUID";
 
 export const MyPostsContent = ({ onPostCountChange }: MyPostsContentProps) => {
   const [posts, setPosts] = useState<MyPost[]>([]);
-  const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-
+  const userId = useAuthStore((state) => state.userId);
   const supabase = createClient();
-
-  const fetchUser = useCallback(async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (user) setUserId(user.id);
-  }, [supabase]);
 
   const fetchPosts = useCallback(async () => {
     if (!userId) return;
@@ -36,7 +29,6 @@ export const MyPostsContent = ({ onPostCountChange }: MyPostsContentProps) => {
         contents,
         content_image,
         created_at,
-        PostCategory:category_id (title),
         view_count,
         like_count
       `
@@ -45,26 +37,15 @@ export const MyPostsContent = ({ onPostCountChange }: MyPostsContentProps) => {
       .order("created_at", { ascending: false });
 
     if (error) {
-      console.error("❌ Error fetching posts:", error);
+      console.error("Error fetching posts:", error);
       setPosts([]);
       setLoading(false);
       return;
     }
 
-    const formattedPosts: MyPost[] = (data || []).map((p) => ({
-      ...p,
-      PostCategory: Array.isArray(p.PostCategory)
-        ? p.PostCategory[0]
-        : p.PostCategory || { title: "" },
-    }));
-
-    setPosts(formattedPosts);
+    setPosts(data);
     setLoading(false);
   }, [userId, supabase]);
-
-  useEffect(() => {
-    fetchUser();
-  }, [fetchUser]);
 
   useEffect(() => {
     fetchPosts();
@@ -87,7 +68,7 @@ export const MyPostsContent = ({ onPostCountChange }: MyPostsContentProps) => {
             id={post.post_id}
             title={post.title}
             content={post.contents}
-            category={post.Category?.title || ""}
+            category={categoryIdInvMap[post.category_id]}
             timeAgo={timeAgo(post.created_at)}
             likes={post.like_count ?? 0}
             views={post.view_count ?? 0}

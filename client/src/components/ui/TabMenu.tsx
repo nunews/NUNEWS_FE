@@ -8,12 +8,10 @@ const TabMenu = ({ tabs, activeTab, onTabClick }: TabMenuProps) => {
   const { theme } = useTheme();
   const [mounted, setMounted] = useState(false); //
 
-  const inactiveTabStyle = `text-[var(--color-gray-60)] ${
-    theme === "dark" ? "text-[var(--color-gray-200)]" : ""
-  }`;
-  const activeTabStyle = `text-[var(--color-gray-100)] ${
-    theme === "dark" ? "text-white" : ""
-  }`;
+  const inactiveTabStyle =
+    "text-[var(--color-gray-60)] dark:text-[var(--color-gray-80)]";
+  const activeTabStyle =
+    "text-[var(--color-gray-100)] dark:text-[var(--color-white)]";
 
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
@@ -60,11 +58,8 @@ const TabMenu = ({ tabs, activeTab, onTabClick }: TabMenuProps) => {
         );
       })}
       <span
-        className={`absolute bottom-[-1px] h-[2px] ${
-          theme === "dark"
-            ? "bg-[var(--color-gray-300)]"
-            : "bg-[var(--color-gray-100)]"
-        }  transition-all duration-300 ease-in-out`}
+        className="absolute bottom-[-1px] h-[2px] bg-[var(--color-gray-100)] dark:bg-[var(--color-gray-30)]
+             transition-all duration-300 ease-in-out"
         style={indicatorStyle}
       />
     </nav>

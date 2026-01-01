@@ -58,7 +58,6 @@ export const newsInteractionsOptions = {
     enabled: !!userId && newsIds.length > 0,
     // 3분간 fresh 상태 유지 (mutation 발생 시 자동으로 invalidate됨)
     staleTime: 1000 * 60 * 3,
-    // 10분간 캐시 유지 (메모리에서 제거되지 않음)
     gcTime: 1000 * 60 * 10,
     // Window focus 시 refetch 비활성화 (mutation으로 관리)
     refetchOnWindowFocus: false,

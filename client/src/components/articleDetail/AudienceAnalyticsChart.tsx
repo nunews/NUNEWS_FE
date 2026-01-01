@@ -9,6 +9,9 @@ import {
 } from "recharts";
 import { CustomTooltip } from "@/components/ui/CustomTooltip";
 import { useNewsAudienceStats } from "@/hooks/useNewsAudienceStats";
+import AudienceChartSkeleton from "./skeleton/AudienceChartSkeleton";
+import { getAudienceChartData } from "@/utils/audienceChart";
+import { useTheme } from "next-themes";
 
 interface AudienceAnalyticsChartProps {
   newsId: string;
@@ -16,78 +19,42 @@ interface AudienceAnalyticsChartProps {
 
 const AudienceAnalyticsChart = ({ newsId }: AudienceAnalyticsChartProps) => {
   const { data, isLoading, isError } = useNewsAudienceStats(newsId);
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
 
   if (isLoading) {
-    //로딩 카드
-    return (
-      <div className="bg-card text-card-foreground rounded-xl p-4 animate-pulse">
-        <div className="mb-4">
-          <div className="h-5 w-40 rounded bg-[var(--color-gray-40)] dark:bg-[var(--color-gray-70)]" />
-          <div className="mt-2 h-4 w-56 rounded bg-[var(--color-gray-40)] dark:bg-[var(--color-gray-70)]" />
-        </div>
-        <div className="space-y-3">
-          <div className="h-6 w-full rounded bg-[var(--color-gray-40)] dark:bg-[var(--color-gray-70)]" />
-          <div className="h-10 w-full rounded bg-[var(--color-gray-40)] dark:bg-[var(--color-gray-70)]" />
-        </div>
-      </div>
-    );
+    return <AudienceChartSkeleton />;
   }
 
   //에러 차트 카드
   if (isError || !data || !data.hasData) {
     return (
-      <div className="border border-[var(--color-gray-60)] dark:border-[var(--color-gray-90)] rounded-xl p-4">
-        <h2 className="text-xl leading-[140%] font-semibold dark:text-white text-[var(--color-black)]">
+      <div className="border border-[var(--color-gray-30)] dark:border-[var(--color-gray-100)] rounded-xl p-4">
+        <h2 className="text-xl leading-[140%] font-semibold dark:text-[var(--color-white)] text-[var(--color-black)]">
           누가 이 기사를 봤을까? 🤔
         </h2>
-        <p className="text-base mt-2 leading-[140%] dark:taxt-[var(--color-gray-20)] text-[var(--color-gray-90)]">
+        <p className="text-base mt-2 leading-[140%] dark:taxt-[var(--color-gray-20)] text-[var(--color-gray-90)] dark:text-[var(--color-gray-60)]">
           아직 이 기사에 대한
           <br />
-          조회자 통계가 없어요.
+          조회자 통계가 없어요. 😢
         </p>
       </div>
     );
   }
 
-  const genderData = [
-    {
-      category: "성별",
-      male: data.gender?.male ?? 0,
-      female: data.gender?.female ?? 0,
-    },
-  ];
-
-  const gender = genderData[0];
-  const hasMale = gender.male > 0;
-  const hasFemale = gender.female > 0;
-  const isSingleGender = (hasMale && !hasFemale) || (!hasMale && hasFemale);
-
-  const ageData = [
-    {
-      category: "연령",
-      teen: data.age?.teen ?? 0,
-      twenties: data.age?.twenties ?? 0,
-      thirties: data.age?.thirties ?? 0,
-      fortiesPlus: data.age?.fortiesPlus ?? 0,
-    },
-  ];
-
-  const age = ageData[0];
-
-  const ageKeys: (keyof typeof age)[] = [
-    "teen",
-    "twenties",
-    "thirties",
-    "fortiesPlus",
-  ];
-
-  const nonZeroAgeKeys = ageKeys.filter((key) => (age[key] as number) > 0);
-  const isSingleAge = nonZeroAgeKeys.length === 1;
-  const singleAgeKey = isSingleAge ? nonZeroAgeKeys[0] : null;
+  const {
+    genderData,
+    hasMale,
+    hasFemale,
+    isSingleGender,
+    ageData,
+    isSingleAge,
+    singleAgeKey,
+  } = getAudienceChartData(data);
 
   return (
     <>
-      <div className="S border border-[var(--color-gray-70)] rounded-xl p-4 ">
+      <div className="border border-[var(--color-gray-30)] dark:border-[var(--color-gray-100)] rounded-xl p-4 ">
         <div className="mb-4">
           <h2 className="text-xl leading-[140%] font-semibold text-[var(--color-black)] dark:text-white">
             누가 이 기사를 봤을까? 🤔
@@ -125,6 +92,16 @@ const AudienceAnalyticsChart = ({ newsId }: AudienceAnalyticsChartProps) => {
                       fontSize: "12px",
                       paddingRight: "10px",
                     }}
+                    formatter={(value) => (
+                      <span
+                        style={{
+                          fill: isDark ? "#efefef" : "#2f2f2f",
+                          color: isDark ? "#efefef" : "#2f2f2f",
+                        }}
+                      >
+                        {value}
+                      </span>
+                    )}
                   />
                   {/* 남성 */}
                   <Bar
@@ -176,7 +153,20 @@ const AudienceAnalyticsChart = ({ newsId }: AudienceAnalyticsChartProps) => {
                     align="right"
                     iconType="circle"
                     iconSize={8}
-                    wrapperStyle={{ fontSize: "13px", paddingRight: "10px" }}
+                    wrapperStyle={{
+                      fontSize: "13px",
+                      paddingRight: "10px",
+                    }}
+                    formatter={(value) => (
+                      <span
+                        style={{
+                          fill: isDark ? "#efefef" : "#2f2f2f",
+                          color: isDark ? "#efefef" : "#2f2f2f",
+                        }}
+                      >
+                        {value}
+                      </span>
+                    )}
                   />
 
                   {/* 10대 */}

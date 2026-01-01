@@ -17,6 +17,17 @@ import {
 } from "@/app/api/community";
 import { categoryIdInvMap } from "@/lib/categoryUUID";
 import { toast } from "sonner";
+import { useAuthStore } from "@/stores/authStore";
+
+interface CommunityPostProps {
+  postId: string;
+  postImage: string;
+  writerId: string;
+  categoryId: string;
+  title: string;
+  content: string;
+  views: number;
+}
 export default function CommunityPost({
   postId,
   postImage,
@@ -24,21 +35,12 @@ export default function CommunityPost({
   categoryId,
   title,
   content,
-  userId,
   views,
-}: {
-  postId: string;
-  postImage: string;
-  writerId: string;
-  categoryId: string;
-  title: string;
-  content: string;
-  userId: string;
-  views: number;
-}) {
+}: CommunityPostProps) {
   const router = useRouter();
   const [likeCount, setLikeCount] = useState<number>(0);
   const [viewCount, setViewCount] = useState(views ?? 0);
+  const userId = useAuthStore((state) => state.userId);
 
   const { data: likeData } = useQuery<number>({
     queryKey: ["likeData", postId],
@@ -66,6 +68,9 @@ export default function CommunityPost({
   const { data: isLiked } = useQuery({
     queryKey: ["isLiked", userId, postId],
     queryFn: () => {
+      if (!userId) {
+        throw new Error("로그인이 필요합니다");
+      }
       return isLikedByUser(postId, userId);
     },
   });
@@ -73,7 +78,7 @@ export default function CommunityPost({
 
   useEffect(() => {
     (async () => {
-      const liked = await isLikedByUser(postId, userId);
+      const liked = await isLikedByUser(postId, userId as string);
       setLike(liked);
     })();
   }, [postId, userId]);
@@ -82,6 +87,9 @@ export default function CommunityPost({
   //좋아요 업데이트
   const { mutate: likeUpdate } = useMutation({
     mutationFn: (liked: boolean) => {
+      if (!userId) {
+        throw new Error("로그인이 필요합니다");
+      }
       return liked ? postLike(postId, userId) : postUnlike(postId, userId);
     },
     onSuccess: () => {
@@ -125,16 +133,16 @@ export default function CommunityPost({
   };
   return (
     <>
-      <div className="group py-6 w-full h-auto border-b border-[#ebebeb] ">
+      <div className="group py-6 w-full h-auto border-b border-[#ebebeb] dark:border-[var(--color-gray-100)]">
         <div className="cursor-pointer" onClick={viewHandler}>
-          <div className="relative  w-full aspect-[16/9] rounded-[12px] overflow-hidden">
+          <div className="relative w-full aspect-[16/9] rounded-[12px] overflow-hidden">
             <Image
               src={postImage ?? defaultImg}
               alt="postImage"
               fill
               className="object-cover"
             />
-            <div className="absolute inset-0 rounded-[12px] bg-[#000000]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="absolute inset-0 rounded-[12px] bg-[var(--color-black)]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </div>
           <div className="mt-4 w-full flex justify-between">
             <div className="w-auto h-9 flex items-center cursor-pointer">

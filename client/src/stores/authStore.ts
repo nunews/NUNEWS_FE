@@ -1,3 +1,4 @@
+import createClient from "@/utils/supabase/client";
 import { create } from "zustand";
 
 interface UserData {
@@ -31,7 +32,9 @@ export const useAuthStore = create<UserState>((set) => ({
       isInitialized: true,
     })),
 
-  clearUser: () =>
+  clearUser: async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
     set({
       userId: null,
       email: null,
@@ -41,5 +44,6 @@ export const useAuthStore = create<UserState>((set) => ({
       gender: null,
       interest: [],
       isInitialized: true,
-    }),
+    });
+  },
 }));

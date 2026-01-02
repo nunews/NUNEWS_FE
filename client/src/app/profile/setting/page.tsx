@@ -6,13 +6,11 @@ import ProfileEditForm from "@/components/mypage/ProfileEditForm";
 import { TextButton } from "@/components/ui/TextButton";
 import { useProfileEdit } from "@/hooks/useProfileEdit";
 import { useAuthStore } from "@/stores/authStore";
-import createClient from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 
 const ProfileSettingPage = () => {
   const clearUser = useAuthStore((state) => state.clearUser);
   const router = useRouter();
-  const supabase = createClient();
 
   const {
     nickname,
@@ -27,8 +25,7 @@ const ProfileSettingPage = () => {
     handleSave,
   } = useProfileEdit();
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
+  const handleLogout = () => {
     clearUser();
     router.push("/");
   };

@@ -151,7 +151,7 @@ export default function AllPickPage() {
                   style={{ width: "26px", height: "26px" }}
                 />
                 <h2 className="text-lg font-bold text-[var(--color-black)] dark:text-[var(--color-white)] mb-4">
-                  오늘의 핫 뉴스
+                  오늘의 핫뉴스
                 </h2>
               </div>
               <div className="flex overflow-x-auto pb-2 scrollbar-hide">
@@ -181,7 +181,6 @@ export default function AllPickPage() {
                         }
                         handleBookmark={(e) => handleBookmark(e, news.news_id)}
                       />
-                      )
                     </SwiperSlide>
                   ))}
                 </Swiper>

@@ -2,7 +2,6 @@ import Image from "next/image";
 import { AiOutlineLike } from "react-icons/ai";
 import { IoEyeOutline } from "react-icons/io5";
 import { useRouter } from "next/navigation";
-import { useTheme } from "next-themes";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { postView } from "@/app/api/community";
 
@@ -17,7 +16,6 @@ export const MyPostItem = ({
   image,
 }: MyPostItemProps) => {
   const router = useRouter();
-  const { theme } = useTheme();
   const queryClient = useQueryClient();
   const { mutate: mutateView } = useMutation({
     mutationFn: (cnt: number) => postView(id, cnt),
@@ -49,47 +47,23 @@ export const MyPostItem = ({
         />
       </div>
       <div className="flex flex-col gap-2">
-        <p
-          className={` ${
-            theme === "dark" ? "text-gray-200" : "text-[#191919]"
-          } text-lg font-bold`}
-        >
+        <p className="text-lg font-bold dark:text-[var(--color-white)] text-[var(--color-gray-100)]">
           {title}
         </p>
-        <p
-          className={` ${
-            theme === "dark" ? "text-gray-200" : "text-[#191919]"
-          } text-sm line-clamp-2`}
-        >
+        <p className="dark:text-[var(--color-gray-40)] text-[var(--color-gray-100)] text-sm line-clamp-2">
           {content}
         </p>
       </div>
       <div className="flex justify-between items-center text-[13px]">
-        <div
-          className={`flex ${
-            theme === "dark" ? "text-gray-200" : "text-[var(--color-gray-70)]"
-          } space-x-1`}
-        >
+        <div className="flex dark:text-[var(--color-gray-70)] text-[var(--color-gray-70)] space-x-1">
           <p>{category}</p>
           <span>·</span>
           <p>{timeAgo}</p>
         </div>
-        <div
-          className={`flex items-center  ${
-            theme === "dark" ? "text-gray-200" : "text-gray-500"
-          } `}
-        >
-          <AiOutlineLike
-            className={`w-4 h-4 ${
-              theme === "dark" ? "text-gray-200" : "text-gray-500"
-            } cursor-pointer`}
-          />
+        <div className="flex items-center text-[var(--color-gray-70)] ">
+          <AiOutlineLike className="w-4 h-4 text-[var(--color-gray-70)]  cursor-pointer" />
           <p className="ml-[3px] ">{likes}</p>
-          <IoEyeOutline
-            className={`ml-[11px] w-4 h-4 ${
-              theme === "dark" ? "text-gray-200" : "text-gray-500"
-            } cursor-pointer`}
-          />
+          <IoEyeOutline className="ml-[11px] w-4 h-4 text-[var(--color-gray-70)] cursor-pointer" />
           <p className="ml-[3px]">{views}</p>
         </div>
       </div>

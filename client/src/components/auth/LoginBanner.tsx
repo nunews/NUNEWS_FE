@@ -10,7 +10,7 @@ const LoginBanner = () => {
         내맘대로.
       </h1>
       <h3 className="text-[var(--color-gray-80)] text-sm pt-2.5 dark:text-gray-60">
-        서브 슬로건을 정해볼까요?
+        핵심만 빠르게 세 줄 요약
       </h3>
     </div>
   );

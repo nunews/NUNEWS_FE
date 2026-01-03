@@ -6,6 +6,7 @@ import createClient from "@/utils/supabase/client";
 import { MyPostItem } from "./MyPostItem";
 import { timeAgo } from "@/utils/timeAgo";
 import MyPostsContentSkel from "./MyPostsContentSkel";
+import defaultImg from "../../assets/images/default_nunew.svg";
 
 export const MyPostsContent = ({ onPostCountChange }: MyPostsContentProps) => {
   const [posts, setPosts] = useState<MyPost[]>([]);
@@ -89,7 +90,7 @@ export const MyPostsContent = ({ onPostCountChange }: MyPostsContentProps) => {
             timeAgo={timeAgo(post.created_at)}
             likes={post.like_count ?? 0}
             views={post.view_count ?? 0}
-            image={post.content_image || "/images/default_nunew.svg"}
+            image={post.content_image || defaultImg}
           />
         ))
       ) : (

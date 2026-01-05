@@ -15,14 +15,7 @@ export const metadata: Metadata = {
     description: "뉴스를 더 빠르고 가볍게",
     url: "https://nunews.vercel.app/",
     siteName: "NUNEW",
-    images: [
-      {
-        url: "https://nunews.vercel.app/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "NUNEW 뉴스 요약 서비스",
-      },
-    ],
+    images: ["/og-image.png"],
     locale: "ko_KR",
     type: "website",
   },

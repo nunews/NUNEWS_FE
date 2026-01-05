@@ -12,20 +12,25 @@ interface RelatedNewsSectionProps {
   currentNewsId?: string | null;
 }
 
-interface NewsRow {
-  news_id: string;
-  title: string;
-  image_url: string | null;
-  like_count: number | null;
-  view_count: number | null;
-}
-
 const RelatedNewsSection = ({
   categoryLabel,
   currentNewsId,
 }: RelatedNewsSectionProps) => {
   const supabase = createClient();
   const route = useRouter();
+
+  // 관심 뉴스 클릭했을 때 조회수 증가
+  const handleRelatedClick = async (newsId: string) => {
+    try {
+      await supabase.rpc("increment_news_view", {
+        p_news_id: newsId,
+      });
+    } catch (err) {
+      console.error("관심 뉴스 조회수 증가 실패", err);
+    }
+
+    route.push(`/newsDetail/${newsId}`);
+  };
 
   const categoryUUID = useMemo(() => {
     if (!categoryLabel) return null;
@@ -51,8 +56,6 @@ const RelatedNewsSection = ({
       }
 
       const { data, error } = await query;
-
-      //console.log("[RelatedNews] raw supabase result:", { data, error });
 
       if (error) {
         console.error("[RelatedNewsSection] Supabase error:", error);
@@ -91,7 +94,7 @@ const RelatedNewsSection = ({
     return (
       <div className="mb-[75px] mt-10">
         <h2 className="text-[22px] font-bold mb-2">관심 가질만한 다른 뉴스</h2>
-        <p className="text-sm text-[var(--color-gray-80)]">
+        <p className="text-sm text-[var(--color-gray-80)] dark:text-[var(--color-gray-60)]">
           아직 이 카테고리에는 다른 뉴스가 없어요.
         </p>
       </div>
@@ -106,7 +109,7 @@ const RelatedNewsSection = ({
           <button
             key={news.news_id}
             type="button"
-            onClick={() => route.push(`/newsDetail/${news.news_id}`)}
+            onClick={() => handleRelatedClick(news.news_id)}
             className="block w-full text-left"
           >
             <RecommendNews

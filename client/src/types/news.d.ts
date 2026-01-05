@@ -29,3 +29,12 @@ interface SupabaseNewsData {
   created_at: string;
   image_url: string;
 }
+
+// relatied News
+interface NewsRow {
+  news_id: string;
+  title: string;
+  image_url: string | null;
+  like_count: number | null;
+  view_count: number | null;
+}

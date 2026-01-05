@@ -1,7 +1,3 @@
-type PostCategory = {
-  title: string;
-};
-
 type MyPost = {
   post_id: string;
   user_id: string;
@@ -10,7 +6,6 @@ type MyPost = {
   contents: string;
   content_image: string;
   created_at: string;
-  Category?: Category | null;
   view_count: number;
   like_count?: number;
   User?: {

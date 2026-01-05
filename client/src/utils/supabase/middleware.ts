@@ -18,6 +18,7 @@ export const updateSession = async (request: NextRequest) => {
         set: (name: string, value: string, options: CookieOptions) => {
           response.cookies.set({ name, value, ...options });
         },
+
         remove: (name: string, options: CookieOptions) => {
           response.cookies.set({ name, value: "", ...options });
         },

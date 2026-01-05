@@ -80,14 +80,14 @@ const RelatedPostsSection = ({ categoryLabel }: RelatedPostsSectionProps) => {
     return (
       <div className="mb-8 mt-10">
         <h2 className="text-[22px] font-bold mb-2">
-          <span className="text-[var(--color-black)]">
+          <span className="text-[var(--color-black)] dark:text-[var(--color-primary-50)]">
             &#39;{categoryLabel}&#39;
           </span>
-          <span className="text-[var(--color-gray-80)]">
+          <span className="text-[var(--color-gray-80)] dark:text-[var(--color-white)]">
             에 대한 다른 유저의 생각
           </span>
         </h2>
-        <p className="text-sm text-[var(--color-gray-80)]">
+        <p className="text-sm text-[var(--color-gray-80)] dark:text-[var(--color-gray-60)]">
           아직 이 카테고리에는 작성된 글이 없어요.
         </p>
       </div>
@@ -97,10 +97,10 @@ const RelatedPostsSection = ({ categoryLabel }: RelatedPostsSectionProps) => {
   return (
     <div className="mb-8 mt-10">
       <h2 className="text-[22px] font-bold mb-2">
-        <span className="text-[var(--color-black)]">
+        <span className="text-[var(--color-black)] dark:text-[var(--color-primary-50)]">
           &#39;{categoryLabel}&#39;
         </span>
-        <span className="text-[var(--color-gray-80)]">
+        <span className="text-[var(--color-gray-80)] dark:text-[var(--color-white)]">
           에 대한 다른 유저의 생각
         </span>
       </h2>

@@ -34,7 +34,7 @@ export default function SelectComponent({
       {label && (
         <span
           className={twMerge(
-            "text-sm font-medium text-[var(--color-gray-80)] cursor-pointer",
+            "text-[13px] font-medium text-[var(--color-gray-80)] dark:text-[var(--color-gray-60)] cursor-pointer",
             labelClassName
           )}
         >

@@ -1,50 +1,25 @@
-"use client";
-
-import { useQuery } from "@tanstack/react-query";
-import createClient from "@/utils/supabase/client";
 import {
   getSupabaseInterestNews,
   getSupabaseRandomNews,
 } from "@/lib/api/getNewstoSupabase";
-import { getUserInterestsFromClient } from "@/lib/api/getUserInterests";
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 
-// 클라이언트에서 뉴스 데이터 가져오기
+import { useAuthStore } from "@/stores/authStore";
 export function useNewsData() {
-  const [interests, setInterests] = useState<string[]>([]);
-  const [categoryIds, setCategoryIds] = useState<string[]>([]);
-  useEffect(() => {
-    async function load() {
-      const { interests: userInterests, categoryIds } =
-        await getUserInterestsFromClient();
-      setInterests(userInterests);
-      setCategoryIds(categoryIds);
-    }
-    load();
-  }, []);
+  const userId = useAuthStore((state) => state.userId);
+  const categoryIds = useAuthStore((state) => state.interest);
+
   return useQuery({
-    queryKey: ["newsData", interests],
+    queryKey: ["newsData", categoryIds, userId],
     queryFn: async () => {
-      const supabase = createClient();
-
-      const [
-        {
-          data: { user },
-        },
-      ] = await Promise.all([
-        supabase.auth.getUser(),
-        getUserInterestsFromClient(),
-      ]);
-
-      if (user && categoryIds.length > 0) {
+      if (userId && categoryIds.length > 0) {
         return await getSupabaseInterestNews(categoryIds);
       }
 
       return await getSupabaseRandomNews();
     },
-
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 60,
     refetchOnMount: true,
-    refetchInterval: 1000 * 60 * 60,
+    refetchInterval: 1000 * 60 * 60, // 1시간마다 패치
   });
 }

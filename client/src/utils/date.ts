@@ -11,5 +11,16 @@ export function timeAgo(dateString: string) {
   if (days > 0) return `${days}일 전`;
   if (hours > 0) return `${hours}시간 전`;
   if (minutes > 0) return `${minutes}분 전`;
-  return '방금 전';
+  return "방금 전";
 }
+
+export const formatDate = (date?: string) => {
+  if (!date) return "";
+  return new Date(date).toLocaleString("ko-KR", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};

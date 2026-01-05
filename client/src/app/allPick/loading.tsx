@@ -4,8 +4,7 @@ import Header from "@/components/layout/header";
 export default function Loading() {
   return (
     <div className="h-screen scrollbar-hide bg-[var(--color-white)] dark:bg-[#121212]">
-      {/* Header */}
-      <Header logo={true} interest={[]} />
+      <Header logo={true} />
 
       <main className="h-screen overflow-y-scroll pt-16 pb-18">
         <div>

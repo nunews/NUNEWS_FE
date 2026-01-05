@@ -11,15 +11,9 @@ import { generateRandomNickname } from "@/utils/generateRandomNickname";
 import { toast } from "sonner";
 import createClient from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
+import { ageOptions } from "@/lib/constants/ageOptions";
 
 export default function ProfileInitPage() {
-  const ageOptions = [
-    { label: "10대", value: "10s" },
-    { label: "20대", value: "20s" },
-    { label: "30대", value: "30s" },
-    { label: "40대 이상", value: "40s" },
-    { label: "선택하지 않음", value: "none" },
-  ];
   const [selectedGender, setSelectedGender] = useState<string | null>(null);
   const [selectedAge, setSelectedAge] = useState<string | null>(null);
   const [isHovered, setIsHovered] = useState(false);

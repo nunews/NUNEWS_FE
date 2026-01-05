@@ -1,23 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import defaultProfileImg from "@/assets/images/default_profile.png";
 import Image from "next/image";
 import { TextButton } from "../ui/TextButton";
 import { useRouter } from "next/navigation";
-import createClient from "@/utils/supabase/client";
-
-interface Category {
-  title: string;
-}
+import { useAuthStore } from "@/stores/authStore";
+import { categoryIdInvMap } from "@/lib/categoryUUID";
 
 const MyProfile = () => {
-  const [nickname, setNickname] = useState<string>("");
-  const [profileImage, setProfileImage] = useState<string | null>(null);
-  const [categories, setCategories] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
   const route = useRouter();
-  const supabase = createClient();
+  const nickname = useAuthStore((state) => state.nickname);
+  const profileImage = useAuthStore((state) => state.profile_image);
+  const interests = useAuthStore((state) => state.interest);
 
   const Skeleton = () => (
     <div className="flex flex-col gap-4 items-center justify-center mx-auto pb-8 animate-pulse">
@@ -44,77 +38,11 @@ const MyProfile = () => {
     </div>
   );
 
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      try {
-        // 현재 로그인한 사용자 정보 가져오기
-        const {
-          data: { user },
-          error: userError,
-        } = await supabase.auth.getUser();
-
-        if (userError || !user) {
-          console.error("사용자 정보를 가져오지 못했습니다:", userError);
-          return;
-        }
-
-        const { data, error } = await supabase
-          .from("User")
-          .select("nickname, profile_image")
-          .eq("user_id", user.id)
-          .maybeSingle();
-
-        if (error) {
-          console.error("유저 데이터 불러오기 실패:", error);
-        }
-
-        setNickname(data?.nickname ?? null);
-        setProfileImage(data?.profile_image ?? null);
-
-        // 관심 카테고리 조회
-        const { data: interestData, error: interestError } = await supabase
-          .from("User_Interests")
-          .select(
-            `
-            category_id,
-            Category ( title )
-          `
-          )
-          .eq("user_id", user.id);
-
-        if (interestError) {
-          console.error("관심 카테고리 불러오기 실패:", interestError);
-          return;
-        }
-
-        const titles =
-          interestData
-            ?.map((item: { Category: Category | Category[] | null }) => {
-              if (Array.isArray(item.Category)) {
-                return item.Category[0]?.title;
-              }
-              return item.Category?.title;
-            })
-            .filter(Boolean) || [];
-
-        setCategories(
-          titles.filter((title): title is string => typeof title === "string")
-        );
-      } catch (e) {
-        console.error("프로필 불러오는 중 오류:", e);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUserProfile();
-  }, [supabase]);
-
   const handleEditClick = () => {
     route.push("/profile/setting");
   };
 
-  if (loading) return <Skeleton />;
+  if (!nickname && !profileImage) return <Skeleton />;
 
   return (
     <div className="flex flex-col gap-4 items-center justify-center mx-auto pb-8">
@@ -132,8 +60,8 @@ const MyProfile = () => {
           {nickname || ""}
         </h1>
         <h2 className="font-medium text-sm text-[#8f8f8f]">
-          {categories.length > 0
-            ? categories.join(", ")
+          {interests && interests.length > 0
+            ? interests.map((id) => categoryIdInvMap[id]).join(", ")
             : "관심 카테고리가 없습니다"}
         </h2>
       </div>

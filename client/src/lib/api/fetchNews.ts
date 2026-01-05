@@ -19,7 +19,6 @@ export const fetchNewsData = async (language = "ko") => {
         news?.image_url?.trim()
       ) || [];
 
-    console.log("newsData", results);
     return results;
   } catch (error) {
     console.error("뉴스 데이터 가져오기 실패:", error);

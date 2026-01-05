@@ -3,10 +3,12 @@
 import { useEffect, useState, useCallback } from "react";
 import createClient from "@/utils/supabase/client";
 import { MyPostItem } from "./MyPostItem";
+import defaultImg from "../../assets/images/default_nunew.svg";
 import { timeAgo } from "@/utils/date";
 import MyPostsContentSkel from "./skeleton/MyPostsContentSkel";
 import { useAuthStore } from "@/stores/authStore";
 import { categoryIdInvMap } from "@/lib/categoryUUID";
+
 
 export const MyPostsContent = ({ onPostCountChange }: MyPostsContentProps) => {
   const [posts, setPosts] = useState<MyPost[]>([]);
@@ -29,6 +31,7 @@ export const MyPostsContent = ({ onPostCountChange }: MyPostsContentProps) => {
         contents,
         content_image,
         created_at,
+        Category:category_id (title, category_id),
         view_count,
         like_count
       `
@@ -43,7 +46,12 @@ export const MyPostsContent = ({ onPostCountChange }: MyPostsContentProps) => {
       return;
     }
 
-    setPosts(data);
+    const formattedPosts: MyPost[] = (data || []).map((p) => ({
+      ...p,
+      Category: Array.isArray(p.Category) ? p.Category[0] : p.Category ?? null,
+    }));
+
+    setPosts(formattedPosts);
     setLoading(false);
   }, [userId, supabase]);
 
@@ -72,7 +80,7 @@ export const MyPostsContent = ({ onPostCountChange }: MyPostsContentProps) => {
             timeAgo={timeAgo(post.created_at)}
             likes={post.like_count ?? 0}
             views={post.view_count ?? 0}
-            image={post.content_image || "/images/default_nunew.svg"}
+            image={post.content_image || defaultImg}
           />
         ))
       ) : (

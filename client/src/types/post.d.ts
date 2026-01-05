@@ -1,3 +1,8 @@
+type Category = {
+  title: string;
+  category_id: string;
+};
+
 type MyPost = {
   post_id: string;
   user_id: string;

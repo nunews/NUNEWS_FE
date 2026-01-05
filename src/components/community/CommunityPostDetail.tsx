@@ -4,7 +4,7 @@ import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { fetchPostById } from "@/app/api/community";
 
-import CommunityPostDetailSkel from "./skeleton/CommunityPostDetailSkel";
+import CommunityPostDetailSkel from "./Skeleton/CommunityPostDetailSkel";
 import CommunityPostDetailContent from "./CommunityPostDetailContent";
 import CommunityPostDetailStat from "./CommunityPostDetailStat";
 import CommunityPostDetailComments from "./CommunityPostDetailComments";

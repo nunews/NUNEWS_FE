@@ -1,48 +1,63 @@
 "use client";
 import Image from "next/image";
-import { AiOutlineEye, AiOutlineLike, AiOutlineShareAlt } from "react-icons/ai";
+import {
+  AiOutlineEye,
+  AiOutlineLike,
+  AiOutlineShareAlt,
+  AiFillLike,
+} from "react-icons/ai";
 import { TextButton } from "@/components/ui/TextButton";
 import Header from "@/components/layout/header";
 import AudienceAnalyticsChart from "@/components/articleDetail/AudienceAnalyticsChart";
 import { toast } from "sonner";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { getSupabaseOneNews } from "@/lib/api/getSupabaseOneNews";
 import { useTyping } from "@/hooks/useTyping";
-import { getLikesStatus, toggleLike } from "@/utils/likes";
+import { getLikesStatus } from "@/utils/likes";
+import { useToggleLikeMutation } from "@/hooks/useNewsInteractionMutations";
 import RelatedNewsSection from "@/components/articleDetail/RelatedNewsSection";
 import RelatedPostsSection from "@/components/articleDetail/RelatedPostSection";
+import { useNewsSummary } from "@/hooks/useNewsSummary";
+import { formatDate } from "@/utils/date";
+import { useNewsDetail } from "@/hooks/useNewsDetail";
+import NewsDetailSkeleton from "@/components/articleDetail/skeleton/NewsDetailSkeleton";
 
 export default function NewsDetailPage() {
   const params = useParams();
   const newsId = params.id;
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string>("");
-  const [showTyping, setShowTyping] = useState(false);
+
   const [showSummary, setShowSummary] = useState(false);
-  const [newsData, setNewsData] = useState<SupabaseNewsData | null>(null);
-
   const [isLiked, setIsLiked] = useState(false);
+  const { typedRef, runTyped } = useTyping();
+  const likeMutation = useToggleLikeMutation();
 
-  const { typedRef } = useTyping();
+  const {
+    data: newsData,
+    isLoading,
+    isError,
+  } = useNewsDetail(newsId as string);
+
+  const {
+    isLoading: summaryLoading,
+    isError: summaryError,
+    showTyping,
+    generateSummary,
+    reset,
+  } = useNewsSummary({
+    newsId: newsId as string,
+    newsContent: newsData?.content,
+    isOpen: showSummary,
+  });
 
   useEffect(() => {
-    const fetchNewsData = async () => {
-      try {
-        setLoading(true);
-        const data = await getSupabaseOneNews(newsId as string);
-        setNewsData(data);
-      } catch (err) {
-        console.error("뉴스데이터 불러오기 실패", err);
-        setError("뉴스데이터를 불러오는데 실패했습니다.");
-      } finally {
-        setLoading(false);
-      }
-    };
-    if (newsId) {
-      fetchNewsData();
+    if (showSummary) {
+      generateSummary((text) => {
+        setTimeout(() => runTyped(text), 50);
+      });
+    } else {
+      reset();
     }
-  }, [newsId]);
+  }, [generateSummary, reset, runTyped, showSummary]);
 
   useEffect(() => {
     const fetchLikes = async () => {
@@ -61,16 +76,22 @@ export default function NewsDetailPage() {
 
   const handleSummary = () => {
     setShowSummary(true);
-    setShowTyping(true);
   };
 
   const handleLikeClick = async () => {
     if (!newsId) return;
 
+    // Optimistic
+    const previousIsLiked = isLiked;
+    setIsLiked(!isLiked);
+
     try {
-      const res = await toggleLike(newsId as string);
+      const res = await likeMutation.mutateAsync(newsId as string);
       setIsLiked(res.isLiked);
     } catch (e) {
+      // 실패 시 롤백
+      setIsLiked(previousIsLiked);
+      toast.error("로그인이 필요합니다.");
       console.error("좋아요 토글 실패:", e);
     }
   };
@@ -122,11 +143,13 @@ export default function NewsDetailPage() {
     }
   };
 
-  //console.log(newsData);
+  if (isLoading) {
+    return <NewsDetailSkeleton />;
+  }
 
   return (
     <div className="min-h-screen">
-      <Header logo={false} interest={[]} />
+      <Header logo={false} />
 
       <div className="px-5 pt-18">
         <div className="text-sm text-[var(--color-gray-70)] mb-2">
@@ -136,7 +159,7 @@ export default function NewsDetailPage() {
           {newsData?.title}
         </h1>
         <div className="flex items-center gap-2 text-sm text-[var(--color-gray-70)] mb-7">
-          <span>{newsData?.published_at}</span>
+          <span>{formatDate(newsData?.published_at)}</span>
           <span>•</span>
           <span>{newsData?.source}</span>
           <div className="flex items-center justify-end flex-1 gap-[3px]">
@@ -169,32 +192,28 @@ export default function NewsDetailPage() {
         {/* 요약 섹션 */}
         {showSummary && (
           <div className="w-full mb-6 animate-in slide-in-from-top-4 duration-300">
-            <div className="bg-[#f6f6f6] rounded-2xl py-6 px-5 border border-[var(--color-gray-30)]">
+            <div className="bg-[var(--color-gray-10)] dark:bg-[var(--color-black)] rounded-2xl py-6 px-5 border border-[var(--color-gray-30)] dark:border-none">
               <div>
-                {loading && (
+                {summaryLoading && (
                   <div className="flex items-center justify-center py-8">
                     <div className="flex flex-col items-center space-y-3">
-                      <div className="animate-spin rounded-full h-6 w-6 border-2 border-[#181818] border-t-transparent"></div>
-                      <p className="text-sm text-gray-400">요약중입니다...</p>
+                      <div className="animate-spin rounded-full h-6 w-6 border-2 border-[var(--color-gray-100)] border-t-transparent"></div>
+                      <p className="text-sm dark:text-[var(--color-gray-40)]">
+                        요약중입니다...
+                      </p>
                     </div>
                   </div>
                 )}
 
-                {error && (
-                  <div className="text-center py-6">
-                    <p className="text-red-400 text-sm mb-4">{error}</p>
-                    <button
-                      // onClick={generateSummary}
-                      className="px-4 py-2 bg-gradient-to-r from-[#F0FFBC] to-[var(--color-primary-40)] text-black rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
-                    >
-                      다시 시도
-                    </button>
-                  </div>
-                )}
-
-                {showTyping && !loading && (
+                {showTyping && !summaryLoading && (
                   <div className="text-[var(--color-gray-100)] text-base leading-[140%] whitespace-pre-line">
-                    <div ref={typedRef}></div>
+                    <p className="dark:text-[var(--color-primary-50)] mb-5">
+                      세 줄 요약
+                    </p>
+                    <div
+                      ref={typedRef}
+                      className="text-[var(--color-gray-100)] dark:text-[var(--color-gray-20)]"
+                    ></div>
                   </div>
                 )}
               </div>
@@ -203,7 +222,7 @@ export default function NewsDetailPage() {
         )}
         {/* 기사 내용 */}
         <div className="mb-7.5">
-          <div className="text-base leading-[160%] whitespace-pre-line text-[var(--color-gray-100)]">
+          <div className="text-base leading-[160%] dark:text-[var(--cokor-gray-400)] whitespace-pre-line text-[var(--color-gray-100)]">
             {newsData?.content}
           </div>
         </div>
@@ -211,34 +230,26 @@ export default function NewsDetailPage() {
           <div className="flex items-center gap-[3px]">
             <TextButton
               onClick={handleLikeClick}
-              className={`flex items-center gap-[3px] transition-colors duration-300 
-                ${
-                  isLiked
-                    ? "text-[var(--color-primary-40)] bg-[var(--color-gray-100)]"
-                    : "text-[var(--color-black)]"
-                }
-              `}
+              className="flex items-center gap-[3px] transition-colors duration-300 dark:bg-[var(--color-gray-100)] dark:hover:bg-[var(--color-gray-90)] text-[var(--color-black)] dark:text-white"
             >
-              <AiOutlineLike
-                className={`w-5 h-5 transition-colors duration-300 
-                  ${
-                    isLiked
-                      ? "text-[var(--color-primary-50)] "
-                      : "text-[var(--color-black)]"
-                  }
-                `}
-              />
+              {isLiked ? (
+                <AiFillLike className="w-5 h-5 text-[var(--color-black)] dark:text-white" />
+              ) : (
+                <AiOutlineLike className="w-5 h-5 text-[var(--color-black)] dark:text-white" />
+              )}
               <span>{isLiked ? "좋아요" : "좋아요"}</span>
             </TextButton>
           </div>
           <div className="flex items-center gap-[3px]">
             <TextButton
               onClick={handleShare}
-              className="flex items-center gap-[3px]"
+              className="flex items-center gap-[3px] dark:bg-[var(--color-gray-100)] dark:hover:bg-[var(--color-gray-90)]"
               color="default"
             >
-              <AiOutlineShareAlt className="w-5 h-5 text-[var(--color-black)]" />
-              <span className="text-[var(--color-black)]">공유하기</span>
+              <AiOutlineShareAlt className="w-5 h-5 text-[var(--color-black)] dark:text-white dark:hover:text-[var(--color-gray-10)]" />
+              <span className="text-[var(--color-black)] dark:text-white  dark:hover:text-[var(--color-gray-10)]">
+                공유하기
+              </span>
             </TextButton>
           </div>
         </div>
@@ -248,10 +259,10 @@ export default function NewsDetailPage() {
             <AudienceAnalyticsChart newsId={newsData.news_id!} />
           )}
         </div>
-        <div className="border-b border-[var(--color-gray-20)] mt-9" />
+        <div className="border-b border-[var(--color-gray-20)] mt-9 dark:border-[var(--color-gray-100)]" />
         {/* 다른 유저의 생각 */}
         <RelatedPostsSection categoryLabel={newsData?.category_id ?? null} />
-        <div className="border-b border-[var(--color-gray-20)] mt-9" />
+        <div className="border-b border-[var(--color-gray-20)] mt-9 dark:border-[var(--color-gray-100)]" />
         {/* 관심 가질만한 다른 뉴스 섹션 */}
         <RelatedNewsSection
           categoryLabel={newsData?.category_id ?? null}

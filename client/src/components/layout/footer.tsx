@@ -11,7 +11,7 @@ import { TbMessageChatbot } from "react-icons/tb";
 import { VscBook } from "react-icons/vsc";
 
 export default function Footer({ isNuPick }: { isNuPick?: boolean }) {
-  const { theme, setTheme } = useTheme();
+  const { theme } = useTheme();
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
     setMounted(true);

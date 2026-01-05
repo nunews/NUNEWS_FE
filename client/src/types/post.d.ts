@@ -11,7 +11,6 @@ type MyPost = {
   contents: string;
   content_image: string;
   created_at: string;
-  Category?: Category | null;
   view_count: number;
   like_count?: number;
   User?: {

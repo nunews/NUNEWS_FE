@@ -26,7 +26,7 @@ export default function LoginPage() {
   const { mutate: gooogleLogin, isPending } = useMutation({
     mutationFn: signInWithGoogle,
     onError: (error) => {
-      console.error("구글로그인오류");
+      console.error("구글로그인오류", error);
     },
   });
 

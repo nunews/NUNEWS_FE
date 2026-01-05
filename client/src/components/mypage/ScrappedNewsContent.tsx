@@ -4,26 +4,21 @@ import { useEffect, useState, useCallback, useMemo } from "react";
 import createClient from "@/utils/supabase/client";
 import DefaultCard from "../ui/DefaultCard";
 import CategoryFilter from "./CategoryFilter";
-import { timeAgo } from "@/utils/timeAgo";
+import { timeAgo } from "@/utils/date";
 import { categoryIdMap } from "@/lib/categoryUUID";
-import DefaultCardSkel from "./DefaultCardSkel";
+import DefaultCardSkel from "./skeleton/DefaultCardSkel";
+import { useAuthStore } from "@/stores/authStore";
+import { useToggleBookmarkMutation } from "@/hooks/useNewsInteractionMutations";
+import { toast } from "sonner";
 
 export default function ScrappedNewsContent({
   onScrapCountChange,
 }: ScrappedNewsContentProps) {
   const [scrappedNews, setScrappedNews] = useState<UserScrapItem[]>([]);
   const [activeCategory, setActiveCategory] = useState("전체");
-  const [userId, setUserId] = useState<string | null>(null);
   const supabase = createClient();
   const [loading, setLoading] = useState(true);
-
-  // 로그인 사용자 정보 가져오기
-  const fetchUser = useCallback(async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (user) setUserId(user.id);
-  }, [supabase]);
+  const userId = useAuthStore((state) => state.userId);
 
   const fetchScrappedNews = useCallback(async () => {
     if (!userId) return;
@@ -78,19 +73,44 @@ export default function ScrappedNewsContent({
     onScrapCountChange?.(scrappedNews.length);
   }, [scrappedNews, onScrapCountChange]);
 
-  // 유저 정보 가져오기
-  useEffect(() => {
-    fetchUser();
-  }, [fetchUser]);
-
   // 스크랩 뉴스 가져오기
   useEffect(() => {
     fetchScrappedNews();
   }, [fetchScrappedNews]);
 
+  const toggleBookmarkMutation = useToggleBookmarkMutation();
+
+  const handleBookmark = (newsId: string) => {
+    if (!userId) {
+      toast.error("로그인이 필요합니다.");
+      return;
+    }
+
+    toggleBookmarkMutation.mutate(
+      {
+        newsId,
+        userId,
+        isBookmarked: true,
+      },
+      {
+        onSuccess: () => {
+          toast.success("스크랩을 취소했어요.");
+
+          setScrappedNews((prev) =>
+            prev.filter((item) => item.News.news_id !== newsId)
+          );
+        },
+        onError: (err) => {
+          console.error("스크랩 토글 실패:", err);
+          toast.error("스크랩 처리에 실패했습니다.");
+        },
+      }
+    );
+  };
+
   return (
-    <div className='flex flex-col px-5 py-6 mb-18'>
-      <div className='mr-[-20px]'>
+    <div className="flex flex-col px-5 py-6 mb-18">
+      <div className="mr-[-20px]">
         <CategoryFilter
           activeCategory={activeCategory}
           setActiveCategory={setActiveCategory}
@@ -112,10 +132,12 @@ export default function ScrappedNewsContent({
               likes={item.News.like_count}
               views={item.News.view_count}
               image={item.News.image_url}
+              isBookmarked={true}
+              handleBookmark={() => handleBookmark(item.News.news_id)}
             />
           ))
         ) : (
-          <p className='text-center text-gray-500 mt-4'>
+          <p className="text-center text-gray-500 mt-4">
             불러올 뉴스가 없습니다.
           </p>
         )}

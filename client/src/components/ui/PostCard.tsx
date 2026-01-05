@@ -2,12 +2,12 @@ import Image, { StaticImageData } from "next/image";
 import { useRouter } from "next/navigation";
 import { AiOutlineLike } from "react-icons/ai";
 import { IoEyeOutline } from "react-icons/io5";
-import defaultProfileImg from "@/assets/images/profile1.png";
+import defaultProfileImg from "@/assets/images/default_profile.png";
 import { categoryIdInvMap } from "@/lib/categoryUUID";
 interface PostCardProps {
   postId: string;
   profileImage: string | StaticImageData;
-  username: string;
+  authorNickname: string;
   category: string;
   content: string;
   likes: number;
@@ -18,7 +18,7 @@ interface PostCardProps {
 export default function PostCard({
   postId,
   profileImage,
-  username,
+  authorNickname,
   category,
   content,
   likes,
@@ -42,14 +42,14 @@ export default function PostCard({
         <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
           <Image
             src={profileImage || defaultProfileImg}
-            alt={username}
+            alt={authorNickname}
             width={32}
             height={32}
             className="w-full h-full object-cover"
           />
         </div>
         <span className="text-[var(--color-gray-100)] dark:text-[var(--color-white)] font-medium text-sm">
-          {username}
+          {authorNickname}
         </span>
       </div>
 

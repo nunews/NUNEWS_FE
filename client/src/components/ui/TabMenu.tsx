@@ -1,19 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { TabMenuProps } from "@/types/tabMenu";
-import { useTheme } from "next-themes";
 
 const TabMenu = ({ tabs, activeTab, onTabClick }: TabMenuProps) => {
   const baseTabStyle =
     "flex-1 py-4 text-center font-semibold transition-colors duration-300 cursor-pointer";
-  const { theme } = useTheme();
   const [mounted, setMounted] = useState(false); //
 
-  const inactiveTabStyle = `text-[var(--color-gray-60)] ${
-    theme === "dark" ? "text-[var(--color-gray-200)]" : ""
-  }`;
-  const activeTabStyle = `text-[var(--color-gray-100)] ${
-    theme === "dark" ? "text-white" : ""
-  }`;
+  const inactiveTabStyle =
+    "text-[var(--color-gray-60)] dark:text-[var(--color-gray-80)]";
+  const activeTabStyle =
+    "text-[var(--color-gray-100)] dark:text-[var(--color-white)]";
 
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
@@ -21,10 +17,10 @@ const TabMenu = ({ tabs, activeTab, onTabClick }: TabMenuProps) => {
 
   useEffect(() => {
     setMounted(true);
-  }, []); //
+  }, []);
 
   useEffect(() => {
-    if (!mounted) return; //
+    if (!mounted) return;
     const activeTabIndex = tabs.findIndex((tab) => tab.id === activeTab);
     const activeTabNode = tabRefs.current[activeTabIndex];
 
@@ -37,11 +33,7 @@ const TabMenu = ({ tabs, activeTab, onTabClick }: TabMenuProps) => {
   }, [activeTab, tabs, mounted]);
 
   return (
-    <nav
-      className={`flex ${
-        theme === "dark" ? "" : "border-b"
-      } border-[var(--color-gray-30)] relative `}
-    >
+    <nav className="flex dark:border-b border-[var(--color-gray-30)] dark:border-[var(--color-gray-100)] relative">
       {tabs.map((tab, index) => {
         const isActive = activeTab === tab.id;
         return (
@@ -60,11 +52,8 @@ const TabMenu = ({ tabs, activeTab, onTabClick }: TabMenuProps) => {
         );
       })}
       <span
-        className={`absolute bottom-[-1px] h-[2px] ${
-          theme === "dark"
-            ? "bg-[var(--color-gray-300)]"
-            : "bg-[var(--color-gray-100)]"
-        }  transition-all duration-300 ease-in-out`}
+        className="absolute bottom-[-1px] h-[2px] bg-[var(--color-gray-100)] dark:bg-[var(--color-gray-30)]
+            transition-all duration-300 ease-in-out"
         style={indicatorStyle}
       />
     </nav>

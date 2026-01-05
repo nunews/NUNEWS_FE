@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import defaultImg from "../../assets/images/default_profile.png";
+import defaultImg from "@/assets/images/default_profile.png";
 import { useEffect, useRef, useState } from "react";
 import CommunityPost from "./CommunityPost";
 import { Plus } from "lucide-react";
@@ -10,23 +10,21 @@ import { VscListSelection } from "react-icons/vsc";
 import { IconButton } from "../ui/IconButton";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { fetchInterests, fetchPost, fetchUser } from "@/app/api/community";
+import { fetchPost } from "@/app/api/community";
 import TabMenu from "../ui/TabMenu";
-import { getCurrentUser } from "@/app/api/auth";
 import { useSortStore } from "@/stores/communitySortStore";
 import { useTheme } from "next-themes";
-import CommunityProfileSkel from "./Skeleton/CommunityProfileSkel";
-import CommunityPostSkel from "./Skeleton/CommunityPostSkel";
+import CommunityProfileSkel from "./skeleton/CommunityProfileSkel";
+import CommunityPostSkel from "./skeleton/CommunityPostSkel";
 import { categoryGroupMap, categoryIdInvMap } from "@/lib/categoryUUID";
 import { toast } from "sonner";
+import { useAuthStore } from "@/stores/authStore";
 
 export default function CommunityList() {
   const [selected, setSelected] = useState("all");
   const [add, setAdd] = useState(false);
-
   const { theme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
   const color = !mounted
     ? "var(--color-black)"
     : add
@@ -37,21 +35,21 @@ export default function CommunityList() {
   const { sortOption, setSortOption } = useSortStore();
   const buttonRef = useRef<HTMLButtonElement>(null);
   const router = useRouter();
+  const userId = useAuthStore((state) => state.userId);
+  const interest = useAuthStore((state) => state.interest);
+  const nickname = useAuthStore((state) => state.nickname);
+  const profile_image = useAuthStore((state) => state.profile_image);
   const goToCreate = () => {
     setAdd(false);
     router.push("/community/postCreate");
   };
   const goToMypage = () => {
+    if (!userId) {
+      toast.error("로그인이 필요합니다.");
+    }
     router.push("/mypage");
   };
-
-  //사용자 정보
-  const { data: authData } = useQuery({
-    queryKey: ["currentUser"],
-    queryFn: getCurrentUser,
-  });
-  const email = authData?.email;
-  const userId = authData?.id ?? null;
+  useEffect(() => setMounted(true), []);
 
   //게시글 정보
   const { data: postData, isLoading: isPostLoading } = useQuery<Post[]>({
@@ -60,28 +58,6 @@ export default function CommunityList() {
     staleTime: 1000 * 60 * 3,
   });
 
-  //사용자 프로필 정보 불러오기
-  const { data: userDatas, isLoading: isProfileLoading } = useQuery<User>({
-    queryKey: ["fetchUser"],
-    queryFn: () => fetchUser(email!),
-    enabled: !!email,
-  });
-
-  //사용자 관심사 불러오기
-  const { data: interestData = [], isLoading: isInterestLoading } = useQuery<
-    { category_id: string }[]
-  >({
-    queryKey: ["fetchInterests", userId],
-    queryFn: async (): Promise<{ category_id: string }[]> => {
-      if (!userId) {
-        toast.error("로그인이 필요합니다.");
-        return [];
-      }
-      return (await fetchInterests(userId)) ?? [];
-    },
-    enabled: !!userId,
-  });
-  const isLoadingAll = isProfileLoading || isInterestLoading || isPostLoading;
   const filteredPosts = () => {
     if (!postData) return [];
 
@@ -109,30 +85,28 @@ export default function CommunityList() {
     <>
       <div className="min-h-screen w-full pt-[62px] pb-[72px]">
         {/* 사용자 프로필 */}
-        {isLoadingAll ? (
+        {isPostLoading ? (
           <CommunityProfileSkel />
         ) : (
           <button
             onClick={goToMypage}
-            className="mt-4 px-5 flex items-center h-[72px]"
+            className="mt-4 px-5 flex items-center h-[72px] cursor-pointer"
           >
-            <div className="w-18 h-18 bg-[#f6f6f6] rounded-full flex items-center justify-center">
+            <div className="w-18 h-18 relative bg-[#f6f6f6] rounded-full flex items-center justify-center overflow-hidden">
               <Image
-                src={userDatas?.profile_image ?? defaultImg}
-                alt="defaultImg"
-                width={36}
-                height={36}
+                src={profile_image ?? defaultImg}
+                alt="profile-image"
+                fill
+                className="object-cover"
               />
             </div>
             <div className="flex flex-col pl-[14px]">
               <p className="text-[var(--color-gray-100)] font-bold text-lg dark:text-[var(--color-white)]">
-                {userDatas?.name}
+                {nickname}
               </p>
               <p className="text-[var(--color-gray-70)] text-[13px]">
-                {!isLoadingAll && interestData.length > 0
-                  ? interestData
-                      .map((i) => categoryIdInvMap[i.category_id])
-                      .join(", ")
+                {interest.length > 0
+                  ? interest.map((i) => categoryIdInvMap[i]).join(", ")
                   : "관심사가 없습니다"}
               </p>
             </div>
@@ -149,7 +123,7 @@ export default function CommunityList() {
 
         {/* 게시글 목록 */}
         <div className="flex flex-col items-center px-5">
-          {isLoadingAll ? (
+          {isPostLoading ? (
             <>
               <CommunityPostSkel />
               <CommunityPostSkel />
@@ -165,7 +139,6 @@ export default function CommunityList() {
                   categoryId={post.category_id}
                   title={post.title}
                   content={post.contents}
-                  userId={userId!}
                   views={post.view_count}
                 />
               ))}
@@ -174,7 +147,6 @@ export default function CommunityList() {
         </div>
 
         {/* 새 글 추가 */}
-
         <IconButton
           ref={buttonRef}
           icon={Plus}

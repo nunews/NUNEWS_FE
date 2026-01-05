@@ -1,26 +1,20 @@
-// MyPostsContent.tsx
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
 import createClient from "@/utils/supabase/client";
 import { MyPostItem } from "./MyPostItem";
-import { timeAgo } from "@/utils/timeAgo";
-import MyPostsContentSkel from "./MyPostsContentSkel";
 import defaultImg from "../../assets/images/default_nunew.svg";
+import { timeAgo } from "@/utils/date";
+import MyPostsContentSkel from "./skeleton/MyPostsContentSkel";
+import { useAuthStore } from "@/stores/authStore";
+import { categoryIdInvMap } from "@/lib/categoryUUID";
+
 
 export const MyPostsContent = ({ onPostCountChange }: MyPostsContentProps) => {
   const [posts, setPosts] = useState<MyPost[]>([]);
-  const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-
+  const userId = useAuthStore((state) => state.userId);
   const supabase = createClient();
-
-  const fetchUser = useCallback(async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (user) setUserId(user.id);
-  }, [supabase]);
 
   const fetchPosts = useCallback(async () => {
     if (!userId) return;
@@ -46,7 +40,7 @@ export const MyPostsContent = ({ onPostCountChange }: MyPostsContentProps) => {
       .order("created_at", { ascending: false });
 
     if (error) {
-      console.error("❌ Error fetching posts:", error);
+      console.error("Error fetching posts:", error);
       setPosts([]);
       setLoading(false);
       return;
@@ -62,10 +56,6 @@ export const MyPostsContent = ({ onPostCountChange }: MyPostsContentProps) => {
   }, [userId, supabase]);
 
   useEffect(() => {
-    fetchUser();
-  }, [fetchUser]);
-
-  useEffect(() => {
     fetchPosts();
   }, [fetchPosts]);
 
@@ -76,7 +66,7 @@ export const MyPostsContent = ({ onPostCountChange }: MyPostsContentProps) => {
   }, [posts, onPostCountChange]);
 
   return (
-    <div className='flex flex-col space-y-4 px-5'>
+    <div className="flex flex-col space-y-4 px-5">
       {loading ? (
         Array.from({ length: 5 }).map((_, i) => <MyPostsContentSkel key={i} />)
       ) : posts.length > 0 ? (
@@ -86,7 +76,7 @@ export const MyPostsContent = ({ onPostCountChange }: MyPostsContentProps) => {
             id={post.post_id}
             title={post.title}
             content={post.contents}
-            category={post.Category?.title || ""}
+            category={categoryIdInvMap[post.category_id]}
             timeAgo={timeAgo(post.created_at)}
             likes={post.like_count ?? 0}
             views={post.view_count ?? 0}
@@ -94,7 +84,7 @@ export const MyPostsContent = ({ onPostCountChange }: MyPostsContentProps) => {
           />
         ))
       ) : (
-        <p className='text-center text-gray-500 mt-4'>작성한 글이 없습니다.</p>
+        <p className="text-center text-gray-500 mt-4">작성한 글이 없습니다.</p>
       )}
     </div>
   );

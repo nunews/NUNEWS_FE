@@ -1,4 +1,3 @@
-// hooks/useNewsAudienceStats.ts
 import { useQuery } from "@tanstack/react-query";
 import {
   getNewsAudienceStats,
@@ -16,18 +15,12 @@ export function useNewsAudienceStats(newsId: string | null) {
   return useQuery<AudienceStatsResult>({
     queryKey: ["newsAudience", newsId],
     queryFn: async () => {
-      console.log("[useNewsAudienceStats] queryFn 실행, newsId:", newsId);
-
       if (!newsId) {
-        console.log("[useNewsAudienceStats] newsId 없음 → 빈 데이터 반환");
         return { gender: null, age: null, hasData: false };
       }
 
       const result = await getNewsAudienceStats(newsId);
-      // console.log(
-      //   "[useNewsAudienceStats] getNewsAudienceStats result:",
-      //   result
-      // );
+
       return result;
     },
     enabled: !!newsId,

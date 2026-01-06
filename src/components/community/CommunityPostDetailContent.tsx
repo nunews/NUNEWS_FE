@@ -22,13 +22,7 @@ export default function CommunityPostDetailContent({
   //게시글 작성자 정보 불러오기
   const { data: writerData } = useQuery({
     queryKey: ["writerDetail", writerId],
-    queryFn: () => {
-      if (!writerId) {
-        console.error("작성자 정보가 없습니다");
-        return;
-      }
-      return fetchWriter(writerId);
-    },
+    queryFn: () => fetchWriter(writerId),
     enabled: !!writerId,
   });
   return (
@@ -37,11 +31,11 @@ export default function CommunityPostDetailContent({
       <div className="mt-4 w-full flex items-center justify-between">
         <div className="flex items-center w-auto h-9">
           <Image
-            src={profileImg}
+            src={writerData?.profile_image || profileImg}
             alt="profileImg"
             width={36}
             height={36}
-            className="rounded-full"
+            className="rounded-full w-9 h-9 object-cover"
           />
           <span className="ml-[10px] text-[var(--color-black)] dark:text-[var(--color-white)] text-base font-semibold">
             {writerData?.nickname}

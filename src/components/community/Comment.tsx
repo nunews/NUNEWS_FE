@@ -78,7 +78,7 @@ export default function Comment({
                 alt="profileImg"
                 width={36}
                 height={36}
-                className="shrink-0 rounded-full"
+                className="shrink-0 rounded-full w-9 h-9 object-cover"
               />
               <div className="flex flex-col ml-3 w-full ">
                 <div className="flex items-center gap-2">

@@ -151,7 +151,7 @@ export default function CommunityPost({
                 alt="profile1"
                 width={36}
                 height={36}
-                className="rounded-full"
+                className="rounded-full w-9 h-9 object-cover"
               />
               <p className="ml-2 text-[var(--color-gray-100)] dark:text-[var(--color-white)] text-base font-semibold">
                 {writerData?.nickname}

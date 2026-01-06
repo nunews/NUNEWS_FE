@@ -10,6 +10,15 @@ import AuthBootstrap from "@/components/auth/AuthBootstrap";
 export const metadata: Metadata = {
   title: "NUNEW",
   description: "누구나 간단히 읽는 쉬운 뉴스, 누뉴",
+  openGraph: {
+    title: "NUNEW",
+    description: "뉴스를 더 빠르고 가볍게",
+    url: "https://nunew.vercel.app",
+    siteName: "NUNEW",
+    images: ["/og-image.png"],
+    locale: "ko_KR",
+    type: "website",
+  },
 };
 const pretendard = localFont({
   src: "../../public/fonts/PretendardVariable.woff2",

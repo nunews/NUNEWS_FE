@@ -31,6 +31,7 @@ export const fetchPostById = async (postId: string) => {
 
 // 게시글 작성자 정보 불러오기(이름,프로필사진)
 export const fetchWriter = async (userId: string) => {
+  if (!userId) return null;
   const supabase = createClient();
   const { data, error } = await supabase
     .from("User")

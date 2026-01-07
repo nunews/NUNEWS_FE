@@ -113,13 +113,15 @@ export default function Comment({
                 )}
               </div>
             </div>
-            <IconButton
-              icon={AiOutlineMore}
-              size={24}
-              color={theme === "light" ? "#2f2f2f" : "var(--color-white)"}
-              onClick={toggleOpen}
-              className="w-8 h-8 hover:bg-[var(--color-gray-10)] dark:hover:bg-[var(--color-gray-100)]"
-            />
+            {userId === commentUserId && (
+              <IconButton
+                icon={AiOutlineMore}
+                size={24}
+                color={theme === "light" ? "#2f2f2f" : "var(--color-white)"}
+                onClick={toggleOpen}
+                className="w-8 h-8 hover:bg-[var(--color-gray-10)] dark:hover:bg-[var(--color-gray-100)]"
+              />
+            )}
           </div>
           <div className="absolute top-9 right-0">
             {userId === commentUserId && (

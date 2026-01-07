@@ -26,10 +26,13 @@ export default function RecommendPost({
   return (
     <div
       onClick={handleClick}
-      className="bg-[var(--color-white)] hover:bg-[var(--color-gray-10)] transition-colors duration-300 rounded-xl py-5 px-4 border border-[var(--color-gray-30)] cursor-pointer"
+      className="bg-[var(--color-white)] hover:bg-[var(--color-gray-10)] transition-colors duration-300 rounded-xl py-5 px-4 border border-[var(--color-gray-30)] cursor-pointer
+      dark:bg-[var(--color-giiray-100)] dark:border-[#1e1e1e]"
     >
       <div className="mb-2">
-        <p className="text-[#313131] font-semibold line-clamp-1">{title}</p>
+        <p className="text-[#313131] dark:text-[var(--color-gray-20)] font-semibold line-clamp-1">
+          {title}
+        </p>
       </div>
       <div className="mb-4">
         <p className="text-sm text-[#8f8f8f]">{content}</p>

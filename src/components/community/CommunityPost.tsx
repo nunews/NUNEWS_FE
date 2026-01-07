@@ -13,7 +13,6 @@ import {
   isLikedByUser,
   postLike,
   postUnlike,
-  postView,
 } from "@/app/api/community";
 import { categoryIdInvMap } from "@/lib/categoryUUID";
 import { toast } from "sonner";
@@ -39,7 +38,6 @@ export default function CommunityPost({
 }: CommunityPostProps) {
   const router = useRouter();
   const [likeCount, setLikeCount] = useState<number>(0);
-  const [viewCount, setViewCount] = useState(views ?? 0);
   const userId = useAuthStore((state) => state.userId);
 
   const { data: likeData } = useQuery<number>({
@@ -102,22 +100,6 @@ export default function CommunityPost({
     },
   });
 
-  //조회수 업데이트
-  const { mutate: mutateView } = useMutation({
-    mutationFn: (cnt: number) => {
-      if (!userId) {
-        return Promise.resolve(null);
-      }
-      return postView(postId, cnt);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["communityList"] });
-    },
-    onError: (err) => {
-      console.error("조회수 업로드 실패:", err);
-    },
-  });
-
   const likeHandler = () => {
     if (!userId) {
       toast.error("로그인이 필요합니다.");
@@ -127,8 +109,8 @@ export default function CommunityPost({
     setLikeCount((prev) => prev + (like ? -1 : 1));
     likeUpdate(!like);
   };
+
   const viewHandler = () => {
-    mutateView(viewCount + 1);
     router.push(`/community/${postId}`);
   };
   return (

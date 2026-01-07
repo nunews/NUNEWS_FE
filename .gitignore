@@ -44,3 +44,5 @@ package-*.json
 .DS_Store
 
 CLAUDE.md
+.serena
+.claude

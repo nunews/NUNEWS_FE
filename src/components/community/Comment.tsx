@@ -13,31 +13,33 @@ import { Check } from "lucide-react";
 import { useTheme } from "next-themes";
 import { toast } from "sonner";
 import { useAuthStore } from "@/stores/authStore";
-export default function Comment({
-  userId,
-  comment,
-  created_at,
-  onDelete,
-  onUpdate,
-}: {
-  userId: string;
+
+interface CommentProps {
+  commentUserId: string;
   comment: string;
   created_at: string;
   onDelete: () => void;
   onUpdate: (newContent: string) => void;
-}) {
+}
+export default function Comment({
+  commentUserId,
+  comment,
+  created_at,
+  onDelete,
+  onUpdate,
+}: CommentProps) {
   const { theme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  const authId = useAuthStore((state) => state.userId);
+  const userId = useAuthStore((state) => state.userId);
   useEffect(() => {
     setMounted(true);
   }, []);
 
   //댓글 작성자 정보 불러오기
   const { data: commentWriterData } = useQuery({
-    queryKey: ["writerDetail", userId],
-    queryFn: () => fetchWriter(userId as string),
-    enabled: !!userId,
+    queryKey: ["writerDetail", commentUserId],
+    queryFn: () => fetchWriter(commentUserId as string),
+    enabled: !!commentUserId,
   });
 
   const [open, setOpen] = useState(false);
@@ -120,7 +122,7 @@ export default function Comment({
             />
           </div>
           <div className="absolute top-9 right-0">
-            {authId === userId && (
+            {userId === commentUserId && (
               <Dropdown
                 isOpen={open}
                 onClose={toggleOpen}

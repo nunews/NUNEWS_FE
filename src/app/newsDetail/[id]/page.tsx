@@ -7,16 +7,55 @@ import RelatedPostsSection from "@/components/articleDetail/RelatedPostSection";
 import { useNewsDetail } from "@/hooks/useNewsDetail";
 import NewsDetailSkeleton from "@/components/articleDetail/skeleton/NewsDetailSkeleton";
 import NewsArticleContent from "@/components/articleDetail/NewsArticleContent";
+import createClient from "@/utils/supabase/client";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useRef } from "react";
 
 export default function NewsDetailPage() {
   const params = useParams();
   const newsId = params.id;
 
-  const {
-    data: newsData,
-    isLoading,
-    isError,
-  } = useNewsDetail(newsId as string);
+  const { data: newsData, isLoading } = useNewsDetail(newsId as string);
+
+  const supabase = createClient();
+  const hasIncrementedView = useRef(false);
+  const queryClient = useQueryClient();
+
+  const { mutate: incrementNewsView } = useMutation({
+    mutationFn: async (newsId: string) => {
+      await supabase.rpc("increment_news_view", {
+        p_news_id: newsId,
+      });
+    },
+    onMutate: async (newsId) => {
+      await queryClient.cancelQueries({ queryKey: ["news-detail", newsId] });
+
+      const previousData = queryClient.getQueryData(["news-detail", newsId]);
+      queryClient.setQueryData(["news-detail", newsId], (old: any) => {
+        if (!old) return old;
+        return {
+          ...old,
+          view_count: (old.view_count || 0) + 1,
+        };
+      });
+
+      return { previousData };
+    },
+    onError: (err, newsId, context) => {
+      if (context?.previousData) {
+        queryClient.setQueryData(["news-detail", newsId], context.previousData);
+      }
+    },
+    onSettled: (data, error, newsId) => {
+      queryClient.invalidateQueries({ queryKey: ["news-detail", newsId] });
+    },
+  });
+
+  useEffect(() => {
+    if (!newsData || hasIncrementedView.current) return;
+    incrementNewsView(newsData.news_id);
+    hasIncrementedView.current = true;
+  }, [newsData, incrementNewsView]);
 
   if (isLoading) {
     return <NewsDetailSkeleton />;

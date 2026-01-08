@@ -15,7 +15,7 @@ export default function LoginPage() {
       provider: "google",
       options: {
         redirectTo: `${location.origin}/auth/callback`,
-        //redirectTo: `http://localhost:3000/auth/callback`,
+        // redirectTo: `http://localhost:3000/auth/callback`,
       },
     });
 

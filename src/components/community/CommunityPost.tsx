@@ -3,7 +3,7 @@ import Image from "next/image";
 import defaultImg from "../../assets/images/default_nunew.svg";
 import profile1 from "../../assets/images/default_profile.png";
 import { AiFillLike, AiOutlineLike } from "react-icons/ai";
-import { IoEyeOutline } from "react-icons/io5";
+import { IoChatboxOutline, IoEyeOutline } from "react-icons/io5";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -26,6 +26,7 @@ interface CommunityPostProps {
   title: string;
   content: string;
   views: number;
+  comments?: number;
 }
 export default function CommunityPost({
   postId,
@@ -35,6 +36,7 @@ export default function CommunityPost({
   title,
   content,
   views,
+  comments,
 }: CommunityPostProps) {
   const router = useRouter();
   const [likeCount, setLikeCount] = useState<number>(0);
@@ -168,7 +170,12 @@ export default function CommunityPost({
             {likeCount}
           </p>
 
-          <IoEyeOutline className="ml-[11px] w-4 h-4 text-[var(--color-gray-60)]" />
+          <IoChatboxOutline className="ml-[11px] w-5 h-5 text-[var(--color-gray-60)]" />
+          <p className="ml-[3px] text-[var(--color-gray-70)] text-[13px]">
+            {comments ?? 0}
+          </p>
+
+          <IoEyeOutline className="ml-[11px] w-5 h-5 text-[var(--color-gray-60)]" />
           <p className="ml-[3px] text-[var(--color-gray-70)] text-[13px]">
             {views ?? 0}
           </p>

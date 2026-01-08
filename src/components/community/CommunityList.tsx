@@ -19,7 +19,6 @@ import CommunityPostSkel from "./Skeleton/CommunityPostSkel";
 import { categoryGroupMap, categoryIdInvMap } from "@/lib/categoryUUID";
 import { toast } from "sonner";
 import { useAuthStore } from "@/stores/authStore";
-import { usePostComments } from "@/hooks/usePostComments";
 
 export default function CommunityList() {
   const [selected, setSelected] = useState("all");

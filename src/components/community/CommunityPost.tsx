@@ -26,7 +26,7 @@ interface CommunityPostProps {
   title: string;
   content: string;
   views: number;
-  comments: number;
+  comments?: number;
 }
 export default function CommunityPost({
   postId,

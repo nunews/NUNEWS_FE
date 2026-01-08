@@ -216,7 +216,7 @@ export default function NewsArticleContent({
 
       {/* 기사 내용 */}
       <div className="mb-7.5">
-        <div className="text-base leading-[160%] dark:text-[var(--cokor-gray-400)] whitespace-pre-line text-[var(--color-gray-100)]">
+        <div className="text-base leading-[160%] dark:text-[var(--color-gray-40)] whitespace-pre-line text-[var(--color-gray-100)]">
           {newsData.content}
         </div>
       </div>

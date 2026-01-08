@@ -15,22 +15,20 @@ export default function CommunityPostDetail() {
   const hasIncrementedView = useRef(false);
   const queryClient = useQueryClient();
 
-  const {
-    data: postDetailData,
-    isLoading: isPostDetailLoading,
-  } = useQuery<Post>({
-    queryKey: ["postDetail1", postId],
-    queryFn: async () => {
-      const post = await fetchPostById(postId as string);
-      if (!post) {
-        console.error("게시글 정보가 없습니다");
-        return;
-      }
-      return post;
-    },
-    enabled: !!postId,
-    staleTime: 0,
-  });
+  const { data: postDetailData, isLoading: isPostDetailLoading } =
+    useQuery<Post>({
+      queryKey: ["postDetail1", postId],
+      queryFn: async () => {
+        const post = await fetchPostById(postId as string);
+        if (!post) {
+          console.error("게시글 정보가 없습니다");
+          return;
+        }
+        return post;
+      },
+      enabled: !!postId,
+      staleTime: 0,
+    });
 
   // 조회수 증가 mutation
   const { mutate: incrementViewCount } = useMutation({
@@ -40,13 +38,16 @@ export default function CommunityPostDetail() {
 
       const previousData = queryClient.getQueryData(["postDetail1", postId]);
 
-      queryClient.setQueryData(["postDetail1", postId], (old: Post | undefined) => {
-        if (!old) return old;
-        return {
-          ...old,
-          view_count: (old.view_count || 0) + 1,
-        };
-      });
+      queryClient.setQueryData(
+        ["postDetail1", postId],
+        (old: Post | undefined) => {
+          if (!old) return old;
+          return {
+            ...old,
+            view_count: (old.view_count || 0) + 1,
+          };
+        }
+      );
 
       return { previousData };
     },
@@ -83,6 +84,7 @@ export default function CommunityPostDetail() {
           <>
             <CommunityPostDetailContent
               writerId={writerId!}
+              postId={postId!}
               categoryId={postDetailData.category_id}
               title={postDetailData.title}
               content_image={postDetailData.content_image}

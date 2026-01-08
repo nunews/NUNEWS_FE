@@ -82,7 +82,7 @@ export default function Comment({
                 height={36}
                 className="shrink-0 rounded-full w-9 h-9 object-cover"
               />
-              <div className="flex flex-col ml-3 w-full ">
+              <div className="flex flex-col ml-3 w-[90%]">
                 <div className="flex items-center gap-2">
                   <span className="text-[var(--color-gray-100)] dark:text-[var(--color-white)] text-base font-semibold">
                     {commentWriterData?.nickname}
@@ -113,7 +113,7 @@ export default function Comment({
                 )}
               </div>
             </div>
-            {userId === commentUserId && (
+            {!isEditing && userId === commentUserId && (
               <IconButton
                 icon={AiOutlineMore}
                 size={24}

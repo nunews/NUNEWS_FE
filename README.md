@@ -8,7 +8,7 @@ AI 기반 뉴스 요약과 사용자 맞춤형 추천을 통해 더 쉽고 빠�
 <table>
   <tr>
     <td align="center">
-      <img src="https://avatars.githubusercontent.com/u/70631889?v=4" width="150">
+      <img src="https://avatars.githubusercontent.com/u/70631889?v=4" width="150"><br />
       <strong>박은서</strong><br />
       <a href="https://github.com/snowari">@snowari</a><br />
       <sub>Frontend</sub>

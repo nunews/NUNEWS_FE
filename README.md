@@ -31,7 +31,7 @@ AI 기반 뉴스 요약과 사용자 맞춤형 추천을 통해 더 쉽고 빠�
       <img src="https://avatars.githubusercontent.com/u/100776779?v=4" width="150px" /><br />
       <strong>구민지</strong><br />
       <a href="https://github.com/amykoomj">@amykoomj</a><br />
-      <sub>Backend</sub>
+      <sub>Frontend</sub>
     </td>
   </tr>
 </table>

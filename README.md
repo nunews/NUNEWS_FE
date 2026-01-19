@@ -4,6 +4,36 @@
 
 AI 기반 뉴스 요약과 사용자 맞춤형 추천을 통해 더 쉽고 빠르게 뉴스를 소비할 수 있는 소셜 뉴스 플랫폼입니다.
 
+## 팀원 소개
+<table>
+  <tr>
+    <td align="center">
+      <img src="https://avatars.githubusercontent.com/u/70631889?v=4" width="150">
+      <strong>박은서</strong><br />
+      <a href="https://github.com/snowari">@snowari</a><br />
+      <sub>Frontend</sub>
+    </td>
+    <td align="center">
+      <img src="https://avatars.githubusercontent.com/u/153171193?v=4" width="150px" /><br />
+      <strong>김보민</strong><br />
+      <a href="https://github.com/marchbom">@marchbom</a><br />
+      <sub>Frontend</sub>
+    </td>
+    <td align="center">
+      <img src="https://avatars.githubusercontent.com/u/145523906?v=4" width="150px" /><br />
+      <strong>유강민</strong><br />
+      <a href="https://github.com/dkawoindsa">@dkawoindsa</a><br />
+      <sub>Backend</sub>
+    </td>
+    <td align="center">
+      <img src="https://avatars.githubusercontent.com/u/100776779?v=4" width="150px" /><br />
+      <strong>구민지</strong><br />
+      <a href="https://github.com/amykoomj">@amykoomj</a><br />
+      <sub>Backend</sub>
+    </td>
+  </tr>
+</table>
+
 ## 주요 기능
 
 ### 누픽 (NuPick) - 맞춤형 뉴스 피드

@@ -4,6 +4,8 @@
 
 AI 기반 뉴스 요약과 사용자 맞춤형 추천을 통해 더 쉽고 빠르게 뉴스를 소비할 수 있는 소셜 뉴스 플랫폼입니다.
 
+<img width="1440" height="600" alt="image" src="https://github.com/user-attachments/assets/db6a9169-e897-4346-8e80-301cd63058ec" />
+
 ---
 
 ## 팀원 소개
